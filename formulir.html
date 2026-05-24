@@ -1,0 +1,3095 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulir SPMI BMP — IAI STIBA Makassar</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1B3A6B;
+  --navy-dark: #102347;
+  --navy-light: #2A4F8F;
+  --gold: #C5922A;
+  --gold-light: #E8B84B;
+  --gold-pale: #FDF6E3;
+  --cream: #FAFAF7;
+  --border: #D8D8D0;
+  --text: #1A1A1A;
+  --text-muted: #6B6B6B;
+  --sidebar-w: 260px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px;
+  background: var(--cream);
+  color: var(--text);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--navy);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#sidebar-header {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+#sidebar-header .inst { font-family: 'Lora', serif; font-size: 13px; font-weight: 600; color: var(--gold-light); letter-spacing: 0.5px; }
+#sidebar-header .title { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 2px; line-height: 1.4; }
+#sidebar-header .badge { display: inline-block; margin-top: 8px; background: var(--gold); color: var(--navy-dark); font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 10px; letter-spacing: 0.5px; }
+
+#nav-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+.nav-section { padding: 10px 14px 4px; font-size: 9.5px; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.35); font-weight: 600; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,0.07); }
+.nav-item.active { background: rgba(197,146,42,0.18); border-left-color: var(--gold); }
+.nav-item .code {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; flex-shrink: 0;
+  color: var(--gold-light);
+}
+.nav-item.active .code { background: var(--gold); color: var(--navy-dark); }
+.nav-item .label { font-size: 12px; line-height: 1.3; color: rgba(255,255,255,0.75); }
+.nav-item.active .label { color: #fff; font-weight: 500; }
+
+/* ── MAIN ── */
+#main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  background: var(--cream);
+}
+
+/* ── TOPBAR ── */
+#topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+#topbar .breadcrumb { font-size: 12px; color: var(--text-muted); }
+#topbar .breadcrumb span { color: var(--navy); font-weight: 600; }
+#topbar-actions { display: flex; gap: 8px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 6px;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: none; transition: all 0.15s;
+}
+.btn-print { background: var(--navy); color: #fff; }
+.btn-print:hover { background: var(--navy-light); }
+.btn-reset { background: #fff; color: var(--text-muted); border: 1px solid var(--border); }
+.btn-reset:hover { border-color: #999; color: var(--text); }
+.btn-save { background: var(--gold); color: var(--navy-dark); }
+.btn-save:hover { background: var(--gold-light); }
+.save-msg { font-size: 11px; color: #2e7d32; font-weight: 500; display: none; }
+
+/* ── FORM AREA ── */
+#form-area { padding: 24px 28px 48px; max-width: 900px; }
+
+/* ── DOC HEADER ── */
+.doc-header {
+  background: var(--navy);
+  color: #fff;
+  border-radius: 10px 10px 0 0;
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.doc-header .doc-title { font-family: 'Lora', serif; font-size: 16px; font-weight: 700; }
+.doc-header .doc-subtitle { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.doc-header .doc-code { text-align: right; }
+.doc-header .doc-code .kode { font-size: 12px; font-weight: 700; color: var(--gold-light); }
+.doc-header .doc-code .info { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.doc-body {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 0 0 10px 10px;
+  border-top: none;
+  padding: 20px 24px 24px;
+  margin-bottom: 20px;
+}
+
+/* ── FORM FIELDS ── */
+.meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.meta-grid.cols2 { grid-template-columns: repeat(2, 1fr); }
+.meta-grid.cols1 { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.field input, .field textarea, .field select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-family: inherit; font-size: 13px;
+  background: var(--cream);
+  color: var(--text);
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  outline: none; border-color: var(--navy); background: #fff;
+}
+.field textarea { resize: vertical; min-height: 70px; }
+
+/* ── SECTION DIVIDER ── */
+.sec-title {
+  font-family: 'Lora', serif; font-size: 13px; font-weight: 700;
+  color: var(--navy);
+  padding: 8px 0 6px;
+  border-bottom: 2px solid var(--gold);
+  margin: 16px 0 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-title .sec-letter {
+  background: var(--gold); color: var(--navy-dark);
+  width: 22px; height: 22px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; flex-shrink: 0;
+}
+
+/* ── TABLES ── */
+.tbl-wrap { overflow-x: auto; margin-bottom: 16px; }
+table.form-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.form-tbl th {
+  background: var(--navy); color: #fff;
+  padding: 8px 8px; text-align: left;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+table.form-tbl th:first-child { border-radius: 6px 0 0 0; }
+table.form-tbl th:last-child { border-radius: 0 6px 0 0; }
+table.form-tbl td { border: 1px solid #E5E5DF; padding: 0; vertical-align: top; }
+table.form-tbl tr:nth-child(even) td { background: #FAFAF5; }
+table.form-tbl td input, table.form-tbl td select, table.form-tbl td textarea {
+  border: none; padding: 6px 7px;
+  background: transparent; width: 100%; font-family: inherit; font-size: 12.5px;
+  color: var(--text);
+}
+table.form-tbl td input:focus, table.form-tbl td select:focus, table.form-tbl td textarea:focus {
+  outline: 1px solid var(--navy); outline-offset: -1px; background: #fffef5;
+}
+table.form-tbl td.num { text-align: center; color: var(--text-muted); font-size: 11px; padding: 6px 4px; width: 32px; }
+table.form-tbl .add-row-btn {
+  background: transparent; border: none; cursor: pointer;
+  color: var(--navy); font-size: 11px; font-weight: 600;
+  padding: 6px 10px; text-decoration: underline;
+  display: block; margin: 6px 0;
+}
+
+/* ── CHECKLIST ── */
+.ck-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ck-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--cream);
+}
+.ck-item .ck-code { font-size: 11px; font-weight: 700; color: var(--gold); min-width: 24px; }
+.ck-item .ck-text { flex: 1; }
+.ck-item .ck-label { font-size: 12.5px; font-weight: 500; color: var(--text); }
+.ck-item .ck-std { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.ck-item .ck-btns { display: flex; gap: 6px; flex-shrink: 0; }
+.ck-btn {
+  padding: 3px 9px; border-radius: 4px; font-size: 11px; font-weight: 600;
+  cursor: pointer; border: 1.5px solid var(--border); background: #fff;
+  transition: all 0.12s;
+}
+.ck-btn[data-val="lulus"].active { background: #2e7d32; border-color: #2e7d32; color: #fff; }
+.ck-btn[data-val="revisi"].active { background: #c62828; border-color: #c62828; color: #fff; }
+
+/* ── SIGN ROW ── */
+.sign-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  margin-top: 20px; padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.sign-box { text-align: center; }
+.sign-box .sign-title { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 3px; }
+.sign-box .sign-line {
+  border: none; border-bottom: 1px dashed var(--border);
+  width: 100%; background: transparent; padding: 4px 0;
+  font-family: inherit; font-size: 13px; text-align: center; color: var(--text);
+}
+.sign-box .sign-date { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.sign-space { height: 52px; }
+
+/* ── KPI TABLE ── */
+.kpi-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 12px; }
+.kpi-tbl th { background: var(--navy-dark); color: #fff; padding: 7px 10px; font-size: 11px; font-weight: 600; }
+.kpi-tbl td { border: 1px solid #E5E5DF; padding: 0; }
+.kpi-tbl .platform-row td { background: #EEF2F8; font-weight: 600; font-size: 12px; color: var(--navy); padding: 5px 10px; }
+.kpi-tbl td input { border: none; padding: 6px 8px; width: 100%; background: transparent; font-family: inherit; font-size: 12.5px; }
+.kpi-tbl td input:focus { outline: 1px solid var(--navy); outline-offset: -1px; background: #fffef5; }
+
+/* ── STATUS BADGE ── */
+.status-sel {
+  border: none; padding: 4px 6px; font-family: inherit; font-size: 12px; background: transparent; width: 100%;
+}
+
+/* ── REFERENCE TABLE ── */
+.ref-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.ref-tbl th { background: var(--navy); color: #fff; padding: 9px 12px; text-align: left; font-size: 11px; font-weight: 600; }
+.ref-tbl td { border: 1px solid #E5E5DF; padding: 8px 12px; vertical-align: top; }
+.ref-tbl tr:nth-child(even) td { background: #FAFAF5; }
+.ref-tbl td:first-child { font-weight: 600; color: var(--navy); white-space: nowrap; }
+
+/* ── LETTER FORMAT ── */
+.letter-body { padding: 0 8px; font-size: 13px; line-height: 1.8; }
+.letter-body .letter-to { margin: 12px 0; }
+.letter-meta-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.letter-meta-row label { font-size: 12px; font-weight: 600; color: var(--text-muted); min-width: 120px; }
+.letter-meta-row input { flex: 1; border: none; border-bottom: 1px solid var(--border); padding: 3px 4px; font-family: inherit; font-size: 13px; background: transparent; }
+.letter-meta-row input:focus { outline: none; border-bottom-color: var(--navy); background: #fffef5; }
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin: 4px 0; }
+.checkbox-item { display: flex; align-items: center; gap: 5px; font-size: 12.5px; cursor: pointer; }
+.checkbox-item input[type=checkbox] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--navy); }
+
+/* ── SURAT BADGE ── */
+.surat-received-row { display: flex; gap: 16px; margin-top: 12px; }
+.received-opt { flex: 1; padding: 10px 12px; border: 2px solid var(--border); border-radius: 6px; display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12.5px; font-weight: 500; }
+.received-opt.sel-yes { border-color: #2e7d32; background: #e8f5e9; }
+.received-opt.sel-partial { border-color: var(--gold); background: #fffde7; }
+.received-opt.sel-no { border-color: #c62828; background: #ffebee; }
+.received-opt input[type=radio] { accent-color: var(--navy); }
+
+/* ── PAGE SELECTOR ── */
+.page-indicator { font-size: 11px; color: var(--text-muted); }
+
+/* ── PRINT ── */
+@media print {
+  body { background: #fff; }
+  #sidebar, #topbar { display: none; }
+  #main { overflow: visible; }
+  #form-area { padding: 0; max-width: 100%; }
+  .doc-header { background: var(--navy) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .doc-body { border: 1px solid #ccc; }
+  .form-page { display: block !important; }
+  .no-print { display: none !important; }
+  .doc-header, table.form-tbl th, .kpi-tbl th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .btn, #topbar-actions { display: none; }
+}
+
+/* ── ANIM ── */
+.form-page { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── TOOLTIP ── */
+.field-hint { font-size: 10.5px; color: var(--gold); margin-top: 2px; font-style: italic; }
+
+/* ── SYNC STATUS ── */
+#sync-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; padding: 4px 10px; border-radius: 20px;
+  font-weight: 500; transition: all 0.3s;
+}
+#sync-status.status-local { background: #FFF3CD; color: #856404; }
+#sync-status.status-synced { background: #D1FAE5; color: #065F46; }
+#sync-status.status-saving { background: #DBEAFE; color: #1E40AF; }
+#sync-status.status-error { background: #FEE2E2; color: #991B1B; }
+#sync-status.status-none { background: #F3F4F6; color: #6B7280; }
+#sync-status .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.status-local .dot { background: #D97706; }
+.status-synced .dot { background: #059669; animation: pulse 2s infinite; }
+.status-saving .dot { background: #3B82F6; animation: blink 0.8s infinite; }
+.status-error .dot { background: #DC2626; }
+.status-none .dot { background: #9CA3AF; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── SETTINGS MODAL ── */
+#settings-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 999;
+  align-items: center; justify-content: center;
+}
+#settings-overlay.open { display: flex; }
+#settings-modal {
+  background: #fff; border-radius: 12px;
+  width: 520px; max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+#settings-modal .modal-header {
+  background: var(--navy); color: #fff;
+  padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+}
+#settings-modal .modal-header h3 { font-family: 'Lora', serif; font-size: 15px; font-weight: 600; }
+#settings-modal .modal-close { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 20px; cursor: pointer; line-height:1; }
+#settings-modal .modal-close:hover { color: #fff; }
+#settings-modal .modal-body { padding: 20px; }
+#settings-modal .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; background: #FAFAF7; }
+
+.setup-step {
+  display: flex; gap: 12px; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;
+  background: var(--cream);
+}
+.setup-step .step-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--navy); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+}
+.setup-step .step-text { font-size: 12.5px; line-height: 1.5; }
+.setup-step .step-text strong { color: var(--navy); }
+.setup-step .step-text code {
+  background: #E8EDF5; padding: 1px 5px; border-radius: 3px;
+  font-family: monospace; font-size: 11.5px; color: var(--navy-dark);
+}
+
+.conn-test { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.conn-result { font-size: 12px; }
+.conn-ok { color: #065F46; }
+.conn-err { color: #991B1B; }
+.gs-link { color: var(--gold); text-decoration: underline; font-size: 12px; }
+
+/* ── PDF OVERLAY ── */
+#pdf-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 999;
+  align-items: center; justify-content: center;
+}
+#pdf-overlay.open { display: flex; }
+#pdf-modal {
+  background: #fff; border-radius: 12px;
+  width: 420px; max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+#pdf-modal .modal-header { background: var(--navy); color: #fff; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+#pdf-modal .modal-header h3 { font-family: 'Lora', serif; font-size: 14px; font-weight: 600; }
+#pdf-modal .modal-body { padding: 18px; font-size: 13px; line-height: 1.7; }
+#pdf-modal .modal-body ol { padding-left: 18px; }
+#pdf-modal .modal-body li { margin-bottom: 6px; }
+#pdf-modal .modal-footer { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; background: #FAFAF7; }
+.pdf-step { display:flex; align-items:flex-start; gap:10px; padding:8px 10px; border:1px solid var(--border); border-radius:7px; margin-bottom:7px; }
+.pdf-step .ps-icon { font-size:18px; flex-shrink:0; }
+
+/* ── WELCOME ── */
+#welcome-screen {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 60vh; text-align: center; padding: 40px;
+}
+#welcome-screen .w-icon { font-size: 48px; margin-bottom: 16px; }
+#welcome-screen h2 { font-family: 'Lora', serif; font-size: 22px; color: var(--navy); margin-bottom: 8px; }
+#welcome-screen p { color: var(--text-muted); max-width: 420px; line-height: 1.6; }
+.lampiran-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 24px; }
+.lmp-card {
+  background: #fff; border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.15s;
+}
+.lmp-card:hover { border-color: var(--gold); background: var(--gold-pale); transform: translateY(-2px); }
+/* ── TOAST NOTIFIKASI ── */
+#toast-container {
+  position: fixed; bottom: 24px; right: 24px;
+  z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #fff; border-radius: 10px;
+  padding: 12px 16px; min-width: 280px; max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  border-left: 4px solid var(--navy);
+  animation: toastIn 0.3s ease;
+  pointer-events: auto;
+}
+.toast.toast-notif { border-left-color: var(--gold); }
+.toast.toast-success { border-left-color: #059669; }
+.toast.toast-error { border-left-color: #DC2626; }
+.toast.toast-out { animation: toastOut 0.3s ease forwards; }
+.toast-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.toast-body { flex: 1; }
+.toast-title { font-size: 12.5px; font-weight: 700; color: var(--text); }
+.toast-msg { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+.toast-close { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 14px; padding: 0; flex-shrink: 0; }
+.toast-close:hover { color: var(--text); }
+@keyframes toastIn { from { opacity:0; transform: translateX(40px); } to { opacity:1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity:1; transform: translateX(0); } to { opacity:0; transform: translateX(40px); } }
+
+/* ── PDF PRINT MODE ── */
+@media print {
+  body { background: #fff; }
+  #sidebar, #topbar, #toast-container { display: none !important; }
+  #main { overflow: visible; }
+  #form-area { padding: 0; max-width: 100%; }
+  .form-page { display: none !important; }
+  .form-page.printing { display: block !important; }
+  #form-welcome { display: none !important; }
+  .no-print { display: none !important; }
+  .doc-header { background: var(--navy) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .doc-body { border: 1px solid #ccc; }
+  table.form-tbl th, .kpi-tbl th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { margin: 15mm; size: A4 portrait; }
+}
+</style>
+</head>
+<body>
+<div id="bmp-back" style="position:fixed;top:12px;right:12px;z-index:9999">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#C5922A;color:#102347;font-weight:800;font-size:12px;padding:8px 14px;border-radius:20px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25);font-family:sans-serif">← Portal BMP</a>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div id="sidebar-header">
+    <div class="inst">IAI STIBA Makassar</div>
+    <div class="title">Bagian Media dan Pers (BMP)</div>
+    <div class="badge">SPMI 2026</div>
+  </div>
+  <div id="nav-list">
+    <div class="nav-section">Referensi</div>
+    <div class="nav-item" data-form="A" onclick="showForm('A')">
+      <div class="code">A</div>
+      <div class="label">Peta 14 Standar BMP</div>
+    </div>
+    <div class="nav-item" data-form="O" onclick="showForm('O')">
+      <div class="code">O</div>
+      <div class="label">Daftar Singkatan & Istilah</div>
+    </div>
+    <div class="nav-section">Konten Digital</div>
+    <div class="nav-item" data-form="B" onclick="showForm('B')">
+      <div class="code">B</div>
+      <div class="label">Editorial Plan Konten</div>
+    </div>
+    <div class="nav-item" data-form="C" onclick="showForm('C')">
+      <div class="code">C</div>
+      <div class="label">Logbook Unggahan</div>
+    </div>
+    <div class="nav-item" data-form="D" onclick="showForm('D')">
+      <div class="code">D</div>
+      <div class="label">Checklist Kendali Mutu</div>
+    </div>
+    <div class="nav-section">Pemberitaan</div>
+    <div class="nav-item" data-form="E" onclick="showForm('E')">
+      <div class="code">E</div>
+      <div class="label">Register Arsip Berita</div>
+    </div>
+    <div class="nav-item" data-form="F" onclick="showForm('F')">
+      <div class="code">F</div>
+      <div class="label">Daftar Narasumber</div>
+    </div>
+    <div class="nav-section">Podcast & Video</div>
+    <div class="nav-item" data-form="G" onclick="showForm('G')">
+      <div class="code">G</div>
+      <div class="label">Script Podcast</div>
+    </div>
+    <div class="nav-item" data-form="H" onclick="showForm('H')">
+      <div class="code">H</div>
+      <div class="label">Log Produksi Video</div>
+    </div>
+    <div class="nav-section">Evaluasi & Pelaporan</div>
+    <div class="nav-item" data-form="I" onclick="showForm('I')">
+      <div class="code">I</div>
+      <div class="label">Monthly Insight</div>
+    </div>
+    <div class="nav-item" data-form="J" onclick="showForm('J')">
+      <div class="code">J</div>
+      <div class="label">Dokumen RTL</div>
+    </div>
+    <div class="nav-section">Operasional</div>
+    <div class="nav-item" data-form="K" onclick="showForm('K')">
+      <div class="code">K</div>
+      <div class="label">Surat Tugas Peliputan</div>
+    </div>
+    <div class="nav-item" data-form="L" onclick="showForm('L')">
+      <div class="code">L</div>
+      <div class="label">Berita Acara Review Redaksi</div>
+    </div>
+    <div class="nav-item" data-form="M" onclick="showForm('M')">
+      <div class="code">M</div>
+      <div class="label">Notula Rapat Koordinasi</div>
+    </div>
+    <div class="nav-item" data-form="N" onclick="showForm('N')">
+      <div class="code">N</div>
+      <div class="label">Form Permintaan Konten</div>
+    </div>
+    <div class="nav-section">Publikasi Digital</div>
+    <div class="nav-item" data-form="P" onclick="showForm('P')">
+      <div class="code">P</div>
+      <div class="label">Rekap Tautan Konten</div>
+    </div>
+    <div class="nav-section">Desain & Visual</div>
+    <div class="nav-item" data-form="Q" onclick="showForm('Q')">
+      <div class="code">Q</div>
+      <div class="label">Portofolio Aset Visual</div>
+    </div>
+    <div class="nav-section">Analisis Kinerja Media</div>
+    <div class="nav-item" data-form="R" onclick="showForm('R')">
+      <div class="code">R</div>
+      <div class="label">Evaluasi Strategi Konten</div>
+    </div>
+    <div class="nav-item" data-form="S" onclick="showForm('S')">
+      <div class="code">S</div>
+      <div class="label">Data Pemetaan Audiens</div>
+    </div>
+    <div class="nav-section">Arsip Digital</div>
+    <div class="nav-item" data-form="T" onclick="showForm('T')">
+      <div class="code">T</div>
+      <div class="label">Katalog Arsip Digital</div>
+    </div>
+    <div class="nav-item" data-form="U" onclick="showForm('U')">
+      <div class="code">U</div>
+      <div class="label">Logbook Dokumentasi</div>
+    </div>
+    <div class="nav-item" data-form="V" onclick="showForm('V')">
+      <div class="code">V</div>
+      <div class="label">Storage Directory</div>
+    </div>
+    <div class="nav-section">Press Kit & Media</div>
+    <div class="nav-item" data-form="W" onclick="showForm('W')">
+      <div class="code">W</div>
+      <div class="label">Master Press Kit</div>
+    </div>
+    <div class="nav-item" data-form="X" onclick="showForm('X')">
+      <div class="code">X</div>
+      <div class="label">Distribusi Media</div>
+    </div>
+    <div class="nav-item" data-form="Y" onclick="showForm('Y')">
+      <div class="code">Y</div>
+      <div class="label">Bukti Tayang Eksternal</div>
+    </div>
+    <div class="nav-section">Jurnal Akhbar STIBA</div>
+    <div class="nav-item" data-form="Z" onclick="showForm('Z')">
+      <div class="code">Z</div>
+      <div class="label">Dummy Jurnal</div>
+    </div>
+    <div class="nav-item" data-form="P2" onclick="showForm('P2')">
+      <div class="code" style="font-size:9px">P2</div>
+      <div class="label">Bukti Terbit Jurnal</div>
+    </div>
+    <div class="nav-section">Peliputan Strategis</div>
+    <div class="nav-item" data-form="P3" onclick="showForm('P3')">
+      <div class="code" style="font-size:9px">P3</div>
+      <div class="label">Lembar Kendali Liputan</div>
+    </div>
+    <div class="nav-item" data-form="P4" onclick="showForm('P4')">
+      <div class="code" style="font-size:9px">P4</div>
+      <div class="label">Laporan Peliputan Bulanan</div>
+    </div>
+    <div class="nav-section">Kompetensi Tim</div>
+    <div class="nav-item" data-form="P5" onclick="showForm('P5')">
+      <div class="code" style="font-size:9px">P5</div>
+      <div class="label">Matriks Kompetensi Staf</div>
+    </div>
+    <div class="nav-item" data-form="P6" onclick="showForm('P6')">
+      <div class="code" style="font-size:9px">P6</div>
+      <div class="label">Modul Pelatihan</div>
+    </div>
+    <div class="nav-item" data-form="P7" onclick="showForm('P7')">
+      <div class="code" style="font-size:9px">P7</div>
+      <div class="label">Sertifikat Pelatihan</div>
+    </div>
+    <div class="nav-item" data-form="P8" onclick="showForm('P8')">
+      <div class="code" style="font-size:9px">P8</div>
+      <div class="label">SOP Kerja Tim</div>
+    </div>
+    <div class="nav-section">Sarana & Aplikasi</div>
+    <div class="nav-item" data-form="P9" onclick="showForm('P9')">
+      <div class="code" style="font-size:9px">P9</div>
+      <div class="label">Inventaris Perangkat</div>
+    </div>
+    <div class="nav-item" data-form="P10" onclick="showForm('P10')">
+      <div class="code" style="font-size:8px">P10</div>
+      <div class="label">Bukti Lisensi Software</div>
+    </div>
+    <div class="nav-item" data-form="P11" onclick="showForm('P11')">
+      <div class="code" style="font-size:8px">P11</div>
+      <div class="label">Jadwal Perawatan Alat</div>
+    </div>
+    <div class="nav-section">Kolaborasi Internal</div>
+    <div class="nav-item" data-form="P12" onclick="showForm('P12')">
+      <div class="code" style="font-size:8px">P12</div>
+      <div class="label">Kalender Kolaborasi</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="breadcrumb">Dokumen SPMI BMP &rsaquo; <span id="current-title">Pilih Lampiran</span></div>
+      <div id="sync-status" class="status-none"><div class="dot"></div><span id="sync-text">Belum terhubung ke Sheets</span></div>
+    </div>
+    <div id="topbar-actions">
+      <button class="btn btn-reset no-print" onclick="resetForm()">&#x21BA; Reset</button>
+      <button class="btn btn-save no-print" onclick="saveForm()">&#x2191; Simpan</button>
+      <button class="btn no-print" style="background:#fff;border:1px solid var(--border);color:var(--text-muted)" onclick="exportPDF()">📄 Ekspor PDF</button>
+      <button class="btn no-print" style="background:#fff;border:1px solid var(--border);color:var(--navy)" onclick="openSettings()">&#9881; Pengaturan</button>
+    </div>
+  </div>
+
+  <div id="form-area">
+    <!-- WELCOME -->
+    <div id="form-welcome">
+      <div id="welcome-screen">
+        <div class="w-icon">📋</div>
+        <h2>Formulir SPMI BMP IAI STIBA Makassar</h2>
+        <p>Pilih lampiran dari menu kiri, atau klik kartu di bawah ini untuk mulai mengisi formulir. Data tersimpan otomatis di perangkat Anda.</p>
+        <div class="lampiran-grid">
+          <div class="lmp-card" onclick="showForm('A')"><div class="lc">A</div><div class="ll">Peta 14 Standar</div></div>
+          <div class="lmp-card" onclick="showForm('B')"><div class="lc">B</div><div class="ll">Editorial Plan</div></div>
+          <div class="lmp-card" onclick="showForm('C')"><div class="lc">C</div><div class="ll">Logbook Unggahan</div></div>
+          <div class="lmp-card" onclick="showForm('D')"><div class="lc">D</div><div class="ll">Checklist KM</div></div>
+          <div class="lmp-card" onclick="showForm('E')"><div class="lc">E</div><div class="ll">Register Arsip Berita</div></div>
+          <div class="lmp-card" onclick="showForm('F')"><div class="lc">F</div><div class="ll">Daftar Narasumber</div></div>
+          <div class="lmp-card" onclick="showForm('G')"><div class="lc">G</div><div class="ll">Script Podcast</div></div>
+          <div class="lmp-card" onclick="showForm('H')"><div class="lc">H</div><div class="ll">Log Produksi Video</div></div>
+          <div class="lmp-card" onclick="showForm('I')"><div class="lc">I</div><div class="ll">Monthly Insight</div></div>
+          <div class="lmp-card" onclick="showForm('J')"><div class="lc">J</div><div class="ll">Dokumen RTL</div></div>
+          <div class="lmp-card" onclick="showForm('K')"><div class="lc">K</div><div class="ll">Surat Tugas</div></div>
+          <div class="lmp-card" onclick="showForm('L')"><div class="lc">L</div><div class="ll">Berita Acara Review</div></div>
+          <div class="lmp-card" onclick="showForm('M')"><div class="lc">M</div><div class="ll">Notula Rapat</div></div>
+          <div class="lmp-card" onclick="showForm('N')"><div class="lc">N</div><div class="ll">Form Permintaan Konten</div></div>
+          <div class="lmp-card" onclick="showForm('O')"><div class="lc">O</div><div class="ll">Singkatan & Istilah</div></div>
+          <div class="lmp-card" onclick="showForm('P')"><div class="lc">P</div><div class="ll">Rekap Tautan</div></div>
+          <div class="lmp-card" onclick="showForm('Q')"><div class="lc">Q</div><div class="ll">Portofolio Visual</div></div>
+          <div class="lmp-card" onclick="showForm('R')"><div class="lc">R</div><div class="ll">Evaluasi Strategi</div></div>
+          <div class="lmp-card" onclick="showForm('S')"><div class="lc">S</div><div class="ll">Pemetaan Audiens</div></div>
+          <div class="lmp-card" onclick="showForm('T')"><div class="lc">T</div><div class="ll">Katalog Arsip</div></div>
+          <div class="lmp-card" onclick="showForm('U')"><div class="lc">U</div><div class="ll">Logbook Dok.</div></div>
+          <div class="lmp-card" onclick="showForm('V')"><div class="lc">V</div><div class="ll">Storage Dir.</div></div>
+          <div class="lmp-card" onclick="showForm('W')"><div class="lc">W</div><div class="ll">Master Press Kit</div></div>
+          <div class="lmp-card" onclick="showForm('X')"><div class="lc">X</div><div class="ll">Distribusi Media</div></div>
+          <div class="lmp-card" onclick="showForm('Y')"><div class="lc">Y</div><div class="ll">Bukti Tayang</div></div>
+          <div class="lmp-card" onclick="showForm('Z')"><div class="lc">Z</div><div class="ll">Dummy Jurnal</div></div>
+          <div class="lmp-card" onclick="showForm('P2')"><div class="lc" style="font-size:11px">P2</div><div class="ll">Bukti Terbit Jurnal</div></div>
+          <div class="lmp-card" onclick="showForm('P3')"><div class="lc" style="font-size:11px">P3</div><div class="ll">Kendali Liputan</div></div>
+          <div class="lmp-card" onclick="showForm('P4')"><div class="lc" style="font-size:11px">P4</div><div class="ll">Laporan Peliputan</div></div>
+          <div class="lmp-card" onclick="showForm('P5')"><div class="lc" style="font-size:11px">P5</div><div class="ll">Matriks Kompetensi</div></div>
+          <div class="lmp-card" onclick="showForm('P6')"><div class="lc" style="font-size:11px">P6</div><div class="ll">Modul Pelatihan</div></div>
+          <div class="lmp-card" onclick="showForm('P7')"><div class="lc" style="font-size:11px">P7</div><div class="ll">Sertifikat Pelatihan</div></div>
+          <div class="lmp-card" onclick="showForm('P8')"><div class="lc" style="font-size:11px">P8</div><div class="ll">SOP Kerja Tim</div></div>
+          <div class="lmp-card" onclick="showForm('P9')"><div class="lc" style="font-size:11px">P9</div><div class="ll">Inventaris Perangkat</div></div>
+          <div class="lmp-card" onclick="showForm('P10')"><div class="lc" style="font-size:10px">P10</div><div class="ll">Lisensi Software</div></div>
+          <div class="lmp-card" onclick="showForm('P11')"><div class="lc" style="font-size:10px">P11</div><div class="ll">Jadwal Perawatan</div></div>
+          <div class="lmp-card" onclick="showForm('P12')"><div class="lc" style="font-size:10px">P12</div><div class="ll">Kalender Kolaborasi</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM A: Peta 14 Standar -->
+    <div id="form-A" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Peta 14 Standar BMP — Indikator — Dokumen Bukti</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">LAMPIRAN A</div><div class="info">Referensi · Tidak dapat diedit</div></div>
+      </div>
+      <div class="doc-body">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Gunakan tabel ini sebagai referensi cepat: standar nomor berapa, indikator apa, dan dokumen apa yang harus disiapkan.</p>
+        <div class="tbl-wrap">
+          <table class="ref-tbl">
+            <tr><th style="width:30px">No</th><th>Standar</th><th>Indikator Utama</th><th>Dokumen Bukti Utama</th></tr>
+            <tr><td>1</td><td>Produksi Konten Digital</td><td>≥30 konten/bulan di ≥3 platform (100%)</td><td>Editorial Plan, Logbook Unggahan, Rekap Tautan</td></tr>
+            <tr><td>2</td><td>Kendali Mutu Visual</td><td>Nol temuan kesalahan brand; 100% konten lulus checklist</td><td>Checklist KM (Pre-Publish), Status Brand Guideline, Katalog Portofolio Desain</td></tr>
+            <tr><td>3</td><td>Rilis Berita & Artikel Resmi</td><td>≥20 artikel terbit/bulan di website resmi</td><td>Register Arsip Berita, Daftar Narasumber, Laporan Trafik Website</td></tr>
+            <tr><td>4</td><td>Program STIBA Podcast</td><td>≥1 episode/bulan di YouTube; kualitas audio-visual jernih</td><td>Script Podcast, Log Produksi Video, Laporan YT Analytics</td></tr>
+            <tr><td>5</td><td>Evaluasi Kinerja Platform Digital</td><td>1 laporan analitik/bulan dengan data reach & engagement</td><td>Monthly Insight, Laporan Trafik Website, Data Pemetaan Audiens</td></tr>
+            <tr><td>6</td><td>Perpustakaan Arsip Digital</td><td>≥10 aset foto/video terindeks/bulan dalam struktur folder sistematis</td><td>Katalog Arsip Digital, Logbook Dokumentasi, Direktori Cloud Storage</td></tr>
+            <tr><td>7</td><td>Press Kit & Media Brief</td><td>≥2 paket press kit/tahun; siap distribusi H-1 kegiatan strategis</td><td>Master Press Kit + Register, Daftar Distribusi Media, Bukti Tayang Eksternal</td></tr>
+            <tr><td>8</td><td>Jurnal Akhbar STIBA</td><td>1 edisi/tahun, cetak + digital, standar tata letak profesional</td><td>Dummy Jurnal, Berita Acara Review Redaksi, Bukti Terbit & Distribusi</td></tr>
+            <tr><td>9</td><td>Peliputan Kegiatan Strategis</td><td>100% kegiatan strategis terliputi; laporan 1x24 jam pasca acara</td><td>Surat Tugas Peliputan, Lembar Kendali Liputan, Laporan Peliputan Bulanan</td></tr>
+            <tr><td>10</td><td>Evaluasi Kinerja Media & KPI</td><td>1 laporan evaluasi/bulan + RTL + bukti eksekusi</td><td>Monthly Insight, Dokumen RTL, Bukti Eksekusi Perbaikan</td></tr>
+            <tr><td>11</td><td>Pengembangan Kompetensi Tim</td><td>≥1 pelatihan/semester; peningkatan skor kompetensi teknis tim</td><td>Matriks Kompetensi, Dokumentasi Pelatihan, Sertifikat, SOP Terbaru</td></tr>
+            <tr><td>12</td><td>Sarana & Aplikasi Multimedia</td><td>100% ketersediaan perangkat dan lisensi software terhadap personel operasional</td><td>Daftar Inventaris Perangkat, Bukti Lisensi Software, Jadwal Perawatan Alat</td></tr>
+            <tr><td>13</td><td>Kolaborasi Internal Lintas Unit</td><td>≥4 pertemuan koordinasi/bulan menghasilkan konten kolaboratif</td><td>Notula Rapat Koordinasi, Form Permintaan Konten, Kalender Kolaborasi</td></tr>
+            <tr><td>14</td><td>Analisis Strategi & Kinerja Media</td><td>Data pemetaan audiens tersedia; rekomendasi strategis berbasis data</td><td>Data Pemetaan Audiens, Database Media, Dokumen Rekomendasi Strategis</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM B: Editorial Plan -->
+    <div id="form-B" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Editorial Plan — Kalender Konten Bulanan</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-3.1</div><div class="info">Isi: awal bulan · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Bulan / Tahun</label><input type="text" id="B-bulan" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Disusun Oleh</label><input type="text" id="B-disusun"></div>
+          <div class="field"><label>Tanggal Penyusunan</label><input type="date" id="B-tgl"></div>
+        </div>
+        <div style="background:var(--gold-pale);border:1px solid var(--gold);border-radius:6px;padding:8px 12px;font-size:12.5px;margin-bottom:14px;color:var(--navy)">
+          <strong>Target Konten Bulan Ini:</strong> 30 konten di minimal 3 platform aktif
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-B">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:50px">Minggu</th>
+              <th style="width:38px">Tgl</th>
+              <th>Rencana Judul / Tema Konten</th>
+              <th style="width:100px">Jenis Konten</th>
+              <th style="width:90px">Platform</th>
+              <th style="width:70px">Format</th>
+              <th style="width:100px">Penanggungjawab</th>
+              <th style="width:80px">Status</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-B', rowB)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Disusun oleh, Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Lengkap"></div>
+          <div class="sign-box"><div class="sign-title">Tanggal Penyusunan</div><div class="sign-space"></div><input class="sign-line" type="date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM C: Logbook Unggahan -->
+    <div id="form-C" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Logbook Unggahan Konten</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-3.2</div><div class="info">Diisi: harian · Pengisi: Admin Platform</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Bulan / Tahun</label><input type="text" id="C-bulan" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Admin Platform</label><input type="text" id="C-admin"></div>
+          <div class="field"><label>Target Konten</label><input type="text" value="30 konten" id="C-target"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-C">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:80px">Tgl Unggah</th>
+              <th style="width:55px">Jam</th>
+              <th>Judul Konten</th>
+              <th style="width:90px">Platform</th>
+              <th style="width:70px">Format</th>
+              <th style="width:160px">Tautan (URL)</th>
+              <th style="width:90px">Admin</th>
+              <th style="width:70px">Status KM</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-C', rowC)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Total konten: ___ / 30 | Diverifikasi Kabag</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Tanggal Verifikasi</div><div class="sign-space"></div><input class="sign-line" type="date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM D: Checklist KM -->
+    <div id="form-D" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Lembar Checklist Kendali Mutu (Pre-Publish)</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-4.1</div><div class="info">Diisi: per konten · Pengisi: Reviewer</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>No. Checklist #</label><input type="text" id="D-no" placeholder="urut per bulan"></div>
+          <div class="field"><label>Nama Pembuat</label><input type="text" id="D-pembuat"></div>
+          <div class="field"><label>Tanggal Diterima</label><input type="date" id="D-tgl-terima"></div>
+          <div class="field" style="grid-column:span 2"><label>Judul Konten</label><input type="text" id="D-judul"></div>
+          <div class="field"><label>Tanggal Selesai Review</label><input type="date" id="D-tgl-review"></div>
+        </div>
+        <div class="meta-grid">
+          <div class="field"><label>Jenis Konten</label>
+            <select id="D-jenis"><option value="">Pilih...</option><option>Infografis</option><option>Quote Grafis</option><option>Foto + Caption</option><option>Reels</option><option>Carousel</option><option>Video</option></select>
+          </div>
+          <div class="field"><label>Platform Tujuan</label>
+            <select id="D-platform"><option value="">Pilih...</option><option>IG Feed</option><option>IG Stories</option><option>IG Reels</option><option>Facebook</option><option>Website</option><option>YouTube</option></select>
+          </div>
+        </div>
+
+        <div class="sec-title"><div class="sec-letter">A</div>Spesifikasi Teknis</div>
+        <div class="ck-grid">
+          <div class="ck-item"><span class="ck-code">A1</span><div class="ck-text"><div class="ck-label">Resolusi Gambar</div><div class="ck-std">Min. 1080×1080px feed; 1080×1920px Stories/Reels</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+          <div class="ck-item"><span class="ck-code">A2</span><div class="ck-text"><div class="ck-label">Format File</div><div class="ck-std">JPG/PNG untuk gambar; MP4 untuk video</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+          <div class="ck-item"><span class="ck-code">A3</span><div class="ck-text"><div class="ck-label">Proporsi Aspek</div><div class="ck-std">1:1 persegi; 4:5 potret; 9:16 Stories/Reels</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+        </div>
+
+        <div class="sec-title"><div class="sec-letter">B</div>Tipografi</div>
+        <div class="ck-grid">
+          <div class="ck-item"><span class="ck-code">B1</span><div class="ck-text"><div class="ck-label">Font yang Digunakan</div><div class="ck-std">Hanya font resmi STIBA sesuai Brand Guideline</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+          <div class="ck-item"><span class="ck-code">B2</span><div class="ck-text"><div class="ck-label">Keterbacaan Teks</div><div class="ck-std">Jelas di layar kecil; kontras memadai</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+          <div class="ck-item"><span class="ck-code">B3</span><div class="ck-text"><div class="ck-label">Hierarki Teks</div><div class="ck-std">Ada perbedaan jelas judul, subjudul, isi</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+        </div>
+
+        <div class="sec-title"><div class="sec-letter">C</div>Layout & Komposisi</div>
+        <div class="ck-grid">
+          <div class="ck-item"><span class="ck-code">C1</span><div class="ck-text"><div class="ck-label">Zona Aman</div><div class="ck-std">Elemen penting tidak di tepi yang berisiko terpotong</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+          <div class="ck-item"><span class="ck-code">C2</span><div class="ck-text"><div class="ck-label">Keseimbangan</div><div class="ck-std">Tidak terlalu padat atau terlalu kosong</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+        </div>
+
+        <div class="sec-title"><div class="sec-letter">D</div>Identitas Visual</div>
+        <div class="ck-grid">
+          <div class="ck-item"><span class="ck-code">D1</span><div class="ck-text"><div class="ck-label">Logo STIBA</div><div class="ck-std">Hadir di konten resmi; posisi dan ukuran sesuai panduan</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+          <div class="ck-item"><span class="ck-code">D2</span><div class="ck-text"><div class="ck-label">Palet Warna</div><div class="ck-std">Sesuai atau harmonis dengan palet resmi STIBA</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+          <div class="ck-item"><span class="ck-code">D3</span><div class="ck-text"><div class="ck-label">Elemen Grafis</div><div class="ck-std">Konsisten dengan identitas visual STIBA</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+        </div>
+
+        <div class="sec-title"><div class="sec-letter">E</div>Konten & Bahasa</div>
+        <div class="ck-grid">
+          <div class="ck-item"><span class="ck-code">E1</span><div class="ck-text"><div class="ck-label">Akurasi Informasi</div><div class="ck-std">Semua data, tanggal, nama sudah diverifikasi</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+          <div class="ck-item"><span class="ck-code">E2</span><div class="ck-text"><div class="ck-label">Ejaan & Tata Bahasa</div><div class="ck-std">Tidak ada kesalahan ejaan atau kalimat ambigu</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+          <div class="ck-item"><span class="ck-code">E3</span><div class="ck-text"><div class="ck-label">Nada Komunikasi</div><div class="ck-std">Islami, profesional, dan hangat</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Lulus</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Revisi</button></div></div>
+        </div>
+
+        <div class="sec-title">Catatan & Keputusan</div>
+        <div class="field"><label>Catatan Revisi</label><textarea id="D-catatan" rows="2" placeholder="Catatan khusus reviewer..."></textarea></div>
+        <div style="display:flex;gap:10px;margin:12px 0">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:500"><input type="radio" name="D-keputusan" value="lulus"> ✅ LULUS — siap diunggah</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:500"><input type="radio" name="D-keputusan" value="minor"> ⚠️ REVISI MINOR — kembalikan ke pembuat</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:500"><input type="radio" name="D-keputusan" value="mayor"> ❌ REVISI MAYOR — produksi ulang</label>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Reviewer</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Reviewer"></div>
+          <div class="sign-box"><div class="sign-title">Tanggal Review</div><div class="sign-space"></div><input class="sign-line" type="date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM E: Register Arsip Berita -->
+    <div id="form-E" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Register Arsip Naskah Berita</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-5.1</div><div class="info">Diisi: setiap artikel terbit · Pengisi: Reporter</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Bulan / Tahun</label><input type="text" id="E-bulan" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Penanggungjawab Redaksi</label><input type="text" id="E-pj"></div>
+          <div class="field"><label>Target</label><input type="text" value="≥20 artikel per bulan" readonly style="color:var(--text-muted)"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-E">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:70px">No. Arsip</th>
+              <th style="width:90px">Tgl Terbit</th>
+              <th>Judul Berita / Artikel</th>
+              <th style="width:100px">Kategori</th>
+              <th style="width:100px">Reporter</th>
+              <th style="width:160px">URL Artikel</th>
+              <th style="width:90px">Status Naskah</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-E', rowE)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Total berita: ___ / 20 (Target) | Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Tanggal Verifikasi</div><div class="sign-space"></div><input class="sign-line" type="date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM F: Daftar Narasumber -->
+    <div id="form-F" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Daftar Narasumber Berita</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-5.2</div><div class="info">Diisi: segera setelah wawancara · Pengisi: Reporter</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid cols2">
+          <div class="field"><label>Bulan / Tahun</label><input type="text" id="F-bulan" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Total Narasumber</label><input type="number" id="F-total" placeholder="0"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-F">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:90px">Tgl Wawancara</th>
+              <th>Untuk Berita</th>
+              <th style="width:130px">Nama Narasumber</th>
+              <th style="width:150px">Jabatan / Instansi</th>
+              <th style="width:130px">Topik</th>
+              <th style="width:90px">Metode</th>
+              <th style="width:100px">Status Konfirmasi</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-F', rowF)">+ Tambah Baris</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM G: Script Podcast -->
+    <div id="form-G" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Script / Naskah Podcast — STIBA Podcast</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-6.1</div><div class="info">Diselesaikan: min. H-3 sebelum syuting · Pengisi: Produser</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Episode ke-</label><input type="number" id="G-ep" placeholder="1"></div>
+          <div class="field"><label>Judul Episode</label><input type="text" id="G-judul"></div>
+          <div class="field"><label>Tema Utama</label><input type="text" id="G-tema"></div>
+          <div class="field" style="grid-column:span 2"><label>Narasumber (Nama + Jabatan + Instansi)</label><input type="text" id="G-narasumber"></div>
+          <div class="field"><label>Host / Pemandu</label><input type="text" id="G-host"></div>
+          <div class="field"><label>Target Durasi</label><input type="text" id="G-durasi" placeholder="±30 menit"></div>
+          <div class="field"><label>Target Audiens</label><input type="text" id="G-audiens"></div>
+          <div class="field" style="grid-column:span 2"><label>Pesan Utama Episode</label><input type="text" id="G-pesan" placeholder="Satu kalimat inti yang ingin disampaikan"></div>
+          <div class="field"><label>Tanggal Syuting Rencana</label><input type="date" id="G-tgl-syuting"></div>
+        </div>
+        <div class="sign-row" style="margin-bottom:16px">
+          <div class="sign-box"><div class="sign-title">Disusun oleh</div><div class="sign-space"></div><input class="sign-line" placeholder="Produser"></div>
+          <div class="sign-box"><div class="sign-title">Disetujui oleh Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:180px">Segmen</th>
+              <th style="width:70px">Durasi</th>
+              <th>Naskah / Poin Pembicaraan</th>
+              <th style="width:160px">Keterangan Produksi</th>
+            </tr>
+            <tr>
+              <td class="num">1</td>
+              <td><input value="INTRO / OPENING"></td>
+              <td><input value="±2 mnt"></td>
+              <td><textarea rows="2" placeholder="Naskah pembuka host — perkenalkan diri, sambut penonton, sebutkan tema episode"></textarea></td>
+              <td><input value="Musik intro, logo STIBA muncul"></td>
+            </tr>
+            <tr>
+              <td class="num">2</td>
+              <td><input value="PERKENALAN NARASUMBER"></td>
+              <td><input value="±2 mnt"></td>
+              <td><textarea rows="2" placeholder="Host memperkenalkan narasumber: nama, jabatan, latar belakang"></textarea></td>
+              <td><input value="Shot: two-shot. Tampilkan lower-third"></td>
+            </tr>
+            <tr>
+              <td class="num">3</td>
+              <td><input value="PEMBAHASAN — Bagian 1"></td>
+              <td><input value="±10 mnt"></td>
+              <td><textarea rows="3" placeholder="Pertanyaan 1:&#10;Jawaban yang diharapkan:&#10;Pertanyaan 2:&#10;Jawaban yang diharapkan:"></textarea></td>
+              <td><input value="Mic lapel on. Kamera 2 on narasumber"></td>
+            </tr>
+            <tr>
+              <td class="num">4</td>
+              <td><input value="PEMBAHASAN — Bagian 2"></td>
+              <td><input value="±10 mnt"></td>
+              <td><textarea rows="3" placeholder="Pertanyaan 3:&#10;Jawaban yang diharapkan:&#10;Pertanyaan 4:&#10;Jawaban yang diharapkan:"></textarea></td>
+              <td><input value="Sisipkan B-roll jika relevan"></td>
+            </tr>
+            <tr>
+              <td class="num">5</td>
+              <td><input value="TANYA JAWAB / IMPROVISASI"></td>
+              <td><input value="±5 mnt"></td>
+              <td><textarea rows="2" placeholder="Pertanyaan tambahan berdasarkan jawaban narasumber"></textarea></td>
+              <td><input value="Rekam reaksi host"></td>
+            </tr>
+            <tr>
+              <td class="num">6</td>
+              <td><input value="PESAN PENUTUP NARASUMBER"></td>
+              <td><input value="±2 mnt"></td>
+              <td><textarea rows="2" placeholder="Narasumber menyampaikan pesan terakhir untuk penonton"></textarea></td>
+              <td><input value="Close-up narasumber"></td>
+            </tr>
+            <tr>
+              <td class="num">7</td>
+              <td><input value="OUTRO / CLOSING"></td>
+              <td><input value="±2 mnt"></td>
+              <td><textarea rows="2" placeholder="Host menutup episode, ajakan subscribe, preview berikutnya"></textarea></td>
+              <td><input value="Musik outro, tampilkan credit"></td>
+            </tr>
+          </table>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Disusun oleh Produser</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Produser"></div>
+          <div class="sign-box"><div class="sign-title">Disetujui oleh Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM H: Log Produksi Video -->
+    <div id="form-H" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Log Produksi Video — STIBA Podcast</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-6.2</div><div class="info">Diisi: hari syuting + setelah editing · Pengisi: Produser</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Episode ke-</label><input type="number" id="H-ep"></div>
+          <div class="field"><label>Judul Episode</label><input type="text" id="H-judul"></div>
+          <div class="field"><label>Tema / Topik</label><input type="text" id="H-tema"></div>
+          <div class="field" style="grid-column:span 2"><label>Narasumber (Nama + Jabatan)</label><input type="text" id="H-narasumber"></div>
+          <div class="field"><label>Host</label><input type="text" id="H-host"></div>
+          <div class="field"><label>Kameraman / Operator</label><input type="text" id="H-kameraman"></div>
+          <div class="field"><label>Editor Video</label><input type="text" id="H-editor"></div>
+          <div class="field"><label>Lokasi Syuting</label><input type="text" id="H-lokasi"></div>
+          <div class="field"><label>Tanggal Syuting</label><input type="date" id="H-tgl-syuting"></div>
+          <div class="field"><label>Waktu Mulai</label><input type="time" id="H-mulai"></div>
+          <div class="field"><label>Waktu Selesai</label><input type="time" id="H-selesai"></div>
+          <div class="field"><label>Durasi Video Final</label><input type="text" id="H-durasi" placeholder="contoh: ±30 menit"></div>
+        </div>
+        <div class="sec-title">Publikasi</div>
+        <div class="meta-grid">
+          <div class="field"><label>Tanggal Upload YouTube</label><input type="date" id="H-tgl-upload"></div>
+          <div class="field"><label>URL Video YouTube</label><input type="url" id="H-url" placeholder="https://youtube.com/watch?v=..."></div>
+          <div class="field"><label>Tanggal Tayang (Publish)</label><input type="date" id="H-tgl-tayang"></div>
+        </div>
+        <div class="sec-title">Catatan Produksi</div>
+        <div class="meta-grid cols1">
+          <div class="field"><label>Peralatan yang Digunakan</label><input type="text" id="H-alat" placeholder="Kamera: ___ | Mic: ___ | Lighting: ___"></div>
+          <div class="field"><label>Kendala Produksi</label><textarea id="H-kendala" rows="2" placeholder="Tulis jika ada — 'Tidak ada kendala' jika tidak ada"></textarea></div>
+          <div class="field"><label>Catatan Editor</label><textarea id="H-catatan-editor" rows="2"></textarea></div>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Diserahkan oleh Produser</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Produser"></div>
+          <div class="sign-box"><div class="sign-title">Diverifikasi Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM I: Monthly Insight -->
+    <div id="form-I" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Laporan Kinerja Bulanan Media — Monthly Insight</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-7.1</div><div class="info">Diserahkan: maks. tgl 5 bulan berikutnya · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Bulan / Tahun</label><input type="text" id="I-bulan" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Periode Data</label><input type="text" id="I-periode" placeholder="1 Juli – 31 Juli 2026"></div>
+          <div class="field"><label>Disusun Oleh</label><input type="text" id="I-disusun"></div>
+          <div class="field"><label>Tanggal Penyusunan</label><input type="date" id="I-tgl"></div>
+          <div class="field" style="grid-column:span 2"><label>Diserahkan Kepada</label><input type="text" id="I-kepada" value="Pimpinan Institusi"></div>
+        </div>
+
+        <div class="sec-title"><div class="sec-letter">A</div>Ringkasan Eksekutif</div>
+        <div class="field"><textarea id="I-ringkasan" rows="4" placeholder="Tulis ringkasan kondisi media STIBA bulan ini dalam 3–5 kalimat. Mencakup: capaian KPI utama, highlight terbaik, dan kendala utama."></textarea></div>
+
+        <div class="sec-title"><div class="sec-letter">B</div>Dashboard KPI Utama</div>
+        <table class="kpi-tbl">
+          <tr><th style="width:220px">Indikator KPI</th><th>Bulan Ini</th><th>Bulan Lalu</th><th style="width:130px">Target</th><th style="width:80px">Status</th></tr>
+          <tr class="platform-row"><td colspan="5">INSTAGRAM</td></tr>
+          <tr><td>Followers</td><td><input placeholder="—"></td><td><input placeholder="—"></td><td><input value="Tren positif"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Engagement Rate (%)</td><td><input placeholder="0.0%"></td><td><input placeholder="0.0%"></td><td><input value="> 2%"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Rata-rata Reach / Konten</td><td><input placeholder="—"></td><td><input placeholder="—"></td><td><input value="Tidak turun >20%"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Konten Dipublikasikan</td><td><input placeholder="0"></td><td><input placeholder="0"></td><td><input value="≥ 30"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr class="platform-row"><td colspan="5">YOUTUBE</td></tr>
+          <tr><td>Subscribers</td><td><input placeholder="—"></td><td><input placeholder="—"></td><td><input value="Tren positif"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Avg. Audience Retention (%)</td><td><input placeholder="0.0%"></td><td><input placeholder="0.0%"></td><td><input value="≥ 40%"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Episode Tayang</td><td><input placeholder="0"></td><td><input placeholder="0"></td><td><input value="≥ 1"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr class="platform-row"><td colspan="5">FACEBOOK</td></tr>
+          <tr><td>Followers / Pengikut Halaman</td><td><input placeholder="—"></td><td><input placeholder="—"></td><td><input value="Tren positif"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Engagement Rate (%)</td><td><input placeholder="0.0%"></td><td><input placeholder="0.0%"></td><td><input value="> 1%"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Total Reach Bulan Ini</td><td><input placeholder="—"></td><td><input placeholder="—"></td><td><input value="Tren stabil/naik"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Konten Dipublikasikan</td><td><input placeholder="0"></td><td><input placeholder="0"></td><td><input value="Tren stabil/naik"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr class="platform-row"><td colspan="5">TIKTOK</td></tr>
+          <tr><td>Followers</td><td><input placeholder="—"></td><td><input placeholder="—"></td><td><input value="Tren positif"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Total Video Views</td><td><input placeholder="—"></td><td><input placeholder="—"></td><td><input value="Tren stabil/naik"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Rata-rata Watch Time (detik)</td><td><input placeholder="—"></td><td><input placeholder="—"></td><td><input value="Tren stabil/naik"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Konten Dipublikasikan</td><td><input placeholder="0"></td><td><input placeholder="0"></td><td><input value="Tren stabil/naik"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr class="platform-row"><td colspan="5">WEBSITE</td></tr>
+          <tr><td>Total Pageviews</td><td><input placeholder="0"></td><td><input placeholder="0"></td><td><input value="Tren stabil/naik"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+          <tr><td>Artikel Terbit</td><td><input placeholder="0"></td><td><input placeholder="0"></td><td><input value="≥ 20"></td><td><select class="status-sel"><option>—</option><option>✅ Tercapai</option><option>⚠️ Perlu Perhatian</option><option>❌ Tidak Tercapai</option></select></td></tr>
+        </table>
+
+        <div class="sec-title"><div class="sec-letter">C</div>Highlight Konten Terbaik</div>
+        <div class="field"><textarea id="I-highlight" rows="3" placeholder="Sebutkan 2–3 konten dengan performa terbaik bulan ini beserta angka reach/engagement-nya"></textarea></div>
+
+        <div class="sec-title"><div class="sec-letter">D</div>Kendala</div>
+        <div class="field"><textarea id="I-kendala" rows="3" placeholder="Kendala teknis, SDM, atau konten yang dihadapi bulan ini"></textarea></div>
+
+        <div class="sec-title"><div class="sec-letter">E</div>Tindak Lanjut RTL Bulan Lalu</div>
+        <div class="field"><textarea id="I-rtl-lalu" rows="3" placeholder="Apakah RTL bulan lalu sudah dilaksanakan? Uraikan progresnya."></textarea></div>
+
+        <div class="sec-title"><div class="sec-letter">F</div>RTL Baru (Rekomendasi Perbaikan)</div>
+        <div class="field"><textarea id="I-rtl-baru" rows="3" placeholder="Rekomendasi perbaikan untuk bulan berikutnya berdasarkan data bulan ini"></textarea></div>
+
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Diketahui Pimpinan</div><div class="sign-space"></div><input class="sign-line" value="Arif Patang, S.H.I. — Kepala PKSPU"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM J: RTL -->
+    <div id="form-J" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Dokumen Rekomendasi Perbaikan (RTL)</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-7.2</div><div class="info">Diterbitkan: bersamaan dengan Monthly Insight · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Bulan RTL</label><input type="text" id="J-bulan" placeholder="contoh: Oktober 2026"></div>
+          <div class="field"><label>Berdasarkan Monthly Insight</label><input type="text" id="J-berdasarkan" placeholder="contoh: September 2026"></div>
+          <div class="field"><label>Tanggal Terbit</label><input type="date" id="J-tgl"></div>
+          <div class="field"><label>Diterbitkan Oleh</label><input type="text" id="J-diterbitkan"></div>
+          <div class="field" style="grid-column:span 2"><label>Disebarkan Kepada</label><input type="text" id="J-kepada" placeholder="Anggota tim yang bertanggungjawab atas masing-masing RTL"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-J">
+            <tr>
+              <th style="width:50px">No. RTL</th>
+              <th>Temuan / Masalah</th>
+              <th>Rekomendasi Tindakan</th>
+              <th style="width:130px">Penanggungjawab</th>
+              <th style="width:100px">Batas Waktu</th>
+              <th style="width:90px">Status</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-J', rowJ)">+ Tambah Baris</button>
+        </div>
+        <p style="font-size:11.5px;color:var(--text-muted);margin-top:8px;padding:8px 10px;background:#f5f5f0;border-radius:5px;">
+          ⚠️ Kolom Status diisi "Belum" saat RTL diterbitkan. Pembaruan hanya dilakukan di Dokumen Bukti Eksekusi (DOK-7.3) bulan berikutnya — jangan mengedit file RTL setelah diterbitkan.
+        </p>
+      </div>
+    </div>
+
+    <!-- FORM K: Surat Tugas -->
+    <div id="form-K" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Surat Tugas Peliputan</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-10.4</div><div class="info">Diterbitkan: min. H-1 sebelum kegiatan · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid cols2">
+          <div class="field"><label>No. Surat</label><input type="text" id="K-no" placeholder="ST-BMP/____/____/________"></div>
+          <div class="field"><label>Tanggal Surat</label><input type="date" id="K-tgl"></div>
+        </div>
+        <div class="letter-body">
+          <div class="letter-meta-row"><label>Kepada Yth.</label><input id="K-kepada" placeholder="Nama Personil / Tim Dokumentasi / Reporter BMP — IAI STIBA Makassar"></div>
+          <p style="margin:12px 0;font-size:13px;line-height:1.7;">Dengan hormat, berdasarkan agenda kegiatan institusi, dengan ini kami menugaskan Saudara/i yang namanya tersebut di atas untuk melaksanakan peliputan dan dokumentasi kegiatan:</p>
+          <div class="letter-meta-row"><label>Nama Kegiatan</label><input id="K-kegiatan"></div>
+          <div class="letter-meta-row"><label>Tanggal / Waktu</label><input id="K-waktu"></div>
+          <div class="letter-meta-row"><label>Lokasi</label><input id="K-lokasi"></div>
+          <div style="margin:10px 0">
+            <label style="font-size:12px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:6px">Tugas</label>
+            <div class="checkbox-group">
+              <label class="checkbox-item"><input type="checkbox" id="K-fotografer"> Fotografer</label>
+              <label class="checkbox-item"><input type="checkbox" id="K-videografer"> Videografer</label>
+              <label class="checkbox-item"><input type="checkbox" id="K-reporter"> Reporter</label>
+              <label class="checkbox-item"><input type="checkbox" id="K-live"> Live Coverage</label>
+            </div>
+          </div>
+          <div class="letter-meta-row"><label>Deadline</label><input id="K-deadline" value="Hasil liputan diserahkan paling lambat 1x24 jam pasca kegiatan"></div>
+          <p style="margin:14px 0;font-size:13px;line-height:1.7;">Demikian surat tugas ini diterbitkan. Atas perhatian dan dedikasi Saudara/i, kami sampaikan terima kasih.</p>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Mengetahui, Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Yang menerima tugas</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Personil"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM L: Berita Acara Review -->
+    <div id="form-L" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Berita Acara Review Redaksi — Jurnal Akhbar</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-10.2</div><div class="info">Diisi: saat sesi review berlangsung · Pengisi: Seluruh tim redaksi</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Edisi Jurnal</label><input type="text" id="L-edisi" placeholder="Jurnal Akhbar STIBA Edisi ____"></div>
+          <div class="field"><label>Versi Dummy Direview</label><input type="text" id="L-dummy" placeholder="Dummy v___ (PDF — tanggal file: ___)"></div>
+          <div class="field"><label>Tanggal Sesi Review</label><input type="date" id="L-tgl"></div>
+          <div class="field"><label>Tempat</label><input type="text" id="L-tempat"></div>
+          <div class="field"><label>Waktu</label><input type="text" id="L-waktu" placeholder="contoh: 09.00 – 12.00 WITA"></div>
+          <div class="field"><label>Pimpinan Sesi</label><input type="text" id="L-pimpinan"></div>
+          <div class="field" style="grid-column:span 3"><label>Peserta Hadir (Nama + unit/jabatan)</label><textarea id="L-peserta" rows="2" placeholder="1. ... | 2. ... | 3. ..."></textarea></div>
+        </div>
+        <div class="sec-title">Catatan / Komentar per Bagian Jurnal</div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-L">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:70px">Halaman</th>
+              <th style="width:150px">Rubrik / Bagian</th>
+              <th>Catatan / Komentar</th>
+              <th style="width:120px">Reviewer</th>
+              <th style="width:100px">Status Revisi</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-L', rowL)">+ Tambah Baris</button>
+        </div>
+        <div class="meta-grid cols2" style="margin-top:12px">
+          <div class="field"><label>Keputusan</label>
+            <select id="L-keputusan"><option value="">Pilih keputusan...</option><option>Lanjut ke finalisasi layout</option><option>Perlu review ulang setelah revisi mayor</option></select>
+          </div>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Pimpinan Sesi / Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama"></div>
+          <div class="sign-box"><div class="sign-title">Notulis</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Notulis"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM M: Notula Rapat -->
+    <div id="form-M" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Notula Rapat Koordinasi Media</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-13.1</div><div class="info">Target: 4× per bulan · Pengisi: Notulis yang ditunjuk</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>No. Notula</label><input type="text" id="M-no" placeholder="NR-BMP/____/____/________"></div>
+          <div class="field"><label>Jenis Rapat</label>
+            <select id="M-jenis"><option value="">Pilih...</option><option>Koordinasi Mingguan</option><option>Koordinasi Tematik</option><option>Koordinasi Insidental</option></select>
+          </div>
+          <div class="field"><label>Tanggal</label><input type="date" id="M-tgl"></div>
+          <div class="field"><label>Waktu</label><input type="text" id="M-waktu" placeholder="09.00 – 11.00 WITA"></div>
+          <div class="field"><label>Tempat / Platform</label><input type="text" id="M-tempat"></div>
+          <div class="field"><label>Dipimpin Oleh</label><input type="text" id="M-pimpinan"></div>
+          <div class="field" style="grid-column:span 2"><label>Peserta Hadir</label><textarea id="M-hadir" rows="2"></textarea></div>
+          <div class="field" style="grid-column:span 1"><label>Peserta Tidak Hadir</label><textarea id="M-absen" rows="2"></textarea></div>
+        </div>
+        <div class="sec-title">Isi Notula</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="field"><label>Agenda Rapat</label><textarea id="M-agenda" rows="2"></textarea></div>
+          <div class="field"><label>Pembahasan & Keputusan</label><textarea id="M-pembahasan" rows="4"></textarea></div>
+          <div class="field"><label>Permintaan Konten dari Unit Lain</label><textarea id="M-permintaan" rows="2"></textarea></div>
+          <div class="field"><label>Action Items / Tindak Lanjut</label><textarea id="M-action" rows="3" placeholder="PIC — Deadline — Tindakan"></textarea></div>
+          <div class="field"><label>Jadwal Rapat Berikutnya</label><input type="text" id="M-berikutnya"></div>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Pimpinan Rapat / Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama"></div>
+          <div class="sign-box"><div class="sign-title">Notulis</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Notulis"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM N: Form Permintaan Konten -->
+    <div id="form-N" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Form Permintaan Konten Unit Kerja</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-13.2</div><div class="info">Diisi: unit pemohon sebelum BMP mengerjakan</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>No. Permintaan</label><input type="text" id="N-no" placeholder="PR-BMP/____/____/________"></div>
+          <div class="field"><label>Tanggal Pengajuan</label><input type="date" id="N-tgl"></div>
+          <div class="field"><label>Unit / Lembaga Pemohon</label><input type="text" id="N-unit"></div>
+          <div class="field"><label>Nama Penanggungjawab</label><input type="text" id="N-pj" placeholder="Nama + Jabatan + No. HP"></div>
+          <div class="field"><label>Jenis Konten Diminta</label>
+            <select id="N-jenis"><option value="">Pilih...</option><option>Poster</option><option>Infografis</option><option>Video</option><option>Reels</option><option>Berita</option><option>Dokumentasi</option><option>Lainnya</option></select>
+          </div>
+          <div class="field"><label>Platform Tujuan</label>
+            <select id="N-platform"><option value="">Pilih...</option><option>Instagram</option><option>Facebook</option><option>Website</option><option>Cetak</option><option>Semua Platform</option></select>
+          </div>
+        </div>
+        <div class="meta-grid cols1" style="margin-top:4px">
+          <div class="field"><label>Deskripsi dan Pesan Utama</label><textarea id="N-deskripsi" rows="3"></textarea></div>
+          <div class="field"><label>Deadline yang Diminta</label><input type="text" id="N-deadline" placeholder="Tanggal: ___ | Waktu: ___"></div>
+          <div class="field"><label>Bahan yang Disediakan Pemohon</label><input type="text" id="N-bahan" placeholder="Teks / Foto / Data / Referensi: ___"></div>
+          <div class="field"><label>Catatan Khusus</label><textarea id="N-catatan" rows="2"></textarea></div>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box">
+            <div class="sign-title">Diajukan oleh (Unit Pemohon)</div>
+            <div class="sign-space"></div>
+            <input class="sign-line" placeholder="Nama + Tanggal">
+          </div>
+          <div class="sign-box">
+            <div class="sign-title">Diterima oleh BMP</div>
+            <div class="sign-space"></div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px"><input type="radio" name="N-status" value="dapat"> ✅ Dapat dikerjakan</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px"><input type="radio" name="N-status" value="penyesuaian"> ⚠️ Perlu penyesuaian</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12.5px"><input type="radio" name="N-status" value="ditolak"> ❌ Ditolak</label>
+              <input class="sign-line" placeholder="Nama BMP + Tanggal" style="margin-top:8px">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM O: Glosarium -->
+    <div id="form-O" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Daftar Singkatan dan Istilah SPMI</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">LAMPIRAN O</div><div class="info">Referensi · Tidak dapat diedit</div></div>
+      </div>
+      <div class="doc-body">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Referensi istilah yang digunakan dalam panduan ini dan dokumen SPMI BMP secara umum.</p>
+        <div class="tbl-wrap">
+          <table class="ref-tbl">
+            <tr><th style="width:180px">Singkatan / Istilah</th><th>Keterangan</th></tr>
+            <tr><td>ABCD (pola standar)</td><td>Format penulisan standar: A=Subjek, B=Kata Kerja/Kewajiban, C=Objek, D=Kondisi/Ukuran</td></tr>
+            <tr><td>Audit Mutu Internal (AMI)</td><td>Proses pemeriksaan internal yang dilakukan PPM untuk memverifikasi pelaksanaan standar</td></tr>
+            <tr><td>BMP</td><td>Bagian Media dan Pers — unit kerja yang mengelola komunikasi dan publikasi IAI STIBA Makassar</td></tr>
+            <tr><td>Bukti Eksekusi</td><td>Dokumen yang membuktikan bahwa rekomendasi perbaikan (RTL) bulan sebelumnya telah dilaksanakan</td></tr>
+            <tr><td>CTR (Click-Through Rate)</td><td>Persentase orang yang mengklik sesuatu (thumbnail, tautan) setelah melihatnya</td></tr>
+            <tr><td>DOK-[kode]</td><td>Kode penomoran dokumen dalam panduan ini. Contoh: DOK-3.1 = dokumen pertama di Bab 3</td></tr>
+            <tr><td>Dummy Jurnal</td><td>Prototipe atau versi awal Jurnal Akhbar yang digunakan sebagai bahan review redaksi sebelum dicetak</td></tr>
+            <tr><td>Editorial Plan</td><td>Kalender Konten Bulanan — dokumen perencanaan konten yang disusun di awal setiap bulan</td></tr>
+            <tr><td>Engagement Rate</td><td>Persentase audiens yang berinteraksi (like, komentar, simpan, bagikan) terhadap jangkauan konten</td></tr>
+            <tr><td>GA / GA4</td><td>Google Analytics 4 — platform analitik gratis dari Google untuk memantau trafik website</td></tr>
+            <tr><td>HDD Eksternal</td><td>Hard Disk Drive eksternal — perangkat penyimpanan fisik untuk backup data</td></tr>
+            <tr><td>IAI STIBA</td><td>Institut Agama Islam — Sekolah Tinggi Ilmu Islam dan Bahasa Arab Makassar</td></tr>
+            <tr><td>Impressions</td><td>Total tayangan konten; satu akun bisa dihitung lebih dari sekali</td></tr>
+            <tr><td>Indikator SMART</td><td>Kriteria indikator kinerja: Specific, Measurable, Achievable, Relevant, Time-bound</td></tr>
+            <tr><td>Kabag. BMP</td><td>Kepala Bagian Media dan Pers</td></tr>
+            <tr><td>Kalender Kolaborasi</td><td>Dokumen rencana kerja bersama BMP dan unit-unit lain dalam satu bulan</td></tr>
+            <tr><td>KPI</td><td>Key Performance Indicator — indikator kunci kinerja yang diukur secara berkala</td></tr>
+            <tr><td>Log Produksi</td><td>Catatan operasional proses syuting podcast/video — dari setup hingga upload</td></tr>
+            <tr><td>Logbook</td><td>Dokumen rekam jejak harian untuk mencatat konten yang diunggah dan kegiatan dokumentasi</td></tr>
+            <tr><td>Lower-third</td><td>Teks nama dan jabatan yang muncul di bagian bawah layar video saat narasumber berbicara</td></tr>
+            <tr><td>Matriks Kompetensi</td><td>Tabel yang memetakan kemampuan setiap anggota tim BMP per bidang keahlian</td></tr>
+            <tr><td>Monthly Insight</td><td>Laporan Kinerja Bulanan Media — dokumen analitik + rekomendasi yang diserahkan ke pimpinan</td></tr>
+            <tr><td>No. Arsip (ARF-)</td><td>Nomor identifikasi unik untuk setiap aset foto/video dalam katalog arsip digital BMP</td></tr>
+            <tr><td>Notula Rapat</td><td>Catatan resmi hasil rapat yang ditandatangani pimpinan rapat dan notulis</td></tr>
+            <tr><td>NR-BMP/</td><td>Nomor identifikasi Notula Rapat: NR-BMP/[NoUrut]/[BulanRomawi]/[Tahun]</td></tr>
+            <tr><td>PPEPP</td><td>Penetapan, Pelaksanaan, Evaluasi, Pengendalian, Peningkatan — siklus penjaminan mutu SPMI</td></tr>
+            <tr><td>RTL</td><td>Rencana Tindak Lanjut — dokumen rekomendasi perbaikan berbasis data evaluasi bulanan</td></tr>
+            <tr><td>SPMI</td><td>Sistem Penjaminan Mutu Internal — sistem pengelolaan mutu perguruan tinggi secara internal</td></tr>
+            <tr><td>ST-BMP/</td><td>Nomor identifikasi Surat Tugas: ST-BMP/[NoUrut]/[BulanRomawi]/[Tahun]</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P: Rekapitulasi Tautan Konten -->
+    <div id="form-P" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Rekapitulasi Tautan (Link) Konten</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-3.3</div><div class="info">Diisi: akhir bulan · Pengisi: Admin Platform</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Bulan / Tahun</label><input type="text" id="P-bulan" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Disusun Oleh</label><input type="text" id="P-disusun"></div>
+          <div class="field"><label>Total Konten Terbit</label><input type="number" id="P-total" placeholder="0"></div>
+        </div>
+        <div style="background:var(--gold-pale);border:1px solid var(--gold);border-radius:6px;padding:8px 12px;font-size:12.5px;margin-bottom:14px;color:var(--navy)">
+          <strong>Target:</strong> ≥30 konten/bulan di minimal 3 platform aktif. Dokumentasikan setiap tautan sebagai bukti SPMI.
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:90px">Tgl Terbit</th>
+              <th>Judul Konten</th>
+              <th style="width:90px">Platform</th>
+              <th style="width:80px">Format</th>
+              <th style="width:180px">Tautan (URL)</th>
+              <th style="width:80px">Reach/Views</th>
+              <th style="width:90px">Admin</th>
+              <th style="width:70px">Status</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P', rowP)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Direkap oleh Admin Platform</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Admin"></div>
+          <div class="sign-box"><div class="sign-title">Diverifikasi Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM Q: Portofolio Aset Visual -->
+    <div id="form-Q" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Portofolio Aset Visual</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-4.2</div><div class="info">Diperbarui: bulanan · Pengisi: Desainer Grafis</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Periode</label><input type="text" id="Q-periode" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Desainer / PIC</label><input type="text" id="Q-pic"></div>
+          <div class="field"><label>Jumlah Aset</label><input type="number" id="Q-jumlah" placeholder="0"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-Q">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:90px">Kode Aset</th>
+              <th>Nama Aset / Judul</th>
+              <th style="width:90px">Jenis</th>
+              <th style="width:90px">Platform</th>
+              <th style="width:80px">Tanggal</th>
+              <th style="width:60px">Versi</th>
+              <th style="width:160px">Lokasi File</th>
+              <th style="width:80px">Status</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-Q', rowQ)">+ Tambah Baris</button>
+        </div>
+        <div class="sec-title">Catatan Brand Compliance</div>
+        <div class="field"><label>Temuan Ketidaksesuaian Brand (jika ada)</label><textarea id="Q-temuan" rows="2" placeholder="Tuliskan jika ada aset yang perlu diperbaiki sesuai Brand Guideline..."></textarea></div>
+        <div class="field"><label>Tindakan Perbaikan</label><textarea id="Q-tindakan" rows="2"></textarea></div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Desainer Grafis</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Desainer"></div>
+          <div class="sign-box"><div class="sign-title">Diverifikasi Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM R: Dokumen Evaluasi Strategi Konten -->
+    <div id="form-R" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Dokumen Evaluasi Strategi Konten</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-14.1</div><div class="info">Diisi: per kuartal · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Periode Evaluasi</label><input type="text" id="R-periode" placeholder="contoh: Kuartal I 2026 (Jan–Mar)"></div>
+          <div class="field"><label>Disusun Oleh</label><input type="text" id="R-disusun"></div>
+          <div class="field"><label>Tanggal Evaluasi</label><input type="date" id="R-tgl"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">A</div>Ringkasan Kinerja Konten</div>
+        <div class="meta-grid">
+          <div class="field"><label>Total Konten Diproduksi</label><input type="number" id="R-total-konten"></div>
+          <div class="field"><label>Total Reach Kumulatif</label><input type="text" id="R-reach"></div>
+          <div class="field"><label>Rata-rata Engagement Rate</label><input type="text" id="R-engagement" placeholder="contoh: 4,2%"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">B</div>Evaluasi Per Platform</div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-R">
+            <tr>
+              <th style="width:120px">Platform</th>
+              <th>Kekuatan Strategi</th>
+              <th>Kelemahan / Masalah</th>
+              <th style="width:160px">Rekomendasi Perbaikan</th>
+              <th style="width:80px">Prioritas</th>
+            </tr>
+            <tr><td><input value="Instagram"></td><td><textarea rows="2"></textarea></td><td><textarea rows="2"></textarea></td><td><textarea rows="2"></textarea></td><td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Tinggi</option><option>Sedang</option><option>Rendah</option></select></td></tr>
+            <tr><td><input value="YouTube"></td><td><textarea rows="2"></textarea></td><td><textarea rows="2"></textarea></td><td><textarea rows="2"></textarea></td><td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Tinggi</option><option>Sedang</option><option>Rendah</option></select></td></tr>
+            <tr><td><input value="Website"></td><td><textarea rows="2"></textarea></td><td><textarea rows="2"></textarea></td><td><textarea rows="2"></textarea></td><td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Tinggi</option><option>Sedang</option><option>Rendah</option></select></td></tr>
+            <tr><td><input value="Facebook"></td><td><textarea rows="2"></textarea></td><td><textarea rows="2"></textarea></td><td><textarea rows="2"></textarea></td><td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Tinggi</option><option>Sedang</option><option>Rendah</option></select></td></tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-R', rowRplatform)">+ Tambah Platform</button>
+        </div>
+        <div class="sec-title"><div class="sec-letter">C</div>Rekomendasi Strategis Berbasis Data</div>
+        <div class="field"><label>Temuan Utama</label><textarea id="R-temuan" rows="3"></textarea></div>
+        <div class="field"><label>Rekomendasi Strategis</label><textarea id="R-rekomendasi" rows="3" placeholder="Tuliskan rekomendasi berbasis data analitik yang telah dihimpun..."></textarea></div>
+        <div class="field"><label>Target Perbaikan Periode Berikutnya</label><textarea id="R-target" rows="2"></textarea></div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Disusun oleh Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Diketahui Pimpinan</div><div class="sign-space"></div><input class="sign-line" value="Arif Patang, S.H.I. — Kepala PKSPU"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM S: Data Pemetaan Audiens -->
+    <div id="form-S" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Data Pemetaan Audiens</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-14.2</div><div class="info">Diperbarui: bulanan · Sumber: Meta Insights, YT Analytics, GA4</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Periode Data</label><input type="text" id="S-periode" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Disusun Oleh</label><input type="text" id="S-disusun"></div>
+          <div class="field"><label>Tanggal Pengambilan Data</label><input type="date" id="S-tgl"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">A</div>Demografi Audiens Instagram</div>
+        <div class="meta-grid">
+          <div class="field"><label>Kelompok Usia Terbesar</label><input type="text" id="S-ig-usia" placeholder="contoh: 18-24 (42%)"></div>
+          <div class="field"><label>Jenis Kelamin (% Laki-laki)</label><input type="text" id="S-ig-gender" placeholder="contoh: 55%"></div>
+          <div class="field"><label>Lokasi Teratas</label><input type="text" id="S-ig-lokasi" placeholder="contoh: Makassar, Jakarta, Gowa"></div>
+          <div class="field"><label>Waktu Aktif Puncak</label><input type="text" id="S-ig-waktu" placeholder="contoh: Selasa 20.00–22.00 WITA"></div>
+          <div class="field"><label>Jumlah Followers</label><input type="text" id="S-ig-followers"></div>
+          <div class="field"><label>Pertumbuhan Followers</label><input type="text" id="S-ig-growth" placeholder="contoh: +120 (bulan ini)"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">B</div>Demografi Audiens YouTube</div>
+        <div class="meta-grid">
+          <div class="field"><label>Kelompok Usia Terbesar</label><input type="text" id="S-yt-usia"></div>
+          <div class="field"><label>Jenis Kelamin (% Laki-laki)</label><input type="text" id="S-yt-gender"></div>
+          <div class="field"><label>Negara Teratas</label><input type="text" id="S-yt-negara"></div>
+          <div class="field"><label>Rata-rata Durasi Tonton</label><input type="text" id="S-yt-durasi"></div>
+          <div class="field"><label>Jumlah Subscribers</label><input type="text" id="S-yt-subs"></div>
+          <div class="field"><label>Total Views (Bulan Ini)</label><input type="text" id="S-yt-views"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">C</div>Demografi Audiens Facebook</div>
+        <div class="meta-grid">
+          <div class="field"><label>Kelompok Usia Terbesar</label><input type="text" id="S-fb-usia" placeholder="contoh: 25-34 (38%)"></div>
+          <div class="field"><label>Jenis Kelamin (% Laki-laki)</label><input type="text" id="S-fb-gender" placeholder="contoh: 48%"></div>
+          <div class="field"><label>Lokasi Teratas</label><input type="text" id="S-fb-lokasi" placeholder="contoh: Makassar, Gowa, Maros"></div>
+          <div class="field"><label>Waktu Aktif Puncak</label><input type="text" id="S-fb-waktu" placeholder="contoh: Rabu 19.00–21.00 WITA"></div>
+          <div class="field"><label>Jumlah Followers / Pengikut Halaman</label><input type="text" id="S-fb-followers"></div>
+          <div class="field"><label>Pertumbuhan Followers</label><input type="text" id="S-fb-growth" placeholder="contoh: +45 (bulan ini)"></div>
+          <div class="field"><label>Total Jangkauan (Reach) Bulan Ini</label><input type="text" id="S-fb-reach"></div>
+          <div class="field"><label>Rata-rata Engagement Rate</label><input type="text" id="S-fb-engagement" placeholder="contoh: 3,1%"></div>
+          <div class="field"><label>Jenis Konten Terpopuler</label><input type="text" id="S-fb-konten" placeholder="contoh: Video / Foto / Link Post"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">D</div>Data Audiens TikTok</div>
+        <div class="meta-grid">
+          <div class="field"><label>Kelompok Usia Terbesar</label><input type="text" id="S-tt-usia" placeholder="contoh: 18-24 (61%)"></div>
+          <div class="field"><label>Jenis Kelamin (% Laki-laki)</label><input type="text" id="S-tt-gender" placeholder="contoh: 52%"></div>
+          <div class="field"><label>Lokasi Teratas</label><input type="text" id="S-tt-lokasi" placeholder="contoh: Makassar, Sulawesi Selatan"></div>
+          <div class="field"><label>Waktu Aktif Puncak</label><input type="text" id="S-tt-waktu" placeholder="contoh: Kamis 20.00–23.00 WITA"></div>
+          <div class="field"><label>Jumlah Followers</label><input type="text" id="S-tt-followers"></div>
+          <div class="field"><label>Pertumbuhan Followers</label><input type="text" id="S-tt-growth" placeholder="contoh: +200 (bulan ini)"></div>
+          <div class="field"><label>Total Video Views (Bulan Ini)</label><input type="text" id="S-tt-views"></div>
+          <div class="field"><label>Rata-rata Watch Time</label><input type="text" id="S-tt-watchtime" placeholder="contoh: 8,5 detik"></div>
+          <div class="field"><label>Video Terpopuler (Judul)</label><input type="text" id="S-tt-viral"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">E</div>Data Trafik Website (GA4)</div>
+        <div class="meta-grid">
+          <div class="field"><label>Total Pengguna (Users)</label><input type="text" id="S-ga-users"></div>
+          <div class="field"><label>Total Sesi (Sessions)</label><input type="text" id="S-ga-sessions"></div>
+          <div class="field"><label>Rata-rata Durasi Sesi</label><input type="text" id="S-ga-durasi"></div>
+          <div class="field"><label>Halaman Terpopuler</label><input type="text" id="S-ga-halaman"></div>
+          <div class="field"><label>Sumber Traffic Terbesar</label><input type="text" id="S-ga-sumber" placeholder="Organic / Social / Direct"></div>
+          <div class="field"><label>Bounce Rate</label><input type="text" id="S-ga-bounce" placeholder="contoh: 62%"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">F</div>Insight &amp; Rekomendasi</div>
+        <div class="field"><label>Temuan Penting dari Data Audiens</label><textarea id="S-insight" rows="3"></textarea></div>
+        <div class="field"><label>Rekomendasi Penyesuaian Konten</label><textarea id="S-rekomendasi" rows="3"></textarea></div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Analis Data / Admin Platform</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama"></div>
+          <div class="sign-box"><div class="sign-title">Diverifikasi Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM T: Katalog Arsip Digital -->
+    <div id="form-T" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Katalog Arsip Digital</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-6.3</div><div class="info">Target: ≥10 aset/bulan · Pengisi: Koordinator Arsip</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Bulan / Tahun</label><input type="text" id="T-bulan" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Koordinator Arsip</label><input type="text" id="T-koordinator"></div>
+          <div class="field"><label>Total Aset Bulan Ini</label><input type="number" id="T-total" placeholder="0"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-T">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:90px">No. Arsip (ARF-)</th>
+              <th>Nama File / Deskripsi</th>
+              <th style="width:70px">Jenis</th>
+              <th style="width:130px">Kegiatan / Event</th>
+              <th style="width:80px">Tanggal</th>
+              <th style="width:100px">Pewarta/Fotografer</th>
+              <th style="width:150px">Lokasi Storage</th>
+              <th style="width:70px">Ukuran</th>
+              <th style="width:70px">Status</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-T', rowT)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Koordinator Arsip</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Koordinator"></div>
+          <div class="sign-box"><div class="sign-title">Diverifikasi Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM U: Logbook Dokumentasi -->
+    <div id="form-U" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Logbook Dokumentasi Kegiatan</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-6.4</div><div class="info">Diisi: harian · Pengisi: Pewarta/Fotografer yang bertugas</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Bulan / Tahun</label><input type="text" id="U-bulan" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Penanggung Jawab</label><input type="text" id="U-pj"></div>
+          <div class="field"><label>Total Kegiatan Didokumentasikan</label><input type="number" id="U-total" placeholder="0"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-U">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:90px">Tanggal</th>
+              <th>Nama Kegiatan yang Didokumentasikan</th>
+              <th style="width:100px">Jenis Dok.</th>
+              <th style="width:100px">Penugasan</th>
+              <th style="width:70px">Jml Foto</th>
+              <th style="width:70px">Jml Video</th>
+              <th style="width:100px">Status Arsip</th>
+              <th style="width:80px">No. Arsip</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-U', rowU)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Pewarta / Fotografer</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama"></div>
+          <div class="sign-box"><div class="sign-title">Diverifikasi Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM V: Server/Cloud Storage Directory -->
+    <div id="form-V" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Server / Cloud Storage Directory</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-6.5</div><div class="info">Diperbarui: bulanan · Pengisi: Koordinator Arsip</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Tanggal Pembaruan</label><input type="date" id="V-tgl"></div>
+          <div class="field"><label>Platform Storage</label><input type="text" id="V-platform" placeholder="contoh: Google Drive, HDD Eksternal, NAS"></div>
+          <div class="field"><label>Kapasitas Total Terpakai</label><input type="text" id="V-kapasitas" placeholder="contoh: 238 GB / 500 GB"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-V">
+            <tr>
+              <th style="width:28px">No</th>
+              <th>Nama Folder / Direktori</th>
+              <th style="width:200px">Path / Lokasi Akses</th>
+              <th style="width:100px">Jenis Konten</th>
+              <th style="width:70px">Jml File</th>
+              <th style="width:80px">Ukuran Total</th>
+              <th style="width:90px">Periode</th>
+              <th style="width:90px">Tgl Diperbarui</th>
+              <th style="width:80px">Hak Akses</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-V', rowV)">+ Tambah Baris</button>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Catatan Backup & Keamanan</label><textarea id="V-catatan" rows="2" placeholder="Jadwal backup rutin, enkripsi, akses terbatas..."></textarea></div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Koordinator Arsip</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Koordinator"></div>
+          <div class="sign-box"><div class="sign-title">Diverifikasi Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM W: Master Press Kit Register -->
+    <div id="form-W" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Master Press Kit — Register & Daftar Isi</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-7.1</div><div class="info">Target: ≥2 paket/tahun · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Nama Paket Press Kit</label><input type="text" id="W-nama" placeholder="contoh: Press Kit Wisuda XIV 2026"></div>
+          <div class="field"><label>Kegiatan / Momen</label><input type="text" id="W-kegiatan"></div>
+          <div class="field"><label>Tanggal Distribusi (H-1)</label><input type="date" id="W-tgl-distribusi"></div>
+          <div class="field"><label>Disusun Oleh</label><input type="text" id="W-disusun"></div>
+          <div class="field"><label>Tanggal Selesai Disusun</label><input type="date" id="W-tgl-selesai"></div>
+          <div class="field"><label>Lokasi Folder Digital</label><input type="text" id="W-lokasi" placeholder="contoh: Google Drive / Press Kit / 2026 / ..."></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">A</div>Komponen Press Kit (Checklist Kelengkapan)</div>
+        <div class="ck-grid">
+          <div class="ck-item"><span class="ck-code">1</span><div class="ck-text"><div class="ck-label">Profil Institusi (1–2 hal)</div><div class="ck-std">Ringkasan sejarah, visi-misi, akreditasi IAI STIBA</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Ada</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">2</span><div class="ck-text"><div class="ck-label">Siaran Pers (Press Release)</div><div class="ck-std">Naskah berita resmi yang siap publish media</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Ada</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">3</span><div class="ck-text"><div class="ck-label">Foto Resmi Beresolusi Tinggi</div><div class="ck-std">Min. 5 foto, format JPG/PNG, ≥2MB per foto</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Ada</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">4</span><div class="ck-text"><div class="ck-label">Logo & Aset Visual Resmi</div><div class="ck-std">Logo PNG transparan, panduan warna, brand kit</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Ada</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">5</span><div class="ck-text"><div class="ck-label">Fact Sheet / Lembar Data</div><div class="ck-std">Data statistik, capaian, angka penting institusi</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Ada</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">6</span><div class="ck-text"><div class="ck-label">Kontak Media Resmi BMP</div><div class="ck-std">Nama, jabatan, email, nomor HP yang dapat dihubungi</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Ada</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+        </div>
+        <div class="field" style="margin-top:12px"><label>Dokumen Tambahan (jika ada)</label><textarea id="W-tambahan" rows="2"></textarea></div>
+        <div class="sec-title"><div class="sec-letter">B</div>Register Paket Press Kit</div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-W">
+            <tr>
+              <th style="width:28px">No</th>
+              <th>Nama Paket</th>
+              <th style="width:100px">Kegiatan</th>
+              <th style="width:90px">Tgl Dibuat</th>
+              <th style="width:90px">Tgl Distribusi</th>
+              <th style="width:80px">Jumlah Penerima</th>
+              <th style="width:80px">Status</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-W', rowW)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Disusun oleh Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Tanggal Finalisasi</div><div class="sign-space"></div><input class="sign-line" type="date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM X: Daftar Distribusi Media -->
+    <div id="form-X" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Daftar Distribusi Media (Media Contact List)</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-7.2</div><div class="info">Diperbarui: per distribusi press kit · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid cols2">
+          <div class="field"><label>Nama Paket Press Kit</label><input type="text" id="X-paket"></div>
+          <div class="field"><label>Tanggal Distribusi</label><input type="date" id="X-tgl"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-X">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:130px">Nama Media</th>
+              <th style="width:90px">Jenis Media</th>
+              <th style="width:130px">Nama Editor / PIC</th>
+              <th style="width:120px">Jabatan</th>
+              <th style="width:160px">Email</th>
+              <th style="width:110px">No. HP / WA</th>
+              <th style="width:90px">Status Kirim</th>
+              <th style="width:80px">Tgl Kirim</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-X', rowX)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Petugas Distribusi</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama"></div>
+          <div class="sign-box"><div class="sign-title">Diverifikasi Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM Y: Bukti Tayang Media Eksternal -->
+    <div id="form-Y" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Bukti Tayang Media Eksternal</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-7.3</div><div class="info">Diisi: setiap ada peliputan media eksternal · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Periode</label><input type="text" id="Y-periode" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Total Tayang Eksternal</label><input type="number" id="Y-total" placeholder="0"></div>
+          <div class="field"><label>Disusun Oleh</label><input type="text" id="Y-disusun"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-Y">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:130px">Nama Media</th>
+              <th>Judul Artikel / Berita / Segmen</th>
+              <th style="width:90px">Tgl Tayang</th>
+              <th style="width:90px">Jenis Media</th>
+              <th style="width:180px">URL / Halaman / Durasi</th>
+              <th style="width:90px">Narasumber</th>
+              <th style="width:80px">Bukti</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-Y', rowY)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Disusun oleh Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Tanggal Rekap</div><div class="sign-space"></div><input class="sign-line" type="date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM Z: Dummy Jurnal Akhbar STIBA -->
+    <div id="form-Z" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Dummy Jurnal — Akhbar STIBA</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-8.1</div><div class="info">Target: 1 edisi/tahun · Pengisi: Redaktur Pelaksana</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Edisi Ke-</label><input type="number" id="Z-edisi" placeholder="1"></div>
+          <div class="field"><label>Tema Edisi</label><input type="text" id="Z-tema"></div>
+          <div class="field"><label>Tahun Terbit</label><input type="text" id="Z-tahun" placeholder="contoh: 2026"></div>
+          <div class="field"><label>Redaktur Pelaksana</label><input type="text" id="Z-redaktur"></div>
+          <div class="field"><label>Deadline Dummy</label><input type="date" id="Z-deadline-dummy"></div>
+          <div class="field"><label>Target Cetak</label><input type="text" id="Z-target-cetak" placeholder="contoh: 500 eksemplar"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">A</div>Daftar Artikel / Konten Jurnal</div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-Z">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:70px">Halaman</th>
+              <th>Judul Artikel / Rubrik</th>
+              <th style="width:130px">Penulis / Reporter</th>
+              <th style="width:100px">Kategori</th>
+              <th style="width:80px">Jml Kata</th>
+              <th style="width:80px">Foto Ada?</th>
+              <th style="width:80px">Status</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-Z', rowZ)">+ Tambah Baris</button>
+        </div>
+        <div class="sec-title"><div class="sec-letter">B</div>Spesifikasi Tata Letak</div>
+        <div class="meta-grid">
+          <div class="field"><label>Ukuran Cetak</label><input type="text" id="Z-ukuran" placeholder="contoh: A4 / Tabloid / A5"></div>
+          <div class="field"><label>Jumlah Halaman</label><input type="number" id="Z-halaman"></div>
+          <div class="field"><label>Software Layout</label><input type="text" id="Z-software" placeholder="contoh: Adobe InDesign, Canva Pro"></div>
+          <div class="field"><label>Penata Letak (Layouter)</label><input type="text" id="Z-layouter"></div>
+          <div class="field"><label>Status Dummy</label><select id="Z-status"><option value="">Pilih...</option><option>Dalam Penyusunan</option><option>Dummy Selesai</option><option>Dalam Review Redaksi</option><option>Revisi</option><option>Disetujui</option><option>Naik Cetak</option></select></div>
+          <div class="field"><label>Lokasi File Dummy</label><input type="text" id="Z-lokasi"></div>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Redaktur Pelaksana</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Redaktur"></div>
+          <div class="sign-box"><div class="sign-title">Disetujui Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P2: Bukti Terbit / Distribusi Jurnal -->
+    <div id="form-P2" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Bukti Terbit &amp; Distribusi Jurnal Akhbar STIBA</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-8.2</div><div class="info">Diisi: setelah jurnal terbit · Pengisi: Redaktur Pelaksana</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Edisi / Tahun</label><input type="text" id="P2-edisi" placeholder="Edisi 1 / 2026"></div>
+          <div class="field"><label>Tanggal Terbit</label><input type="date" id="P2-tgl-terbit"></div>
+          <div class="field"><label>Jumlah Eksemplar Dicetak</label><input type="number" id="P2-jml-cetak"></div>
+          <div class="field"><label>Versi Digital (URL/Link)</label><input type="url" id="P2-url-digital" placeholder="https://..."></div>
+          <div class="field"><label>Platform Digital</label><input type="text" id="P2-platform-digital" placeholder="contoh: Issuu, Google Drive, Website"></div>
+          <div class="field"><label>ISBN / ISSN (jika ada)</label><input type="text" id="P2-issn"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">A</div>Daftar Distribusi Fisik</div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P2">
+            <tr>
+              <th style="width:28px">No</th>
+              <th>Nama Penerima / Instansi</th>
+              <th style="width:130px">Jabatan / Unit</th>
+              <th style="width:70px">Jml Eks</th>
+              <th style="width:90px">Tgl Distribusi</th>
+              <th style="width:100px">Penerima (ttd/nama)</th>
+              <th style="width:80px">Keterangan</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P2', rowP2)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Redaktur Pelaksana</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Redaktur"></div>
+          <div class="sign-box"><div class="sign-title">Diketahui Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P3: Lembar Kendali Hasil Liputan -->
+    <div id="form-P3" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Lembar Kendali Hasil Liputan (Checklist)</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-9.1</div><div class="info">Diisi: per kegiatan strategis · Pengisi: Koordinator Peliputan</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field" style="grid-column:span 2"><label>Nama Kegiatan</label><input type="text" id="P3-kegiatan"></div>
+          <div class="field"><label>Tanggal Kegiatan</label><input type="date" id="P3-tgl"></div>
+          <div class="field"><label>Lokasi</label><input type="text" id="P3-lokasi"></div>
+          <div class="field"><label>Tim Peliputan</label><input type="text" id="P3-tim" placeholder="Nama-nama pewarta/fotografer"></div>
+          <div class="field" style="grid-column:span 2"><label>PJ Kegiatan (dari Unit Penyelenggara)</label><input type="text" id="P3-pj-unit"></div>
+          <div class="field"><label>Koordinator Liputan BMP</label><input type="text" id="P3-koordinator"></div>
+        </div>
+        <div class="sec-title"><div class="sec-letter">A</div>Kendali Output Liputan</div>
+        <div class="ck-grid">
+          <div class="ck-item"><span class="ck-code">1</span><div class="ck-text"><div class="ck-label">Foto ≥ 10 foto berkualitas</div><div class="ck-std">Resolusi ≥1080px, fokus, terang, komposisi baik</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Selesai</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">2</span><div class="ck-text"><div class="ck-label">Video B-Roll ≥ 3 menit</div><div class="ck-std">Footage suasana kegiatan untuk keperluan produksi</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Selesai</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">3</span><div class="ck-text"><div class="ck-label">Wawancara Narasumber Utama</div><div class="ck-std">Minimal 1 narasumber yang relevan telah diwawancarai</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Selesai</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">4</span><div class="ck-text"><div class="ck-label">Data & Informasi Kegiatan</div><div class="ck-std">Nama kegiatan, tanggal, peserta, notulensi singkat</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Selesai</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">5</span><div class="ck-text"><div class="ck-label">Draft Naskah Berita Tertulis</div><div class="ck-std">Dikirim ke redaksi dalam 1×24 jam pasca kegiatan</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Selesai</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">6</span><div class="ck-text"><div class="ck-label">Konten Media Sosial</div><div class="ck-std">Postingan IG/FB berisi foto + caption sudah diunggah</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Selesai</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">7</span><div class="ck-text"><div class="ck-label">File Terarsip di Storage</div><div class="ck-std">Foto &amp; video sudah diupload ke folder kegiatan di Drive</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Selesai</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+          <div class="ck-item"><span class="ck-code">8</span><div class="ck-text"><div class="ck-label">No. Arsip Ditetapkan</div><div class="ck-std">Nomor ARF- sudah dicatat di Katalog Arsip Digital (DOK-6.3)</div></div><div class="ck-btns"><button class="ck-btn" data-val="lulus" onclick="toggleCk(this)">Selesai</button><button class="ck-btn" data-val="revisi" onclick="toggleCk(this)">Belum</button></div></div>
+        </div>
+        <div class="sec-title">Catatan Khusus</div>
+        <div class="field"><label>Kendala selama liputan</label><textarea id="P3-kendala" rows="2"></textarea></div>
+        <div class="field"><label>Catatan perbaikan untuk liputan berikutnya</label><textarea id="P3-catatan" rows="2"></textarea></div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Koordinator Peliputan</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Koordinator"></div>
+          <div class="sign-box"><div class="sign-title">Diverifikasi Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P4: Laporan Kegiatan Strategis Bulanan -->
+    <div id="form-P4" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Laporan Kegiatan Strategis Bulanan</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-9.2</div><div class="info">Target: 100% kegiatan strategis terliputi · Diisi: akhir bulan</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Bulan / Tahun</label><input type="text" id="P4-bulan" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Koordinator Peliputan</label><input type="text" id="P4-koordinator"></div>
+          <div class="field"><label>Total Kegiatan Strategis</label><input type="number" id="P4-total" placeholder="0"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P4">
+            <tr>
+              <th style="width:28px">No</th>
+              <th>Nama Kegiatan Strategis</th>
+              <th style="width:90px">Tanggal</th>
+              <th style="width:130px">Tim Peliputan</th>
+              <th style="width:60px">Foto</th>
+              <th style="width:60px">Video</th>
+              <th style="width:70px">Berita</th>
+              <th style="width:70px">IG Post</th>
+              <th style="width:80px">Status Arsip</th>
+              <th style="width:90px">Keterangan</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P4', rowP4)">+ Tambah Baris</button>
+        </div>
+        <div class="meta-grid cols2" style="margin-top:12px">
+          <div class="field"><label>Kegiatan Strategis Terliputi (%)</label><input type="text" id="P4-persen" placeholder="contoh: 100% (10/10 kegiatan)"></div>
+          <div class="field"><label>Catatan / Evaluasi Bulan Ini</label><textarea id="P4-catatan" rows="2"></textarea></div>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Koordinator Peliputan</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Koordinator"></div>
+          <div class="sign-box"><div class="sign-title">Diketahui Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P5: Matriks Kompetensi Staf -->
+    <div id="form-P5" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Matriks Kompetensi Staf BMP</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-11.1</div><div class="info">Diperbarui: per semester · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Periode Penilaian</label><input type="text" id="P5-periode" placeholder="contoh: Semester I 2026"></div>
+          <div class="field"><label>Dinilai Oleh</label><input type="text" id="P5-penilai"></div>
+          <div class="field"><label>Tanggal Penilaian</label><input type="date" id="P5-tgl"></div>
+        </div>
+        <div style="background:#EEF2F8;border:1px solid #C8D5E8;border-radius:6px;padding:8px 12px;font-size:12px;margin-bottom:14px;color:var(--navy)">
+          <strong>Skala Penilaian:</strong> 1 = Belum Menguasai &nbsp;|&nbsp; 2 = Dasar &nbsp;|&nbsp; 3 = Mahir &nbsp;|&nbsp; 4 = Ahli / Dapat Melatih
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P5">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:140px">Nama Staf</th>
+              <th style="width:120px">Jabatan / Peran</th>
+              <th style="width:65px">Foto & Videografi</th>
+              <th style="width:65px">Desain Grafis</th>
+              <th style="width:65px">Penulisan Berita</th>
+              <th style="width:65px">Editing Video</th>
+              <th style="width:65px">Media Sosial</th>
+              <th style="width:65px">Analitik Data</th>
+              <th style="width:65px">Copywriting</th>
+              <th style="width:90px">Prioritas Pelatihan</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P5', rowP5)">+ Tambah Staf</button>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Catatan Pengembangan Tim</label><textarea id="P5-catatan" rows="2"></textarea></div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Kabag. BMP (Penilai)</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Tanggal Penilaian</div><div class="sign-space"></div><input class="sign-line" type="date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P6: Modul / Materi Pelatihan -->
+    <div id="form-P6" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Modul / Materi Pelatihan Tim BMP</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-11.2</div><div class="info">Target: ≥1 pelatihan/semester · Pengisi: Fasilitator</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Nama Pelatihan / Workshop</label><input type="text" id="P6-nama"></div>
+          <div class="field"><label>Bidang Kompetensi</label><select id="P6-bidang"><option value="">Pilih...</option><option>Foto & Videografi</option><option>Desain Grafis</option><option>Penulisan Berita</option><option>Editing Video</option><option>Media Sosial</option><option>Analitik Data</option><option>Copywriting</option><option>Manajemen Konten</option><option>Lainnya</option></select></div>
+          <div class="field"><label>Tanggal Pelaksanaan</label><input type="date" id="P6-tgl"></div>
+          <div class="field"><label>Narasumber / Trainer</label><input type="text" id="P6-trainer"></div>
+          <div class="field"><label>Durasi Pelatihan</label><input type="text" id="P6-durasi" placeholder="contoh: 3 jam / 1 hari"></div>
+          <div class="field"><label>Lokasi / Platform</label><input type="text" id="P6-lokasi" placeholder="contoh: Ruang Rapat / Zoom / Google Meet"></div>
+          <div class="field" style="grid-column:span 3"><label>Tujuan Pelatihan</label><textarea id="P6-tujuan" rows="2"></textarea></div>
+          <div class="field" style="grid-column:span 3"><label>Ringkasan Materi yang Dibahas</label><textarea id="P6-materi" rows="4" placeholder="Tuliskan topik, subtopik, dan poin utama yang disampaikan..."></textarea></div>
+          <div class="field"><label>Lokasi File Materi (Slide/Dokumen)</label><input type="text" id="P6-file" placeholder="Google Drive / ..."></div>
+          <div class="field"><label>Jumlah Peserta</label><input type="number" id="P6-peserta"></div>
+          <div class="field"><label>Evaluasi / Feedback Peserta</label><select id="P6-evaluasi"><option value="">Pilih...</option><option>Sangat Baik</option><option>Baik</option><option>Cukup</option><option>Perlu Perbaikan</option></select></div>
+        </div>
+        <div class="sec-title">Daftar Peserta Pelatihan</div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P6">
+            <tr>
+              <th style="width:28px">No</th>
+              <th>Nama Peserta</th>
+              <th style="width:130px">Jabatan / Peran</th>
+              <th style="width:90px">Hadir?</th>
+              <th style="width:120px">Catatan</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P6', rowP6)">+ Tambah Peserta</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Narasumber / Trainer</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Trainer"></div>
+          <div class="sign-box"><div class="sign-title">Diketahui Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P7: Sertifikat Pelatihan -->
+    <div id="form-P7" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Register Sertifikat Pelatihan Staf BMP</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-11.3</div><div class="info">Diperbarui: setiap ada pelatihan · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid cols2">
+          <div class="field"><label>Periode</label><input type="text" id="P7-periode" placeholder="contoh: 2026"></div>
+          <div class="field"><label>Total Sertifikat</label><input type="number" id="P7-total" placeholder="0"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P7">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:140px">Nama Staf</th>
+              <th>Nama Pelatihan</th>
+              <th style="width:130px">Penyelenggara</th>
+              <th style="width:90px">Tanggal</th>
+              <th style="width:120px">No. Sertifikat</th>
+              <th style="width:90px">Kompetensi</th>
+              <th style="width:100px">Lokasi Scan</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P7', rowP7)">+ Tambah Baris</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Direkap oleh Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Tanggal Pembaruan</div><div class="sign-space"></div><input class="sign-line" type="date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P8: SOP Kerja Tim (Updated) -->
+    <div id="form-P8" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Register SOP Kerja Tim BMP (Updated)</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-11.4</div><div class="info">Diperbarui: setiap ada revisi SOP · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid cols2">
+          <div class="field"><label>Versi Dokumen Register</label><input type="text" id="P8-versi" placeholder="contoh: v.02.2026"></div>
+          <div class="field"><label>Tanggal Pembaruan Register</label><input type="date" id="P8-tgl"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P8">
+            <tr>
+              <th style="width:28px">No</th>
+              <th>Nama SOP</th>
+              <th style="width:100px">Kode SOP</th>
+              <th style="width:60px">Versi</th>
+              <th style="width:90px">Tgl Berlaku</th>
+              <th style="width:90px">Tgl Revisi</th>
+              <th style="width:130px">Disetujui Oleh</th>
+              <th style="width:80px">Lokasi File</th>
+              <th style="width:70px">Status</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P8', rowP8)">+ Tambah SOP</button>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Catatan Revisi / Perubahan Utama</label><textarea id="P8-catatan" rows="2"></textarea></div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Disusun oleh Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Diketahui Pimpinan</div><div class="sign-space"></div><input class="sign-line" value="Arif Patang, S.H.I. — Kepala PKSPU"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P9: Daftar Inventaris Perangkat -->
+    <div id="form-P9" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Daftar Inventaris Perangkat Produksi Multimedia</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-12.1</div><div class="info">Diperbarui: setiap ada penambahan/perubahan · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Tanggal Pembaruan</label><input type="date" id="P9-tgl"></div>
+          <div class="field"><label>Disusun Oleh</label><input type="text" id="P9-disusun"></div>
+          <div class="field"><label>Total Perangkat</label><input type="number" id="P9-total" placeholder="0"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P9">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:70px">Kode Barang</th>
+              <th>Nama Perangkat</th>
+              <th style="width:120px">Merk / Model</th>
+              <th style="width:110px">Serial Number</th>
+              <th style="width:80px">Tgl Pengadaan</th>
+              <th style="width:70px">Kondisi</th>
+              <th style="width:110px">Pengguna / PIC</th>
+              <th style="width:90px">Lokasi</th>
+              <th style="width:80px">Keterangan</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P9', rowP9)">+ Tambah Perangkat</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Tanggal Verifikasi</div><div class="sign-space"></div><input class="sign-line" type="date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P10: Bukti Lisensi Software -->
+    <div id="form-P10" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Bukti Lisensi Software (Resmi)</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-12.2</div><div class="info">Diperbarui: per perpanjangan lisensi · Pengisi: Kabag. BMP</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid cols2">
+          <div class="field"><label>Tanggal Pembaruan</label><input type="date" id="P10-tgl"></div>
+          <div class="field"><label>Total Software Berlisensi</label><input type="number" id="P10-total" placeholder="0"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P10">
+            <tr>
+              <th style="width:28px">No</th>
+              <th>Nama Software</th>
+              <th style="width:80px">Versi</th>
+              <th style="width:100px">Jenis Lisensi</th>
+              <th style="width:130px">No. Lisensi / Akun</th>
+              <th style="width:90px">Tgl Mulai</th>
+              <th style="width:90px">Valid Sampai</th>
+              <th style="width:110px">Pengguna / PIC</th>
+              <th style="width:90px">Bukti Lisensi</th>
+              <th style="width:70px">Status</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P10', rowP10)">+ Tambah Software</button>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Catatan (software yang akan jatuh tempo dalam 30 hari)</label><textarea id="P10-catatan" rows="2"></textarea></div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+          <div class="sign-box"><div class="sign-title">Tanggal Pembaruan</div><div class="sign-space"></div><input class="sign-line" type="date"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P11: Jadwal Perawatan Alat -->
+    <div id="form-P11" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Jadwal Perawatan (Maintenance) Perangkat</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-12.3</div><div class="info">Diperbarui: setiap pelaksanaan perawatan · Pengisi: PIC Perangkat</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid cols2">
+          <div class="field"><label>Tahun Anggaran</label><input type="text" id="P11-tahun" placeholder="contoh: 2026"></div>
+          <div class="field"><label>Penanggung Jawab</label><input type="text" id="P11-pj"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P11">
+            <tr>
+              <th style="width:28px">No</th>
+              <th>Nama Perangkat</th>
+              <th style="width:80px">Kode Barang</th>
+              <th style="width:120px">Jenis Perawatan</th>
+              <th style="width:90px">Periode/Frekuensi</th>
+              <th style="width:90px">Tgl Terakhir</th>
+              <th style="width:90px">Tgl Berikutnya</th>
+              <th style="width:90px">PIC</th>
+              <th style="width:70px">Status</th>
+              <th style="width:90px">Catatan</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P11', rowP11)">+ Tambah Perangkat</button>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Penanggung Jawab Perangkat</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama PJ"></div>
+          <div class="sign-box"><div class="sign-title">Diketahui Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM P12: Kalender Kolaborasi -->
+    <div id="form-P12" class="form-page" style="display:none">
+      <div class="doc-header">
+        <div><div class="doc-title">Kalender Kolaborasi Internal Lintas Unit</div><div class="doc-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</div></div>
+        <div class="doc-code"><div class="kode">DOK-13.3</div><div class="info">Target: ≥4 pertemuan kolaborasi/bulan · Disusun: awal bulan</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="meta-grid">
+          <div class="field"><label>Bulan / Tahun</label><input type="text" id="P12-bulan" placeholder="contoh: Juli 2026"></div>
+          <div class="field"><label>Koordinator BMP</label><input type="text" id="P12-koordinator"></div>
+          <div class="field"><label>Total Kolaborasi Direncanakan</label><input type="number" id="P12-total" placeholder="0"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="form-tbl" id="tbl-P12">
+            <tr>
+              <th style="width:28px">No</th>
+              <th style="width:90px">Tanggal</th>
+              <th>Nama / Tema Kegiatan Kolaborasi</th>
+              <th style="width:120px">Unit Mitra</th>
+              <th style="width:100px">PIC BMP</th>
+              <th style="width:110px">PIC Unit Mitra</th>
+              <th style="width:130px">Output yang Diharapkan</th>
+              <th style="width:80px">Status</th>
+            </tr>
+          </table>
+          <button class="add-row-btn no-print" onclick="addRow('tbl-P12', rowP12)">+ Tambah Kolaborasi</button>
+        </div>
+        <div class="meta-grid cols2" style="margin-top:12px">
+          <div class="field"><label>Total Terealisasi (Akhir Bulan)</label><input type="text" id="P12-realisasi" placeholder="contoh: 5 dari 6 yang direncanakan"></div>
+          <div class="field"><label>Catatan / Evaluasi Kolaborasi</label><textarea id="P12-catatan" rows="2"></textarea></div>
+        </div>
+        <div class="sign-row">
+          <div class="sign-box"><div class="sign-title">Koordinator BMP</div><div class="sign-space"></div><input class="sign-line" placeholder="Nama Koordinator"></div>
+          <div class="sign-box"><div class="sign-title">Diketahui Kabag. BMP</div><div class="sign-space"></div><input class="sign-line" value="Syahrul Kur'ani, Lc."></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end form-area -->
+</div><!-- end main -->
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-overlay" onclick="if(event.target===this)closeSettings()">
+  <div id="settings-modal">
+    <div class="modal-header">
+      <h3>⚙️ Pengaturan Firebase (Sinkronisasi Online)</h3>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px">Hubungkan ke Firebase Realtime Database agar data tersinkron secara real-time ke semua admin BMP. <strong>Gratis</strong> untuk kebutuhan ini.</p>
+
+      <div style="background:#EEF2F8;border-radius:8px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px">📋 Cara Setup Firebase (satu kali, oleh admin utama)</div>
+        <div class="setup-step">
+          <div class="step-num">1</div>
+          <div class="step-text">Buka <a class="gs-link" href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → <strong>Add project</strong> → beri nama (misal: <code>spmi-bmp-stiba</code>) → Continue</div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">2</div>
+          <div class="step-text">Di menu kiri: <strong>Build → Realtime Database → Create Database</strong>. Pilih lokasi <strong>Singapore</strong> → Start in <strong>test mode</strong> → Enable</div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">3</div>
+          <div class="step-text">Setelah database terbuat, copy URL-nya. Bentuknya: <code>https://spmi-bmp-stiba-default-rtdb.asia-southeast1.firebasedatabase.app</code></div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">4</div>
+          <div class="step-text">Paste URL tersebut di kolom <strong>Database URL</strong> di bawah. Isi nama admin Anda, lalu klik <strong>Simpan & Test</strong></div>
+        </div>
+        <div class="setup-step">
+          <div class="step-num">5</div>
+          <div class="step-text">Bagikan file HTML ini + Database URL ke seluruh anggota tim. Setiap admin isi nama masing-masing di Pengaturan</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="field">
+          <label>Firebase Database URL</label>
+          <input type="url" id="cfg-url" placeholder="https://nama-project-default-rtdb.asia-southeast1.firebasedatabase.app">
+          <div class="field-hint">Tanpa garis miring di akhir URL</div>
+        </div>
+        <div class="field">
+          <label>Nama Admin (Anda)</label>
+          <input type="text" id="cfg-admin" placeholder="contoh: Syahrul Kurani">
+        </div>
+      </div>
+      <div class="conn-test">
+        <button class="btn" style="background:var(--navy-light);color:#fff;font-size:11px;padding:5px 12px" onclick="testConnection()">🔌 Test Koneksi</button>
+        <span id="conn-result" class="conn-result"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-reset" onclick="closeSettings()">Batal</button>
+      <button class="btn btn-save" onclick="saveSettings()">Simpan Pengaturan</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF GUIDE MODAL -->
+<div id="pdf-overlay" onclick="if(event.target===this)closePdfGuide()">
+  <div id="pdf-modal">
+    <div class="modal-header">
+      <h3>📄 Simpan Formulir sebagai PDF</h3>
+      <button class="modal-close" onclick="closePdfGuide()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:12px;color:var(--text-muted);font-size:12.5px">Ikuti langkah berikut untuk menyimpan formulir yang sedang ditampilkan sebagai file PDF:</p>
+      <div class="pdf-step"><div class="ps-icon">1️⃣</div><div><strong>Pastikan formulir sudah terisi</strong> dan halaman yang ingin disimpan sedang aktif ditampilkan</div></div>
+      <div class="pdf-step"><div class="ps-icon">2️⃣</div><div>Tekan <strong>Ctrl + P</strong> (Windows) atau <strong>Cmd + P</strong> (Mac) untuk membuka dialog Print</div></div>
+      <div class="pdf-step"><div class="ps-icon">3️⃣</div><div>Pada kolom <strong>Printer / Destination</strong>, pilih <strong>"Save as PDF"</strong></div></div>
+      <div class="pdf-step"><div class="ps-icon">4️⃣</div><div>Atur layout ke <strong>Portrait</strong>, Paper size: <strong>A4</strong>, centang <strong>Background graphics</strong> agar warna tetap tampil</div></div>
+      <div class="pdf-step"><div class="ps-icon">5️⃣</div><div>Klik <strong>Save</strong> dan pilih lokasi penyimpanan</div></div>
+      <div style="background:#EEF2F8;border-radius:7px;padding:10px 12px;margin-top:10px;font-size:12px;color:var(--navy)">
+        💡 <strong>Tips:</strong> Sidebar dan tombol tidak akan muncul di PDF karena sudah dikonfigurasi untuk tidak dicetak.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-reset" onclick="closePdfGuide()">Tutup</button>
+      <button class="btn btn-print" onclick="closePdfGuide();window.print()">🖨️ Buka Dialog Print</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── ROW TEMPLATES ──
+function rowB(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option>1</option><option>2</option><option>3</option><option>4</option></select></td>
+    <td><input type="number" min="1" max="31"></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option value=""></option><option>Infografis</option><option>Quote Grafis</option><option>Foto+Caption</option><option>Reels</option><option>Carousel</option><option>Video</option><option>Berita</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option value=""></option><option>Instagram</option><option>YouTube</option><option>Website</option><option>Facebook</option><option>TikTok</option></select></td>
+    <td><input></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option>Belum</option><option>Proses</option><option>Selesai</option><option>Batal</option></select></td>
+  </tr>`;
+}
+function rowC(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input type="date"></td>
+    <td><input type="time"></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option value=""></option><option>Instagram</option><option>YouTube</option><option>Website</option><option>Facebook</option><option>TikTok</option></select></td>
+    <td><input></td>
+    <td><input type="url" placeholder="https://..."></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option>Lulus</option><option>Revisi</option><option>Pending</option></select></td>
+  </tr>`;
+}
+function rowE(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input placeholder="ARF-"></td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input type="url" placeholder="https://..."></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option>Terbit</option><option>Draft</option><option>Revisi</option></select></td>
+  </tr>`;
+}
+function rowF(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option>Tatap Muka</option><option>Telepon</option><option>WhatsApp</option><option>Online</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option>Terkonfirmasi</option><option>Menunggu</option><option>Batal</option></select></td>
+  </tr>`;
+}
+function rowJ(i) {
+  return `<tr>
+    <td><input placeholder="RTL-${i}"></td>
+    <td><textarea rows="2"></textarea></td>
+    <td><textarea rows="2"></textarea></td>
+    <td><input></td>
+    <td><input type="date"></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option>Belum</option><option>Proses</option><option>Selesai</option></select></td>
+  </tr>`;
+}
+function rowL(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input type="number"></td>
+    <td><input></td>
+    <td><textarea rows="2"></textarea></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px">
+      <option>Belum</option><option>Proses</option><option>Selesai</option></select></td>
+  </tr>`;
+}
+
+function rowP(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Instagram</option><option>YouTube</option><option>Website</option><option>Facebook</option><option>TikTok</option></select></td>
+    <td><input></td>
+    <td><input type="url" placeholder="https://..."></td>
+    <td><input type="number"></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Aktif</option><option>Tidak Aktif</option><option>Dihapus</option></select></td>
+  </tr>`;
+}
+function rowQ(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input placeholder="VIS-"></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Poster</option><option>Infografis</option><option>Carousel</option><option>Reels Thumbnail</option><option>Banner</option><option>Logo</option><option>Ilustrasi</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Instagram</option><option>YouTube</option><option>Website</option><option>Cetak</option><option>Semua</option></select></td>
+    <td><input type="date"></td>
+    <td><input placeholder="v.1"></td>
+    <td><input placeholder="Drive / ..."></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Final</option><option>Draft</option><option>Revisi</option><option>Arsip</option></select></td>
+  </tr>`;
+}
+function rowRplatform(i) {
+  return `<tr>
+    <td><input></td>
+    <td><textarea rows="2"></textarea></td>
+    <td><textarea rows="2"></textarea></td>
+    <td><textarea rows="2"></textarea></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Tinggi</option><option>Sedang</option><option>Rendah</option></select></td>
+  </tr>`;
+}
+function rowT(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input placeholder="ARF-"></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Foto</option><option>Video</option><option>Dokumen</option><option>Desain</option><option>Audio</option></select></td>
+    <td><input></td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><input placeholder="Drive / Folder / ..."></td>
+    <td><input placeholder="MB/GB"></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Terarsip</option><option>Pending</option><option>Hilang</option></select></td>
+  </tr>`;
+}
+function rowU(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Foto</option><option>Video</option><option>Foto + Video</option><option>Live Streaming</option></select></td>
+    <td><input></td>
+    <td><input type="number" placeholder="0"></td>
+    <td><input type="number" placeholder="0"></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Sudah Arsip</option><option>Belum Arsip</option><option>Sebagian</option></select></td>
+    <td><input placeholder="ARF-"></td>
+  </tr>`;
+}
+function rowV(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input placeholder="Drive.google.com/..."></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Foto</option><option>Video</option><option>Dokumen</option><option>Desain</option><option>Campuran</option></select></td>
+    <td><input type="number" placeholder="0"></td>
+    <td><input placeholder="GB"></td>
+    <td><input></td>
+    <td><input type="date"></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Tim BMP</option><option>Terbatas</option><option>Publik</option></select></td>
+  </tr>`;
+}
+function rowW(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input></td>
+    <td><input type="date"></td>
+    <td><input type="date"></td>
+    <td><input type="number" placeholder="0"></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Draf</option><option>Selesai</option><option>Didistribusikan</option><option>Arsip</option></select></td>
+  </tr>`;
+}
+function rowX(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Online (Portal)</option><option>Cetak</option><option>TV</option><option>Radio</option><option>Media Sosial</option></select></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input type="email"></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Terkirim</option><option>Belum</option><option>Gagal</option></select></td>
+    <td><input type="date"></td>
+  </tr>`;
+}
+function rowY(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input></td>
+    <td><input type="date"></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Portal Online</option><option>Koran/Majalah</option><option>TV</option><option>Radio</option><option>Media Sosial</option></select></td>
+    <td><input type="url" placeholder="https://..."></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Screenshot</option><option>Link</option><option>Foto</option><option>Kliping</option></select></td>
+  </tr>`;
+}
+function rowZ(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input placeholder="contoh: 1-4"></td>
+    <td><input></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Berita Utama</option><option>Feature</option><option>Opini</option><option>Profil</option><option>Rubrik Akademik</option><option>Iklan/Sponsor</option></select></td>
+    <td><input type="number" placeholder="0"></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Ya</option><option>Tidak</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Draft</option><option>Revisi</option><option>Final</option><option>Layout</option></select></td>
+  </tr>`;
+}
+function rowP2(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input></td>
+    <td><input type="number" placeholder="0"></td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><input></td>
+  </tr>`;
+}
+function rowP4(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Ya</option><option>Tidak</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Ya</option><option>Tidak</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Terbit</option><option>Draft</option><option>Belum</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Sudah</option><option>Belum</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Terarsip</option><option>Belum</option></select></td>
+    <td><input></td>
+  </tr>`;
+}
+function rowP5(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>1</option><option>2</option><option>3</option><option>4</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>1</option><option>2</option><option>3</option><option>4</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>1</option><option>2</option><option>3</option><option>4</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>1</option><option>2</option><option>3</option><option>4</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>1</option><option>2</option><option>3</option><option>4</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>1</option><option>2</option><option>3</option><option>4</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>1</option><option>2</option><option>3</option><option>4</option></select></td>
+    <td><input placeholder="Bidang prioritas..."></td>
+  </tr>`;
+}
+function rowP6(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Hadir</option><option>Tidak Hadir</option><option>Online</option></select></td>
+    <td><input></td>
+  </tr>`;
+}
+function rowP7(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input placeholder="Drive / ..."></td>
+  </tr>`;
+}
+function rowP8(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input placeholder="SOP-BMP-"></td>
+    <td><input placeholder="v.1"></td>
+    <td><input type="date"></td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><input placeholder="Drive / ..."></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Berlaku</option><option>Revisi</option><option>Tidak Berlaku</option></select></td>
+  </tr>`;
+}
+function rowP9(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input placeholder="INV-BMP-"></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input type="date"></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Baik</option><option>Cukup</option><option>Rusak Ringan</option><option>Rusak Berat</option></select></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+  </tr>`;
+}
+function rowP10(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Berlangganan Tahunan</option><option>Berlangganan Bulanan</option><option>Perpetual</option><option>Gratis/Freemium</option><option>Edu License</option></select></td>
+    <td><input></td>
+    <td><input type="date"></td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><input placeholder="Drive / ..."></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Aktif</option><option>Kedaluwarsa</option><option>Segera Perpanjang</option></select></td>
+  </tr>`;
+}
+function rowP11(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input></td>
+    <td><input placeholder="INV-BMP-"></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option value=""></option><option>Pembersihan Rutin</option><option>Kalibrasi</option><option>Penggantian Baterai</option><option>Update Firmware</option><option>Servis Teknis</option></select></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Bulanan</option><option>3 Bulan</option><option>6 Bulan</option><option>Tahunan</option><option>Kondisional</option></select></td>
+    <td><input type="date"></td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Terjadwal</option><option>Selesai</option><option>Terlambat</option></select></td>
+    <td><input></td>
+  </tr>`;
+}
+function rowP12(i) {
+  return `<tr>
+    <td class="num">${i}</td>
+    <td><input type="date"></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><input></td>
+    <td><select style="border:none;background:transparent;width:100%;font-family:inherit;font-size:12.5px"><option>Direncanakan</option><option>Berlangsung</option><option>Selesai</option><option>Ditunda</option><option>Batal</option></select></td>
+  </tr>`;
+}
+
+// ── INIT DEFAULT ROWS ──
+function initRows() {
+  const defaults = {
+    'tbl-B': { fn: rowB, n: 15 },
+    'tbl-C': { fn: rowC, n: 15 },
+    'tbl-E': { fn: rowE, n: 10 },
+    'tbl-F': { fn: rowF, n: 8 },
+    'tbl-J': { fn: rowJ, n: 5 },
+    'tbl-L': { fn: rowL, n: 6 },
+    'tbl-P': { fn: rowP, n: 15 },
+    'tbl-Q': { fn: rowQ, n: 10 },
+    'tbl-T': { fn: rowT, n: 10 },
+    'tbl-U': { fn: rowU, n: 10 },
+    'tbl-V': { fn: rowV, n: 8 },
+    'tbl-W': { fn: rowW, n: 5 },
+    'tbl-X': { fn: rowX, n: 10 },
+    'tbl-Y': { fn: rowY, n: 8 },
+    'tbl-Z': { fn: rowZ, n: 8 },
+    'tbl-P2': { fn: rowP2, n: 8 },
+    'tbl-P4': { fn: rowP4, n: 8 },
+    'tbl-P5': { fn: rowP5, n: 6 },
+    'tbl-P6': { fn: rowP6, n: 8 },
+    'tbl-P7': { fn: rowP7, n: 8 },
+    'tbl-P8': { fn: rowP8, n: 8 },
+    'tbl-P9': { fn: rowP9, n: 10 },
+    'tbl-P10': { fn: rowP10, n: 8 },
+    'tbl-P11': { fn: rowP11, n: 8 },
+    'tbl-P12': { fn: rowP12, n: 8 },
+  };
+  for (const [id, cfg] of Object.entries(defaults)) {
+    const tbl = document.getElementById(id);
+    if (!tbl) continue;
+    for (let i = 1; i <= cfg.n; i++) {
+      tbl.insertAdjacentHTML('beforeend', cfg.fn(i));
+    }
+  }
+}
+
+function addRow(tblId, rowFn) {
+  const tbl = document.getElementById(tblId);
+  const rowCount = tbl.querySelectorAll('tr').length; // includes header
+  tbl.insertAdjacentHTML('beforeend', rowFn(rowCount));
+}
+
+// ── CHECKLIST TOGGLE ──
+function toggleCk(btn) {
+  const group = btn.closest('.ck-btns');
+  group.querySelectorAll('.ck-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── NAV ──
+let currentForm = null;
+function showForm(code) {
+  document.getElementById('form-welcome').style.display = 'none';
+  document.querySelectorAll('.form-page').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+  const el = document.getElementById('form-' + code);
+  if (el) {
+    el.style.display = 'block';
+    currentForm = code;
+  }
+  const nav = document.querySelector('.nav-item[data-form="' + code + '"]');
+  if (nav) nav.classList.add('active');
+
+  const titles = {
+    A:'Peta 14 Standar BMP', B:'Editorial Plan (DOK-3.1)', C:'Logbook Unggahan (DOK-3.2)',
+    D:'Checklist Kendali Mutu (DOK-4.1)', E:'Register Arsip Berita (DOK-5.1)',
+    F:'Daftar Narasumber (DOK-5.2)', G:'Script Podcast (DOK-6.1)',
+    H:'Log Produksi Video (DOK-6.2)', I:'Monthly Insight (DOK-7.1)',
+    J:'Dokumen RTL (DOK-7.2)', K:'Surat Tugas Peliputan (DOK-10.4)',
+    L:'Berita Acara Review Redaksi (DOK-10.2)', M:'Notula Rapat Koordinasi (DOK-13.1)',
+    N:'Form Permintaan Konten (DOK-13.2)', O:'Daftar Singkatan & Istilah',
+    P:'Rekap Tautan Konten (DOK-3.3)', Q:'Portofolio Aset Visual (DOK-4.2)',
+    R:'Evaluasi Strategi Konten (DOK-14.1)', S:'Data Pemetaan Audiens (DOK-14.2)',
+    T:'Katalog Arsip Digital (DOK-6.3)', U:'Logbook Dokumentasi (DOK-6.4)',
+    V:'Storage Directory (DOK-6.5)', W:'Master Press Kit (DOK-7.1)',
+    X:'Daftar Distribusi Media (DOK-7.2)', Y:'Bukti Tayang Media Eksternal (DOK-7.3)',
+    Z:'Dummy Jurnal Akhbar (DOK-8.1)', P2:'Bukti Terbit & Distribusi Jurnal (DOK-8.2)',
+    P3:'Lembar Kendali Liputan (DOK-9.1)', P4:'Laporan Peliputan Bulanan (DOK-9.2)',
+    P5:'Matriks Kompetensi Staf (DOK-11.1)', P6:'Modul Pelatihan (DOK-11.2)',
+    P7:'Sertifikat Pelatihan (DOK-11.3)', P8:'SOP Kerja Tim (DOK-11.4)',
+    P9:'Inventaris Perangkat (DOK-12.1)', P10:'Bukti Lisensi Software (DOK-12.2)',
+    P11:'Jadwal Perawatan Alat (DOK-12.3)', P12:'Kalender Kolaborasi (DOK-13.3)'
+  };
+  document.getElementById('current-title').textContent = titles[code] || code;
+  document.getElementById('main').scrollTo(0,0);
+
+  // Load saved data
+  loadForm(code);
+}
+
+// ── GLOBAL CONFIG ──
+let cfg = { url: '', admin: '' };
+
+// ── TOAST NOTIFIKASI ──
+function showToast(icon, title, msg, type = '', duration = 5000) {
+  const container = document.getElementById('toast-container');
+  const id = 'toast-' + Date.now();
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' toast-' + type : '');
+  el.id = id;
+  el.innerHTML = `
+    <div class="toast-icon">${icon}</div>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      ${msg ? `<div class="toast-msg">${msg}</div>` : ''}
+    </div>
+    <button class="toast-close" onclick="dismissToast('${id}')">✕</button>`;
+  container.appendChild(el);
+  if (duration > 0) setTimeout(() => dismissToast(id), duration);
+}
+function dismissToast(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('toast-out');
+  setTimeout(() => el.remove(), 300);
+}
+
+// ── EKSPOR PDF ──
+function exportPDF() {
+  if (!currentForm) {
+    showToast('⚠️', 'Pilih Formulir', 'Buka salah satu formulir dulu sebelum ekspor PDF.', 'error', 4000);
+    return;
+  }
+  const titles = {
+    A:'Peta 14 Standar BMP', B:'Editorial Plan', C:'Logbook Unggahan',
+    D:'Checklist Kendali Mutu', E:'Register Arsip Berita', F:'Daftar Narasumber',
+    G:'Script Podcast', H:'Log Produksi Video', I:'Monthly Insight',
+    J:'Dokumen RTL', K:'Surat Tugas Peliputan', L:'Berita Acara Review',
+    M:'Notula Rapat Koordinasi', N:'Form Permintaan Konten', O:'Daftar Singkatan',
+    P:'Rekap Tautan Konten', Q:'Portofolio Aset Visual',
+    R:'Evaluasi Strategi Konten', S:'Data Pemetaan Audiens',
+    T:'Katalog Arsip Digital', U:'Logbook Dokumentasi',
+    V:'Storage Directory', W:'Master Press Kit',
+    X:'Daftar Distribusi Media', Y:'Bukti Tayang Eksternal',
+    Z:'Dummy Jurnal Akhbar', P2:'Bukti Terbit Jurnal',
+    P3:'Lembar Kendali Liputan', P4:'Laporan Peliputan Bulanan',
+    P5:'Matriks Kompetensi Staf', P6:'Modul Pelatihan',
+    P7:'Sertifikat Pelatihan', P8:'SOP Kerja Tim',
+    P9:'Inventaris Perangkat', P10:'Bukti Lisensi Software',
+    P11:'Jadwal Perawatan Alat', P12:'Kalender Kolaborasi'
+  };
+  // Tandai form aktif untuk print
+  document.querySelectorAll('.form-page').forEach(el => el.classList.remove('printing'));
+  const activeForm = document.getElementById('form-' + currentForm);
+  if (activeForm) activeForm.classList.add('printing');
+
+  showToast('📄', 'Siap Ekspor PDF', `Lampiran ${currentForm} — ${titles[currentForm] || ''}. Dialog print akan terbuka.`, 'success', 3000);
+  setTimeout(() => {
+    window.print();
+    // Bersihkan kelas printing setelah print
+    setTimeout(() => {
+      document.querySelectorAll('.form-page').forEach(el => el.classList.remove('printing'));
+      if (activeForm) activeForm.style.display = 'block';
+    }, 1000);
+  }, 400);
+}
+
+// ── FIREBASE NOTIFIKASI — POLLING ──
+let lastLogKey = null;
+let pollingInterval = null;
+
+async function startNotificationPolling() {
+  if (!cfg.url) return;
+  // Ambil state awal log tanpa notifikasi
+  await fetchLatestLog(true);
+  // Poll setiap 15 detik
+  pollingInterval = setInterval(() => fetchLatestLog(false), 15000);
+}
+
+function stopPolling() {
+  if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
+}
+
+async function fetchLatestLog(silent) {
+  if (!cfg.url) return;
+  try {
+    // Ambil log terbaru (limitToLast=1)
+    const r = await fetch(`${cfg.url}/spmi-bmp/log.json?orderBy="$key"&limitToLast=3`);
+    if (!r.ok) return;
+    const logs = await r.json();
+    if (!logs) return;
+
+    const keys = Object.keys(logs).sort();
+    const latestKey = keys[keys.length - 1];
+    const latest = logs[latestKey];
+
+    if (silent) {
+      // Simpan key terakhir tanpa notifikasi
+      lastLogKey = latestKey;
+      return;
+    }
+
+    if (latestKey && latestKey !== lastLogKey) {
+      lastLogKey = latestKey;
+      // Notifikasi hanya jika admin berbeda
+      if (latest.admin && latest.admin !== (cfg.admin || '')) {
+        const formLabel = latest.form || '';
+        const waktu = latest.waktu || '';
+        showToast(
+          '🔔',
+          `${latest.admin} menyimpan data`,
+          `Formulir ${formLabel} diperbarui${waktu ? ' · ' + waktu : ''}. Buka formulir tersebut untuk melihat data terbaru.`,
+          'notif',
+          8000
+        );
+      }
+    }
+  } catch(e) { /* polling gagal — diam saja */ }
+}
+
+function loadSettings() {
+  try { cfg = JSON.parse(localStorage.getItem('spmi_cfg') || '{}'); } catch(e) {}
+  cfg.url = (cfg.url || '').replace(/\/$/, '');
+  cfg.admin = cfg.admin || '';
+  if (cfg.url) {
+    updateSyncBadge('local', 'Firebase terkonfigurasi — tekan Simpan untuk sinkron');
+    startNotificationPolling();
+  } else {
+    updateSyncBadge('none', 'Belum terhubung ke Firebase');
+  }
+}
+
+function saveSettings() {
+  cfg.url = (document.getElementById('cfg-url').value.trim()).replace(/\/$/, '');
+  cfg.admin = document.getElementById('cfg-admin').value.trim();
+  localStorage.setItem('spmi_cfg', JSON.stringify(cfg));
+  closeSettings();
+  stopPolling();
+  if (cfg.url) {
+    updateSyncBadge('local', 'Pengaturan Firebase tersimpan');
+    startNotificationPolling();
+    showToast('✅', 'Firebase Terhubung', `Notifikasi aktif. Halo, ${cfg.admin || 'Admin'}!`, 'success', 4000);
+  } else {
+    updateSyncBadge('none', 'Belum terhubung ke Firebase');
+  }
+}
+
+function openSettings() {
+  document.getElementById('cfg-url').value = cfg.url;
+  document.getElementById('cfg-admin').value = cfg.admin;
+  document.getElementById('conn-result').textContent = '';
+  document.getElementById('settings-overlay').classList.add('open');
+}
+function closeSettings() { document.getElementById('settings-overlay').classList.remove('open'); }
+function openPdfGuide() { document.getElementById('pdf-overlay').classList.add('open'); }
+function closePdfGuide() { document.getElementById('pdf-overlay').classList.remove('open'); }
+
+// ── TEST KONEKSI FIREBASE ──
+async function testConnection() {
+  const url = (document.getElementById('cfg-url').value.trim()).replace(/\/$/, '');
+  const res = document.getElementById('conn-result');
+  if (!url) { res.textContent = '⚠ Masukkan Database URL terlebih dahulu'; res.className = 'conn-result conn-err'; return; }
+  res.textContent = '⏳ Menguji koneksi...'; res.className = 'conn-result';
+  try {
+    // Firebase REST: PUT data uji ke /spmi-test.json
+    const testUrl = url + '/spmi-test.json';
+    const r = await fetch(testUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ping: 'ok', ts: Date.now() })
+    });
+    if (r.ok) {
+      res.textContent = '✅ Koneksi ke Firebase berhasil!';
+      res.className = 'conn-result conn-ok';
+    } else {
+      const txt = await r.text();
+      res.textContent = '❌ Firebase menolak: ' + txt.substring(0,80);
+      res.className = 'conn-result conn-err';
+    }
+  } catch(e) {
+    res.textContent = '❌ Tidak dapat terhubung — periksa URL atau koneksi internet';
+    res.className = 'conn-result conn-err';
+  }
+}
+
+// ── SYNC STATUS ──
+function updateSyncBadge(type, text) {
+  const el = document.getElementById('sync-status');
+  el.className = 'status-' + type;
+  document.getElementById('sync-text').textContent = text;
+}
+
+// ── COLLECT FORM DATA ──
+function collectFormData(code) {
+  const el = document.getElementById('form-' + code);
+  if (!el) return null;
+  const data = {};
+  el.querySelectorAll('input, textarea, select').forEach((inp, idx) => {
+    const key = inp.id || ('__idx__' + code + '__' + idx);
+    if (inp.type === 'radio' || inp.type === 'checkbox') data[key] = inp.checked;
+    else data[key] = inp.value;
+  });
+  return data;
+}
+
+// ── APPLY FORM DATA ──
+function applyFormData(code, data) {
+  const el = document.getElementById('form-' + code);
+  if (!el || !data) return;
+  el.querySelectorAll('input, textarea, select').forEach((inp, idx) => {
+    const key = inp.id || ('__idx__' + code + '__' + idx);
+    if (data[key] === undefined) return;
+    if (inp.type === 'radio' || inp.type === 'checkbox') inp.checked = data[key];
+    else inp.value = data[key];
+  });
+}
+
+// ── FIREBASE REST: SAVE ──
+async function saveToFirebase(code, data) {
+  if (!cfg.url) return { ok: false, msg: 'URL belum diisi' };
+  try {
+    const now = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Makassar' });
+    const payload = {
+      data: data,
+      meta: { lastUpdatedBy: cfg.admin || 'Admin', lastUpdatedAt: now, formCode: code }
+    };
+    const r = await fetch(`${cfg.url}/spmi-bmp/forms/${code}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (r.ok) {
+      // Log aktivitas (non-blocking)
+      fetch(`${cfg.url}/spmi-bmp/log.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ admin: cfg.admin || 'Admin', form: code, waktu: now, aksi: 'SAVE' })
+      }).catch(() => {});
+      return { ok: true };
+    } else {
+      const txt = await r.text();
+      return { ok: false, msg: `HTTP ${r.status}: ${txt.substring(0, 100)}` };
+    }
+  } catch(e) {
+    return { ok: false, msg: e.message || 'Network error' };
+  }
+}
+
+// ── FIREBASE REST: LOAD ──
+async function loadFromFirebase(code) {
+  if (!cfg.url) return null;
+  try {
+    const r = await fetch(`${cfg.url}/spmi-bmp/forms/${code}.json`);
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (!j || !j.data) return null;
+    return j.data;
+  } catch(e) { return null; }
+}
+
+// ── SAVE FORM ──
+async function saveForm() {
+  if (!currentForm) return;
+  const data = collectFormData(currentForm);
+  if (!data) return;
+
+  localStorage.setItem('spmi_form_' + currentForm, JSON.stringify(data));
+
+  if (!cfg.url) {
+    updateSyncBadge('local', 'Tersimpan lokal — Firebase belum dikonfigurasi (buka ⚙ Pengaturan)');
+    showToast('💾', 'Tersimpan Lokal', 'Firebase belum dikonfigurasi. Data tersimpan di perangkat ini saja.', '', 4000);
+    return;
+  }
+
+  updateSyncBadge('saving', 'Menyimpan ke Firebase...');
+  const result = await saveToFirebase(currentForm, data);
+  if (result.ok) {
+    const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    updateSyncBadge('synced', `✓ Tersinkron oleh ${cfg.admin || 'Admin'} · ${now} WITA`);
+    showToast('☁️', 'Tersinkron ke Firebase', `Lampiran ${currentForm} berhasil disimpan · ${now} WITA`, 'success', 4000);
+  } else {
+    updateSyncBadge('error', `Gagal: ${result.msg}`);
+    showToast('❌', 'Gagal Sinkron', result.msg, 'error', 6000);
+    setTimeout(() => updateSyncBadge('local', 'Data tersimpan lokal (Firebase gagal)'), 6000);
+  }
+}
+
+// ── LOAD FORM ──
+async function loadForm(code) {
+  if (cfg.url) {
+    updateSyncBadge('saving', 'Memuat dari Firebase...');
+    const fbData = await loadFromFirebase(code);
+    if (fbData) {
+      applyFormData(code, fbData);
+      localStorage.setItem('spmi_form_' + code, JSON.stringify(fbData));
+      updateSyncBadge('synced', 'Data dimuat dari Firebase');
+      return;
+    }
+    updateSyncBadge('local', 'Firebase kosong — memuat data lokal');
+  }
+  // Fallback ke localStorage
+  const saved = localStorage.getItem('spmi_form_' + code);
+  if (saved) {
+    try {
+      applyFormData(code, JSON.parse(saved));
+      if (!cfg.url) updateSyncBadge('local', 'Data dari penyimpanan lokal');
+    } catch(e) {}
+  } else {
+    if (!cfg.url) updateSyncBadge('none', 'Form kosong — mulai mengisi');
+  }
+}
+
+function resetForm() {
+  if (!currentForm) return;
+  if (!confirm('Reset semua isian di formulir ini? Data lokal akan dihapus.')) return;
+  localStorage.removeItem('spmi_form_' + currentForm);
+  const el = document.getElementById('form-' + currentForm);
+  el.querySelectorAll('input, textarea').forEach(inp => {
+    if (inp.type !== 'radio' && inp.type !== 'checkbox') {
+      if (!inp.readOnly) inp.value = '';
+    } else inp.checked = false;
+  });
+  el.querySelectorAll('select').forEach(sel => sel.selectedIndex = 0);
+  el.querySelectorAll('.ck-btn').forEach(b => b.classList.remove('active'));
+  updateSyncBadge('none', 'Form dikosongkan');
+}
+
+// ── AUTO SAVE ke localStorage saat mengetik ──
+document.getElementById('form-area').addEventListener('input', () => {
+  if (currentForm) {
+    clearTimeout(window._autoSave);
+    window._autoSave = setTimeout(() => {
+      const data = collectFormData(currentForm);
+      if (data) localStorage.setItem('spmi_form_' + currentForm, JSON.stringify(data));
+    }, 1500);
+  }
+});
+
+// ── INIT ──
+initRows();
+loadSettings();
+</script>
+</body>
+</html>
+

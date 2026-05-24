@@ -1,0 +1,1275 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Media Sosial - IAI STIBA Makassar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Crimson+Pro:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0A4D3C;
+            --primary-light: #0F6B52;
+            --accent: #D4A574;
+            --accent-light: #E8C9A0;
+            --bg-main: #FAFAF8;
+            --bg-card: #FFFFFF;
+            --text-primary: #1A1A1A;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container { max-width: 1600px; margin: 0 auto; }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2.5rem 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -10%;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .header-content { position: relative; z-index: 2; }
+        .header h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem; font-weight: 700;
+            margin-bottom: 0.5rem; letter-spacing: -0.02em;
+        }
+        .header-subtitle { font-size: 1.1rem; opacity: 0.9; font-weight: 400; }
+        .header-meta { display: flex; gap: 2rem; margin-top: 1.5rem; align-items: center; flex-wrap: wrap; }
+        .last-update { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; opacity: 0.85; }
+        .update-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.35rem 0.9rem; border-radius: 20px;
+            font-size: 0.85rem; font-weight: 500; backdrop-filter: blur(10px);
+        }
+        .header-actions { margin-left: auto; display: flex; gap: 0.75rem; }
+        .header-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white; border-radius: 8px;
+            font-weight: 600; cursor: pointer;
+            transition: all 0.2s; font-size: 0.85rem;
+            backdrop-filter: blur(10px);
+        }
+        .header-btn:hover { background: rgba(255,255,255,0.25); }
+
+        /* Main Content */
+        .main-content { padding: 2rem 3rem; }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex; gap: 1rem; align-items: center;
+            margin-bottom: 1.75rem; flex-wrap: wrap;
+        }
+        .filter-bar label { font-weight: 600; font-size: 0.9rem; color: var(--text-secondary); }
+        .filter-bar input[type="date"],
+        .filter-bar select {
+            padding: 0.6rem 1rem; border: 1px solid var(--border);
+            border-radius: 8px; font-family: inherit;
+            font-size: 0.9rem; background: var(--bg-card);
+            cursor: pointer; transition: border-color 0.2s;
+        }
+        .filter-bar input[type="date"]:focus,
+        .filter-bar select:focus { outline: none; border-color: var(--accent); }
+        .filter-reset {
+            padding: 0.6rem 1.2rem;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 8px; font-weight: 600;
+            cursor: pointer; font-size: 0.85rem; color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .filter-reset:hover { border-color: var(--danger); color: var(--danger); }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem; margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--bg-card); border-radius: 16px;
+            padding: 1.75rem; box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--accent-light); }
+        .stat-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%);
+        }
+        .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .stat-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, rgba(10,77,60,0.1) 0%, rgba(15,107,82,0.05) 100%);
+        }
+        .stat-label { font-size: 0.82rem; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-value { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem; line-height: 1; }
+        .stat-change {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            font-size: 0.85rem; font-weight: 600;
+            padding: 0.3rem 0.7rem; border-radius: 6px;
+        }
+        .stat-change.positive { color: var(--success); background: rgba(16,185,129,0.1); }
+        .stat-change.negative { color: var(--danger); background: rgba(239,68,68,0.1); }
+
+        /* Platform Tabs */
+        .platform-tabs {
+            display: flex; gap: 0.75rem; margin-bottom: 2rem;
+            padding: 0.5rem; background: var(--bg-card);
+            border-radius: 12px; box-shadow: var(--shadow-sm); overflow-x: auto;
+        }
+        .platform-tab {
+            padding: 0.8rem 1.5rem; border: none; background: transparent;
+            color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;
+            border-radius: 8px; cursor: pointer; transition: all 0.3s;
+            white-space: nowrap; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .platform-tab:hover { background: rgba(10,77,60,0.05); color: var(--primary); }
+        .platform-tab.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white; box-shadow: var(--shadow-md);
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+            gap: 2rem; margin-bottom: 2rem;
+        }
+        .chart-card {
+            background: var(--bg-card); border-radius: 16px;
+            padding: 2rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+        }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .chart-title { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
+        .chart-filter {
+            padding: 0.45rem 0.9rem; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 0.82rem; font-weight: 500;
+            background: white; cursor: pointer; transition: all 0.2s;
+        }
+        .chart-filter:hover { border-color: var(--accent); }
+
+        /* Summary Platform Cards */
+        .platform-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem; margin-bottom: 2rem;
+        }
+        .platform-card {
+            background: var(--bg-card); border-radius: 12px;
+            padding: 1.2rem; border: 2px solid var(--border);
+            transition: all 0.3s; cursor: pointer; text-align: center;
+        }
+        .platform-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .platform-card.active-platform { border-color: var(--primary); }
+        .platform-card .p-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+        .platform-card .p-name { font-weight: 700; font-size: 0.9rem; color: var(--primary); }
+        .platform-card .p-followers { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin: 0.3rem 0; }
+        .platform-card .p-growth { font-size: 0.8rem; font-weight: 600; color: var(--success); }
+
+        /* Performance Table */
+        .performance-section {
+            background: var(--bg-card); border-radius: 16px;
+            padding: 2rem; box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border); margin-bottom: 2rem;
+        }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .section-title { font-size: 1.4rem; font-weight: 700; color: var(--primary); font-family: 'Crimson Pro', serif; }
+        .section-actions { display: flex; gap: 0.75rem; }
+        .add-post-btn {
+            padding: 0.7rem 1.4rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white; border: none; border-radius: 8px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.9rem;
+        }
+        .add-post-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .export-csv-btn {
+            padding: 0.7rem 1.4rem;
+            background: var(--bg-main); border: 1px solid var(--border);
+            color: var(--text-primary); border-radius: 8px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.9rem;
+        }
+        .export-csv-btn:hover { border-color: var(--success); color: var(--success); }
+
+        /* Search bar */
+        .table-toolbar {
+            display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;
+        }
+        .search-input {
+            flex: 1; min-width: 200px;
+            padding: 0.65rem 1rem; border: 1px solid var(--border);
+            border-radius: 8px; font-family: inherit; font-size: 0.9rem;
+        }
+        .search-input:focus { outline: none; border-color: var(--accent); }
+        .sort-select {
+            padding: 0.65rem 1rem; border: 1px solid var(--border);
+            border-radius: 8px; font-family: inherit; font-size: 0.9rem; background: white;
+        }
+        .record-count { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; margin-left: auto; }
+
+        .performance-table { width: 100%; border-collapse: collapse; }
+        .performance-table thead { background: rgba(10,77,60,0.05); }
+        .performance-table th {
+            padding: 0.9rem 1rem; text-align: left;
+            font-weight: 600; font-size: 0.82rem;
+            color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;
+            cursor: pointer; user-select: none;
+        }
+        .performance-table th:hover { color: var(--primary); }
+        .performance-table td { padding: 1.1rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .performance-table tr:last-child td { border-bottom: none; }
+        .performance-table tr:hover td { background: rgba(10,77,60,0.02); }
+        .performance-table tr.no-data td { text-align: center; color: var(--text-secondary); padding: 3rem; }
+
+        .post-content { display: flex; align-items: center; gap: 0.85rem; }
+        .post-thumb {
+            width: 52px; height: 52px; border-radius: 8px;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; flex-shrink: 0;
+        }
+        .post-info h4 { font-weight: 600; color: var(--text-primary); margin-bottom: 0.2rem; font-size: 0.92rem; }
+        .post-meta { font-size: 0.8rem; color: var(--text-secondary); }
+
+        .metric-badge {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            padding: 0.35rem 0.7rem;
+            background: rgba(10,77,60,0.08);
+            border-radius: 6px; font-weight: 600; font-size: 0.85rem;
+        }
+        .engagement-wrap { min-width: 90px; }
+        .engagement-rate { font-weight: 700; font-size: 0.95rem; }
+        .engagement-bar { width: 100%; height: 5px; background: #E5E7EB; border-radius: 3px; overflow: hidden; margin-top: 0.4rem; }
+        .engagement-fill { height: 100%; background: linear-gradient(90deg, var(--success) 0%, var(--accent) 100%); border-radius: 3px; transition: width 1s ease; }
+
+        .row-actions { display: flex; gap: 0.5rem; }
+        .btn-icon {
+            padding: 0.4rem 0.7rem; border: none; border-radius: 6px;
+            cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;
+        }
+        .btn-edit { background: rgba(10,77,60,0.08); color: var(--primary); }
+        .btn-edit:hover { background: rgba(10,77,60,0.18); }
+        .btn-delete { background: rgba(239,68,68,0.08); color: var(--danger); }
+        .btn-delete:hover { background: rgba(239,68,68,0.18); }
+
+        /* Pagination */
+        .pagination { display: flex; gap: 0.5rem; justify-content: center; align-items: center; margin-top: 1.5rem; }
+        .page-btn {
+            padding: 0.5rem 0.9rem; border: 1px solid var(--border);
+            border-radius: 6px; background: white; cursor: pointer;
+            font-weight: 600; font-size: 0.85rem; transition: all 0.2s;
+        }
+        .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Followers Input Section */
+        .followers-section {
+            background: var(--bg-card); border-radius: 16px;
+            padding: 2rem; box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border); margin-bottom: 2rem;
+        }
+        .followers-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem; margin-top: 1.5rem;
+        }
+        .follower-input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .follower-input-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+        .follower-input-inner { display: flex; align-items: center; gap: 0.5rem; }
+        .platform-label { font-size: 1.1rem; }
+        .follower-input-group input {
+            flex: 1; padding: 0.65rem 0.9rem; border: 1px solid var(--border);
+            border-radius: 8px; font-family: inherit; font-size: 0.9rem;
+        }
+        .follower-input-group input:focus { outline: none; border-color: var(--accent); }
+        .save-followers-btn {
+            padding: 0.8rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white; border: none; border-radius: 8px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
+            margin-top: 1rem; font-size: 0.95rem; align-self: end;
+        }
+        .save-followers-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+        /* Modal */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--bg-card); border-radius: 20px;
+            padding: 2.5rem; max-width: 620px; width: 92%;
+            max-height: 92vh; overflow-y: auto;
+            box-shadow: var(--shadow-lg); animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .modal-title { font-size: 1.55rem; font-weight: 700; color: var(--primary); font-family: 'Crimson Pro', serif; }
+        .close-modal {
+            background: none; border: none; font-size: 1.8rem; color: var(--text-secondary);
+            cursor: pointer; width: 36px; height: 36px; display: flex;
+            align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s;
+        }
+        .close-modal:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary); font-size: 0.92rem; }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%; padding: 0.85rem 1.1rem;
+            border: 1px solid var(--border); border-radius: 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.92rem; transition: all 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212,165,116,0.15); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+        .btn { flex: 1; padding: 0.9rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.95rem; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .btn-secondary { background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: white; }
+
+        /* Notification */
+        .notification {
+            position: fixed; top: 1.5rem; right: 1.5rem;
+            background: white; border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-lg); border-left: 4px solid var(--success);
+            font-weight: 600; font-size: 0.95rem;
+            z-index: 9999; transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            display: flex; align-items: center; gap: 0.6rem;
+        }
+        .notification.show { transform: translateX(0); }
+        .notification.error { border-left-color: var(--danger); }
+
+        /* Confirm Dialog */
+        .confirm-dialog {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2000;
+            align-items: center; justify-content: center;
+        }
+        .confirm-dialog.active { display: flex; }
+        .confirm-box {
+            background: white; border-radius: 16px; padding: 2rem;
+            max-width: 400px; width: 90%; box-shadow: var(--shadow-lg);
+            animation: modalSlideIn 0.3s ease;
+        }
+        .confirm-box h3 { font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.75rem; }
+        .confirm-box p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem; }
+        .confirm-actions { display: flex; gap: 0.75rem; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .header { padding: 2rem 1.5rem; }
+            .main-content { padding: 1.5rem; }
+            .header h1 { font-size: 1.9rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .header-actions { display: none; }
+        }
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .platform-summary { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .stat-card:nth-child(1) { animation-delay: 0.05s; }
+        .stat-card:nth-child(2) { animation-delay: 0.1s; }
+        .stat-card:nth-child(3) { animation-delay: 0.15s; }
+        .stat-card:nth-child(4) { animation-delay: 0.2s; }
+        .stat-card:nth-child(5) { animation-delay: 0.25s; }
+
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-secondary); }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .empty-state p { font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+<div id="bmp-back" style="position:fixed;top:12px;right:12px;z-index:9999">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#C5922A;color:#102347;font-weight:800;font-size:12px;padding:8px 14px;border-radius:20px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25);font-family:sans-serif">← Portal BMP</a>
+</div>
+<div class="dashboard-container">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>📊 Dashboard Media Sosial</h1>
+            <p class="header-subtitle">Bagian Media dan Pers — IAI STIBA Makassar</p>
+            <div class="header-meta">
+                <div class="last-update">
+                    <span>📅</span>
+                    <span>Terakhir diperbarui: <strong id="lastUpdateTime">-</strong></span>
+                </div>
+                <div class="update-badge">🟢 Live Monitoring</div>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="exportCSV()">⬇️ Export CSV</button>
+                    <button class="header-btn" onclick="window.print()">🖨️ Cetak</button>
+                    <button class="header-btn" onclick="resetAllData()">🔄 Reset Data</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <label>Filter:</label>
+            <input type="date" id="filterDateFrom" title="Dari tanggal">
+            <span style="color:var(--text-secondary)">—</span>
+            <input type="date" id="filterDateTo" title="Sampai tanggal">
+            <select id="filterPlatform">
+                <option value="">Semua Platform</option>
+                <option value="Instagram">Instagram</option>
+                <option value="Facebook">Facebook</option>
+                <option value="YouTube">YouTube</option>
+                <option value="TikTok">TikTok</option>
+                <option value="WhatsApp">WhatsApp</option>
+            </select>
+            <button class="filter-reset" onclick="resetFilters()">✕ Reset Filter</button>
+        </div>
+
+        <!-- Overall Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div><div class="stat-label">Total Followers</div></div>
+                    <div class="stat-icon">👥</div>
+                </div>
+                <div class="stat-value" id="totalFollowers">0</div>
+                <div class="stat-change positive" id="followersChangeEl">↑ 0% dari bulan lalu</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div><div class="stat-label">Engagement Rate</div></div>
+                    <div class="stat-icon">💬</div>
+                </div>
+                <div class="stat-value" id="avgEngagement">0%</div>
+                <div class="stat-change positive" id="engagementChangeEl">↑ berdasarkan data</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div><div class="stat-label">Total Reach</div></div>
+                    <div class="stat-icon">📡</div>
+                </div>
+                <div class="stat-value" id="totalReach">0</div>
+                <div class="stat-change positive" id="reachChangeEl">↑ akumulasi semua post</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div><div class="stat-label">Total Post</div></div>
+                    <div class="stat-icon">📝</div>
+                </div>
+                <div class="stat-value" id="monthlyPosts">0</div>
+                <div class="stat-change positive" id="postsChangeEl">↑ semua konten tercatat</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div><div class="stat-label">Rata-rata Interaksi</div></div>
+                    <div class="stat-icon">⭐</div>
+                </div>
+                <div class="stat-value" id="avgPerformance">0</div>
+                <div class="stat-change positive" id="perfChangeEl">↑ likes + komentar + share</div>
+            </div>
+        </div>
+
+        <!-- Platform Summary Cards -->
+        <div class="platform-summary" id="platformSummaryCards"></div>
+
+        <!-- Platform Tabs -->
+        <div class="platform-tabs">
+            <button class="platform-tab active" data-platform="all">🌐 Semua Platform</button>
+            <button class="platform-tab" data-platform="Instagram">📷 Instagram</button>
+            <button class="platform-tab" data-platform="Facebook">👍 Facebook</button>
+            <button class="platform-tab" data-platform="YouTube">▶️ YouTube</button>
+            <button class="platform-tab" data-platform="TikTok">🎵 TikTok</button>
+            <button class="platform-tab" data-platform="WhatsApp">💚 WhatsApp</button>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Reach per Post</h3>
+                    <select class="chart-filter" id="reachChartFilter">
+                        <option value="10">10 Post Terakhir</option>
+                        <option value="20" selected>20 Post Terakhir</option>
+                        <option value="50">50 Post Terakhir</option>
+                    </select>
+                </div>
+                <canvas id="reachChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Engagement Rate per Post</h3>
+                    <select class="chart-filter" id="engChartFilter">
+                        <option value="10">10 Post Terakhir</option>
+                        <option value="20" selected>20 Post Terakhir</option>
+                        <option value="50">50 Post Terakhir</option>
+                    </select>
+                </div>
+                <canvas id="engagementChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Distribusi Platform (Followers)</h3>
+                </div>
+                <canvas id="platformChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Komposisi Interaksi</h3>
+                </div>
+                <canvas id="interactionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Followers Input -->
+        <div class="followers-section">
+            <div class="section-header">
+                <h2 class="section-title">Update Data Followers</h2>
+            </div>
+            <div class="followers-form" id="followersForm"></div>
+            <button class="save-followers-btn" onclick="saveFollowersData()">💾 Simpan Data Followers</button>
+        </div>
+
+        <!-- Post Performance -->
+        <div class="performance-section">
+            <div class="section-header">
+                <h2 class="section-title">Performa Konten</h2>
+                <div class="section-actions">
+                    <button class="export-csv-btn" onclick="exportCSV()">⬇️ Export CSV</button>
+                    <button class="add-post-btn" onclick="openAddPostModal()">➕ Tambah Post</button>
+                </div>
+            </div>
+
+            <div class="table-toolbar">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Cari judul konten...">
+                <select class="sort-select" id="sortSelect">
+                    <option value="date-desc">Terbaru</option>
+                    <option value="date-asc">Terlama</option>
+                    <option value="reach-desc">Reach Tertinggi</option>
+                    <option value="engagement-desc">Engagement Tertinggi</option>
+                    <option value="likes-desc">Likes Terbanyak</option>
+                </select>
+                <span class="record-count" id="recordCount">0 post</span>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="performance-table">
+                    <thead>
+                        <tr>
+                            <th>Konten</th>
+                            <th>Platform</th>
+                            <th>Tanggal</th>
+                            <th>Reach</th>
+                            <th>Likes</th>
+                            <th>Komentar</th>
+                            <th>Share</th>
+                            <th>Engagement</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="performanceTableBody"></tbody>
+                </table>
+            </div>
+            <div class="pagination" id="paginationEl"></div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Modal Tambah/Edit Post -->
+<div class="modal" id="postModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Tambah Data Post</h3>
+            <button class="close-modal" onclick="closePostModal()">×</button>
+        </div>
+        <form id="postForm">
+            <input type="hidden" id="editPostId">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Platform *</label>
+                    <select id="postPlatform" required>
+                        <option value="">Pilih Platform</option>
+                        <option value="Instagram">📷 Instagram</option>
+                        <option value="Facebook">👍 Facebook</option>
+                        <option value="YouTube">▶️ YouTube</option>
+                        <option value="TikTok">🎵 TikTok</option>
+                        <option value="WhatsApp">💚 WhatsApp</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Post *</label>
+                    <input type="date" id="postDate" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Judul / Caption *</label>
+                <input type="text" id="postTitle" placeholder="Contoh: Kajian Tafsir Al-Qur'an" required>
+            </div>
+            <div class="form-group">
+                <label>Catatan Tambahan</label>
+                <textarea id="postNotes" placeholder="Jenis konten, link, atau keterangan lain..."></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Reach / Jangkauan *</label>
+                    <input type="number" id="postReach" placeholder="1250" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Likes / Suka *</label>
+                    <input type="number" id="postLikes" placeholder="450" min="0" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Komentar</label>
+                    <input type="number" id="postComments" placeholder="28" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Share / Bagikan</label>
+                    <input type="number" id="postShares" placeholder="35" min="0" value="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Tayangan / Views (opsional)</label>
+                <input type="number" id="postViews" placeholder="5000" min="0" value="0">
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closePostModal()">Batal</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div class="confirm-dialog" id="confirmDialog">
+    <div class="confirm-box">
+        <h3>Konfirmasi Hapus</h3>
+        <p>Yakin ingin menghapus post ini? Tindakan ini tidak dapat dibatalkan.</p>
+        <div class="confirm-actions">
+            <button class="btn btn-secondary" style="flex:1" onclick="closeConfirm()">Batal</button>
+            <button class="btn" style="flex:1; background: var(--danger); color:white;" id="confirmDeleteBtn">Hapus</button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" id="notification">
+    <span id="notifIcon">✅</span>
+    <span id="notifText"></span>
+</div>
+
+<script>
+// ========================
+// DATA & STATE
+// ========================
+const PLATFORMS = ['Instagram','Facebook','YouTube','TikTok','WhatsApp'];
+const PLATFORM_ICONS = { Instagram:'📷', Facebook:'👍', YouTube:'▶️', TikTok:'🎵', WhatsApp:'💚' };
+const PLATFORM_COLORS = { Instagram:'#E1306C', Facebook:'#1877F2', YouTube:'#FF0000', TikTok:'#010101', WhatsApp:'#25D366' };
+
+const DEFAULT_FOLLOWERS = { Instagram:12500, Facebook:8900, YouTube:4200, TikTok:15600, WhatsApp:3200 };
+const DEFAULT_GROWTH    = { Instagram:8.5,   Facebook:6.2,  YouTube:12.3, TikTok:15.7,  WhatsApp:5.4 };
+
+const SAMPLE_POSTS = [
+    { id:1, title:"Kajian Tafsir Al-Qur'an Juz 30", platform:"Instagram", date:"2026-05-15", reach:3500, likes:450, comments:28, shares:35, views:0, notes:"" },
+    { id:2, title:"Info Pendaftaran Mahasiswa Baru 2026", platform:"Facebook", date:"2026-05-14", reach:2800, likes:320, comments:45, shares:52, views:0, notes:"" },
+    { id:3, title:"Video Wisuda Angkatan 2025", platform:"YouTube", date:"2026-05-13", reach:5200, likes:680, comments:94, shares:120, views:12000, notes:"" },
+    { id:4, title:"Tips Menghafal Al-Qur'an (30 Hari)", platform:"TikTok", date:"2026-05-12", reach:8500, likes:1200, comments:156, shares:230, views:0, notes:"" },
+    { id:5, title:"Pengumuman Kegiatan Ramadhan 1447H", platform:"WhatsApp", date:"2026-05-11", reach:1500, likes:0, comments:45, shares:89, views:0, notes:"" },
+    { id:6, title:"Muhadharah Perdana Semester Genap", platform:"Instagram", date:"2026-05-10", reach:4100, likes:510, comments:38, shares:47, views:0, notes:"" },
+    { id:7, title:"Seminar Nasional: Islam & Teknologi", platform:"YouTube", date:"2026-05-08", reach:6800, likes:870, comments:112, shares:200, views:15000, notes:"" },
+    { id:8, title:"Reels: Kehidupan Kampus STIBA", platform:"TikTok", date:"2026-05-05", reach:11200, likes:1650, comments:189, shares:310, views:0, notes:"" },
+    { id:9, title:"Pengumuman Beasiswa Prestasi", platform:"Facebook", date:"2026-05-03", reach:3100, likes:260, comments:72, shares:98, views:0, notes:"" },
+    { id:10, title:"Foto Kegiatan Pesantren Ramadhan", platform:"Instagram", date:"2026-04-28", reach:2900, likes:390, comments:22, shares:19, views:0, notes:"" },
+];
+
+function loadData() {
+    const stored = localStorage.getItem('stiba_posts');
+    return stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(SAMPLE_POSTS));
+}
+function saveData(posts) {
+    localStorage.setItem('stiba_posts', JSON.stringify(posts));
+}
+function loadFollowers() {
+    const stored = localStorage.getItem('stiba_followers');
+    if (stored) return JSON.parse(stored);
+    const data = {};
+    PLATFORMS.forEach(p => { data[p] = { followers: DEFAULT_FOLLOWERS[p], growth: DEFAULT_GROWTH[p] }; });
+    return data;
+}
+function saveFollowersStorage(data) {
+    localStorage.setItem('stiba_followers', JSON.stringify(data));
+}
+
+let postsData = loadData();
+let followersData = loadFollowers();
+let currentPlatformTab = 'all';
+let currentPage = 1;
+const PAGE_SIZE = 10;
+let reachChartInstance, engChartInstance, platformChartInstance, interactionChartInstance;
+let deletePendingId = null;
+
+// ========================
+// INIT
+// ========================
+function init() {
+    updateLastUpdateTime();
+    renderFollowersForm();
+    renderPlatformSummaryCards();
+    setupPlatformTabs();
+    setupFilterListeners();
+    renderTable();
+    renderStats();
+    renderCharts();
+    setInterval(updateLastUpdateTime, 60000);
+}
+
+function updateLastUpdateTime() {
+    const now = new Date();
+    document.getElementById('lastUpdateTime').textContent =
+        now.toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+// ========================
+// FOLLOWERS FORM
+// ========================
+function renderFollowersForm() {
+    const container = document.getElementById('followersForm');
+    container.innerHTML = PLATFORMS.map(p => `
+        <div class="follower-input-group">
+            <label>${PLATFORM_ICONS[p]} ${p}</label>
+            <div class="follower-input-inner">
+                <input type="number" id="f_${p}" value="${followersData[p].followers}" min="0" placeholder="Jumlah followers">
+            </div>
+            <input type="number" id="fg_${p}" value="${followersData[p].growth}" step="0.1" min="-100" max="100" placeholder="Growth %" style="margin-top:0.4rem; padding:0.5rem 0.7rem; border:1px solid var(--border); border-radius:6px; font-size:0.82rem; font-family:inherit;">
+            <small style="color:var(--text-secondary); font-size:0.78rem;">Growth % bulan ini</small>
+        </div>
+    `).join('');
+}
+
+function saveFollowersData() {
+    PLATFORMS.forEach(p => {
+        const f = document.getElementById('f_' + p);
+        const g = document.getElementById('fg_' + p);
+        if (f) followersData[p].followers = parseInt(f.value) || 0;
+        if (g) followersData[p].growth = parseFloat(g.value) || 0;
+    });
+    saveFollowersStorage(followersData);
+    renderPlatformSummaryCards();
+    renderStats();
+    renderCharts();
+    showNotification('✅ Data followers berhasil disimpan!');
+}
+
+// ========================
+// PLATFORM SUMMARY CARDS
+// ========================
+function renderPlatformSummaryCards() {
+    const container = document.getElementById('platformSummaryCards');
+    container.innerHTML = PLATFORMS.map(p => {
+        const d = followersData[p];
+        return `
+        <div class="platform-card ${currentPlatformTab === p ? 'active-platform' : ''}" onclick="switchTab('${p}')">
+            <div class="p-icon">${PLATFORM_ICONS[p]}</div>
+            <div class="p-name">${p}</div>
+            <div class="p-followers">${d.followers.toLocaleString('id-ID')}</div>
+            <div class="p-growth">↑ ${d.growth}% bulan ini</div>
+        </div>`;
+    }).join('');
+}
+
+// ========================
+// STATS
+// ========================
+function renderStats() {
+    const filtered = getFilteredPosts();
+    const totalFollowers = PLATFORMS.reduce((s, p) => s + followersData[p].followers, 0);
+    const totalReach = filtered.reduce((s, p) => s + p.reach, 0);
+    const totalInteractions = filtered.reduce((s, p) => s + p.likes + p.comments + p.shares, 0);
+    const avgEngagement = filtered.length && totalReach > 0
+        ? ((totalInteractions / totalReach) * 100).toFixed(1)
+        : '0.0';
+    const avgPerf = filtered.length ? Math.round(totalInteractions / filtered.length) : 0;
+    const avgGrowth = (PLATFORMS.reduce((s, p) => s + followersData[p].growth, 0) / PLATFORMS.length).toFixed(1);
+
+    document.getElementById('totalFollowers').textContent = totalFollowers.toLocaleString('id-ID');
+    document.getElementById('followersChangeEl').textContent = `↑ rata-rata ${avgGrowth}% growth`;
+    document.getElementById('avgEngagement').textContent = avgEngagement + '%';
+    document.getElementById('engagementChangeEl').textContent = filtered.length ? `dari ${filtered.length} post terfilter` : 'belum ada data';
+    document.getElementById('totalReach').textContent = totalReach.toLocaleString('id-ID');
+    document.getElementById('reachChangeEl').textContent = `akumulasi ${filtered.length} post`;
+    document.getElementById('monthlyPosts').textContent = filtered.length;
+    document.getElementById('postsChangeEl').textContent = `total ${postsData.length} post tersimpan`;
+    document.getElementById('avgPerformance').textContent = avgPerf.toLocaleString('id-ID');
+    document.getElementById('perfChangeEl').textContent = 'likes + komentar + share';
+}
+
+// ========================
+// FILTER & SORT
+// ========================
+function getFilteredPosts() {
+    let data = [...postsData];
+    const platform = currentPlatformTab !== 'all' ? currentPlatformTab : (document.getElementById('filterPlatform')?.value || '');
+    const dateFrom = document.getElementById('filterDateFrom')?.value;
+    const dateTo = document.getElementById('filterDateTo')?.value;
+    const search = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+
+    if (platform) data = data.filter(p => p.platform === platform);
+    if (dateFrom) data = data.filter(p => p.date >= dateFrom);
+    if (dateTo) data = data.filter(p => p.date <= dateTo);
+    if (search) data = data.filter(p => p.title.toLowerCase().includes(search) || (p.notes || '').toLowerCase().includes(search));
+
+    const sort = document.getElementById('sortSelect')?.value || 'date-desc';
+    if (sort === 'date-desc') data.sort((a,b) => b.date.localeCompare(a.date));
+    else if (sort === 'date-asc') data.sort((a,b) => a.date.localeCompare(b.date));
+    else if (sort === 'reach-desc') data.sort((a,b) => b.reach - a.reach);
+    else if (sort === 'likes-desc') data.sort((a,b) => b.likes - a.likes);
+    else if (sort === 'engagement-desc') {
+        data.sort((a,b) => {
+            const ea = a.reach > 0 ? (a.likes + a.comments + a.shares) / a.reach : 0;
+            const eb = b.reach > 0 ? (b.likes + b.comments + b.shares) / b.reach : 0;
+            return eb - ea;
+        });
+    }
+    return data;
+}
+
+function setupFilterListeners() {
+    ['filterDateFrom','filterDateTo','filterPlatform','searchInput','sortSelect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', () => { currentPage = 1; renderTable(); renderStats(); renderCharts(); });
+    });
+    document.getElementById('searchInput').addEventListener('input', () => {
+        currentPage = 1; renderTable(); renderStats();
+    });
+    document.getElementById('reachChartFilter').addEventListener('change', () => renderCharts());
+    document.getElementById('engChartFilter').addEventListener('change', () => renderCharts());
+}
+
+function resetFilters() {
+    document.getElementById('filterDateFrom').value = '';
+    document.getElementById('filterDateTo').value = '';
+    document.getElementById('filterPlatform').value = '';
+    document.getElementById('searchInput').value = '';
+    document.getElementById('sortSelect').value = 'date-desc';
+    currentPage = 1;
+    renderTable(); renderStats(); renderCharts();
+}
+
+// ========================
+// PLATFORM TABS
+// ========================
+function setupPlatformTabs() {
+    document.querySelectorAll('.platform-tab').forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.platform));
+    });
+}
+
+function switchTab(platform) {
+    currentPlatformTab = platform;
+    document.querySelectorAll('.platform-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.platform === platform);
+    });
+    document.getElementById('filterPlatform').value = platform === 'all' ? '' : platform;
+    currentPage = 1;
+    renderTable(); renderStats(); renderCharts(); renderPlatformSummaryCards();
+}
+
+// ========================
+// TABLE
+// ========================
+function renderTable() {
+    const filtered = getFilteredPosts();
+    const tbody = document.getElementById('performanceTableBody');
+    document.getElementById('recordCount').textContent = `${filtered.length} post`;
+
+    if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="9">
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>Belum ada data post yang cocok.<br>Tambah post atau ubah filter.</p>
+            </div>
+        </td></tr>`;
+        document.getElementById('paginationEl').innerHTML = '';
+        return;
+    }
+
+    const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+    if (currentPage > totalPages) currentPage = 1;
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageData = filtered.slice(start, start + PAGE_SIZE);
+
+    tbody.innerHTML = pageData.map(post => {
+        const eng = post.reach > 0 ? ((post.likes + post.comments + post.shares) / post.reach * 100).toFixed(1) : '0.0';
+        const engFill = Math.min(parseFloat(eng) * 5, 100);
+        const dateStr = new Date(post.date + 'T00:00:00').toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+        return `
+        <tr>
+            <td>
+                <div class="post-content">
+                    <div class="post-thumb">${PLATFORM_ICONS[post.platform] || '📱'}</div>
+                    <div class="post-info">
+                        <h4>${escHtml(post.title)}</h4>
+                        <div class="post-meta">${post.notes ? escHtml(post.notes).substring(0,40) + (post.notes.length > 40 ? '…' : '') : dateStr}</div>
+                    </div>
+                </div>
+            </td>
+            <td><span class="metric-badge">${PLATFORM_ICONS[post.platform]} ${post.platform}</span></td>
+            <td>${dateStr}</td>
+            <td><strong>${post.reach.toLocaleString('id-ID')}</strong>${post.views ? `<br><small style="color:var(--text-secondary)">${post.views.toLocaleString('id-ID')} views</small>` : ''}</td>
+            <td>${post.likes.toLocaleString('id-ID')}</td>
+            <td>${post.comments.toLocaleString('id-ID')}</td>
+            <td>${post.shares.toLocaleString('id-ID')}</td>
+            <td>
+                <div class="engagement-wrap">
+                    <div class="engagement-rate">${eng}%</div>
+                    <div class="engagement-bar"><div class="engagement-fill" style="width:${engFill}%"></div></div>
+                </div>
+            </td>
+            <td>
+                <div class="row-actions">
+                    <button class="btn-icon btn-edit" onclick="openEditModal(${post.id})">✏️</button>
+                    <button class="btn-icon btn-delete" onclick="promptDelete(${post.id})">🗑️</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+
+    renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+    const el = document.getElementById('paginationEl');
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+    let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+            html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+        } else if (Math.abs(i - currentPage) === 2) {
+            html += `<span style="padding:0 0.3rem;color:var(--text-secondary)">…</span>`;
+        }
+    }
+    html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button>`;
+    el.innerHTML = html;
+}
+
+function goPage(page) { currentPage = page; renderTable(); window.scrollTo({top: document.querySelector('.performance-section').offsetTop - 20, behavior:'smooth'}); }
+
+function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ========================
+// MODAL ADD/EDIT
+// ========================
+function openAddPostModal() {
+    document.getElementById('modalTitle').textContent = 'Tambah Data Post';
+    document.getElementById('editPostId').value = '';
+    document.getElementById('postForm').reset();
+    document.getElementById('postDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('submitBtn').textContent = 'Simpan';
+    document.getElementById('postModal').classList.add('active');
+}
+
+function openEditModal(id) {
+    const post = postsData.find(p => p.id === id);
+    if (!post) return;
+    document.getElementById('modalTitle').textContent = 'Edit Data Post';
+    document.getElementById('editPostId').value = id;
+    document.getElementById('postPlatform').value = post.platform;
+    document.getElementById('postDate').value = post.date;
+    document.getElementById('postTitle').value = post.title;
+    document.getElementById('postNotes').value = post.notes || '';
+    document.getElementById('postReach').value = post.reach;
+    document.getElementById('postLikes').value = post.likes;
+    document.getElementById('postComments').value = post.comments;
+    document.getElementById('postShares').value = post.shares;
+    document.getElementById('postViews').value = post.views || 0;
+    document.getElementById('submitBtn').textContent = 'Perbarui';
+    document.getElementById('postModal').classList.add('active');
+}
+
+function closePostModal() {
+    document.getElementById('postModal').classList.remove('active');
+    document.getElementById('postForm').reset();
+}
+
+document.getElementById('postForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const editId = parseInt(document.getElementById('editPostId').value);
+    const postData = {
+        platform: document.getElementById('postPlatform').value,
+        title: document.getElementById('postTitle').value.trim(),
+        date: document.getElementById('postDate').value,
+        notes: document.getElementById('postNotes').value.trim(),
+        reach: parseInt(document.getElementById('postReach').value) || 0,
+        likes: parseInt(document.getElementById('postLikes').value) || 0,
+        comments: parseInt(document.getElementById('postComments').value) || 0,
+        shares: parseInt(document.getElementById('postShares').value) || 0,
+        views: parseInt(document.getElementById('postViews').value) || 0,
+    };
+
+    if (editId) {
+        const idx = postsData.findIndex(p => p.id === editId);
+        if (idx !== -1) { postsData[idx] = { ...postsData[idx], ...postData }; }
+        showNotification('✅ Data post berhasil diperbarui!');
+    } else {
+        const newId = postsData.length ? Math.max(...postsData.map(p => p.id)) + 1 : 1;
+        postsData.unshift({ id: newId, ...postData });
+        showNotification('✅ Post baru berhasil ditambahkan!');
+    }
+
+    saveData(postsData);
+    closePostModal();
+    renderTable(); renderStats(); renderCharts();
+});
+
+// ========================
+// DELETE
+// ========================
+function promptDelete(id) {
+    deletePendingId = id;
+    document.getElementById('confirmDialog').classList.add('active');
+}
+function closeConfirm() {
+    deletePendingId = null;
+    document.getElementById('confirmDialog').classList.remove('active');
+}
+document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+    if (!deletePendingId) return;
+    postsData = postsData.filter(p => p.id !== deletePendingId);
+    saveData(postsData);
+    closeConfirm();
+    renderTable(); renderStats(); renderCharts();
+    showNotification('🗑️ Post berhasil dihapus.', true);
+});
+
+// ========================
+// CHARTS
+// ========================
+function renderCharts() {
+    const filtered = getFilteredPosts();
+    const reachN = parseInt(document.getElementById('reachChartFilter').value) || 20;
+    const engN = parseInt(document.getElementById('engChartFilter').value) || 20;
+
+    const sorted = [...filtered].sort((a,b) => a.date.localeCompare(b.date));
+    const reachData = sorted.slice(-reachN);
+    const engData = sorted.slice(-engN);
+
+    // Reach Chart
+    if (reachChartInstance) reachChartInstance.destroy();
+    const rCtx = document.getElementById('reachChart').getContext('2d');
+    reachChartInstance = new Chart(rCtx, {
+        type: 'bar',
+        data: {
+            labels: reachData.map(p => p.title.substring(0,20) + (p.title.length > 20 ? '…' : '')),
+            datasets: [{
+                label: 'Reach',
+                data: reachData.map(p => p.reach),
+                backgroundColor: reachData.map(p => PLATFORM_COLORS[p.platform] + '99'),
+                borderColor: reachData.map(p => PLATFORM_COLORS[p.platform]),
+                borderWidth: 2, borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true, indexAxis: 'x',
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 10 } } }
+            }
+        }
+    });
+
+    // Engagement Chart
+    if (engChartInstance) engChartInstance.destroy();
+    const eCtx = document.getElementById('engagementChart').getContext('2d');
+    engChartInstance = new Chart(eCtx, {
+        type: 'line',
+        data: {
+            labels: engData.map(p => new Date(p.date + 'T00:00:00').toLocaleDateString('id-ID', { day:'numeric', month:'short' })),
+            datasets: [{
+                label: 'Engagement Rate (%)',
+                data: engData.map(p => p.reach > 0 ? ((p.likes+p.comments+p.shares)/p.reach*100).toFixed(2) : 0),
+                borderColor: '#D4A574', backgroundColor: 'rgba(212,165,116,0.1)',
+                tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2.5,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { callback: v => v + '%' } },
+                x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+            }
+        }
+    });
+
+    // Platform Doughnut
+    if (platformChartInstance) platformChartInstance.destroy();
+    const pCtx = document.getElementById('platformChart').getContext('2d');
+    platformChartInstance = new Chart(pCtx, {
+        type: 'doughnut',
+        data: {
+            labels: PLATFORMS,
+            datasets: [{
+                data: PLATFORMS.map(p => followersData[p].followers),
+                backgroundColor: PLATFORMS.map(p => PLATFORM_COLORS[p]),
+                borderWidth: 0,
+            }]
+        },
+        options: {
+            responsive: true, cutout: '65%',
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 15, font: { size: 12, weight: '600' } } }
+            }
+        }
+    });
+
+    // Interaction Bar (total by platform)
+    if (interactionChartInstance) interactionChartInstance.destroy();
+    const iCtx = document.getElementById('interactionChart').getContext('2d');
+    const intByPlatform = PLATFORMS.map(p => {
+        const posts = filtered.filter(x => x.platform === p);
+        return {
+            likes: posts.reduce((s, x) => s + x.likes, 0),
+            comments: posts.reduce((s, x) => s + x.comments, 0),
+            shares: posts.reduce((s, x) => s + x.shares, 0),
+        };
+    });
+    interactionChartInstance = new Chart(iCtx, {
+        type: 'bar',
+        data: {
+            labels: PLATFORMS,
+            datasets: [
+                { label: 'Likes', data: intByPlatform.map(d => d.likes), backgroundColor: '#10B981', borderRadius: 4 },
+                { label: 'Komentar', data: intByPlatform.map(d => d.comments), backgroundColor: '#D4A574', borderRadius: 4 },
+                { label: 'Share', data: intByPlatform.map(d => d.shares), backgroundColor: '#0A4D3C', borderRadius: 4 },
+            ]
+        },
+        options: {
+            responsive: true, scales: {
+                x: { stacked: true, grid: { display: false } },
+                y: { stacked: true, grid: { color: 'rgba(0,0,0,0.05)' } }
+            },
+            plugins: { legend: { position: 'bottom', labels: { font: { size: 11, weight: '600' } } } }
+        }
+    });
+}
+
+// ========================
+// EXPORT CSV
+// ========================
+function exportCSV() {
+    const filtered = getFilteredPosts();
+    if (!filtered.length) { showNotification('Tidak ada data untuk diexport.', true); return; }
+
+    const headers = ['No','Judul','Platform','Tanggal','Reach','Likes','Komentar','Share','Views','Engagement(%)','Catatan'];
+    const rows = filtered.map((p, i) => {
+        const eng = p.reach > 0 ? ((p.likes+p.comments+p.shares)/p.reach*100).toFixed(1) : '0.0';
+        return [i+1, `"${p.title.replace(/"/g,'""')}"`, p.platform, p.date, p.reach, p.likes, p.comments, p.shares, p.views||0, eng, `"${(p.notes||'').replace(/"/g,'""')}"`];
+    });
+
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const bom = '﻿'; // BOM for Excel
+    const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `laporan-medsos-stiba-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showNotification('✅ CSV berhasil diexport!');
+}
+
+// ========================
+// RESET ALL
+// ========================
+function resetAllData() {
+    if (!confirm('Reset semua data ke contoh awal? Data yang sudah Anda input akan hilang.')) return;
+    localStorage.removeItem('stiba_posts');
+    localStorage.removeItem('stiba_followers');
+    postsData = loadData();
+    followersData = loadFollowers();
+    renderFollowersForm();
+    renderPlatformSummaryCards();
+    renderTable(); renderStats(); renderCharts();
+    showNotification('🔄 Data direset ke contoh awal.');
+}
+
+// ========================
+// NOTIFICATION
+// ========================
+function showNotification(msg, isError = false) {
+    const el = document.getElementById('notification');
+    document.getElementById('notifText').textContent = msg;
+    el.className = 'notification' + (isError ? ' error' : '');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// Close modal on backdrop click
+document.getElementById('postModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('postModal')) closePostModal();
+});
+document.getElementById('confirmDialog').addEventListener('click', e => {
+    if (e.target === document.getElementById('confirmDialog')) closeConfirm();
+});
+
+// Init
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
+

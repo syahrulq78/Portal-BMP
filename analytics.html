@@ -1,0 +1,1515 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Analytics Website - IAI STIBA Makassar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Crimson+Pro:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0A4D3C;
+            --primary-light: #0F6B52;
+            --primary-dark: #073828;
+            --accent: #D4A574;
+            --accent-light: #E8C9A0;
+            --bg-main: #FAFAF8;
+            --bg-card: #FFFFFF;
+            --text-primary: #1A1A1A;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2.5rem 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -5%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            left: -5%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .header-left h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .date-range-picker {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .date-range-picker:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .real-time-badge {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid rgba(16, 185, 129, 0.4);
+            padding: 0.7rem 1.3rem;
+            border-radius: 30px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulseDot 1.5s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2.5rem 3rem;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.8rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-light);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .stat-card.primary::before { background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%); }
+        .stat-card.success::before { background: linear-gradient(90deg, var(--success) 0%, #34D399 100%); }
+        .stat-card.warning::before { background: linear-gradient(90deg, var(--warning) 0%, #FBBF24 100%); }
+        .stat-card.info::before { background: linear-gradient(90deg, var(--info) 0%, #60A5FA 100%); }
+        .stat-card.accent::before { background: linear-gradient(90deg, var(--accent) 0%, var(--accent-light) 100%); }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+        }
+
+        .stat-icon.primary { background: linear-gradient(135deg, rgba(10, 77, 60, 0.1) 0%, rgba(15, 107, 82, 0.05) 100%); }
+        .stat-icon.success { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(52, 211, 153, 0.05) 100%); }
+        .stat-icon.warning { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.05) 100%); }
+        .stat-icon.info { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%); }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.6rem;
+            line-height: 1;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-weight: 600;
+            padding: 0.3rem 0.7rem;
+            border-radius: 6px;
+        }
+
+        .trend-badge.up {
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .trend-badge.down {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .stat-comparison {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Chart Cards */
+        .chart-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .chart-filter {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chart-filter:hover {
+            border-color: var(--accent);
+            background: rgba(212, 165, 116, 0.05);
+        }
+
+        /* Traffic Sources */
+        .traffic-sources {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .source-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(10, 77, 60, 0.03);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .source-item:hover {
+            background: rgba(10, 77, 60, 0.08);
+            transform: translateX(4px);
+        }
+
+        .source-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .source-icon.organic { background: linear-gradient(135deg, #10B981 0%, #34D399 100%); }
+        .source-icon.social { background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%); }
+        .source-icon.direct { background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%); }
+        .source-icon.referral { background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%); }
+
+        .source-info {
+            flex: 1;
+        }
+
+        .source-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .source-visitors {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .source-percentage {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .source-bar {
+            width: 100%;
+            height: 6px;
+            background: #E5E7EB;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .source-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+
+        /* Top Pages Table */
+        .pages-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .pages-table thead {
+            background: rgba(10, 77, 60, 0.05);
+        }
+
+        .pages-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .pages-table td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pages-table tr:hover {
+            background: rgba(10, 77, 60, 0.02);
+        }
+
+        .page-url {
+            font-weight: 600;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        .page-title {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: block;
+            margin-top: 0.2rem;
+        }
+
+        /* Real-time Section */
+        .realtime-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .realtime-card {
+            background: linear-gradient(135deg, rgba(10, 77, 60, 0.05) 0%, rgba(15, 107, 82, 0.02) 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(10, 77, 60, 0.1);
+        }
+
+        .realtime-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .realtime-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Demographics */
+        .demographics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .demo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .demo-item:last-child {
+            border-bottom: none;
+        }
+
+        .demo-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .demo-value {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        /* Device Stats */
+        .device-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .device-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(10, 77, 60, 0.03);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .device-card:hover {
+            background: rgba(10, 77, 60, 0.08);
+            transform: translateY(-4px);
+        }
+
+        .device-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .device-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .device-percentage {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* SEO Metrics */
+        .seo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .seo-card {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.05) 0%, rgba(232, 201, 160, 0.02) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(212, 165, 116, 0.15);
+        }
+
+        .seo-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .seo-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .seo-metric:last-child {
+            border-bottom: none;
+        }
+
+        .seo-metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .seo-metric-value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Export & Action Buttons */
+        .action-buttons {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            white-space: nowrap;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(212, 165, 116, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        }
+
+        .action-btn.secondary:hover {
+            box-shadow: 0 15px 40px rgba(10, 77, 60, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .demographics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .device-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                bottom: 1rem;
+                right: 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card,
+        .chart-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .stat-card:nth-child(5) { animation-delay: 0.5s; }
+        .stat-card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+<div id="bmp-back" style="position:fixed;top:12px;right:12px;z-index:9999">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:#C5922A;color:#102347;font-weight:800;font-size:12px;padding:8px 14px;border-radius:20px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25);font-family:sans-serif">← Portal BMP</a>
+</div>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>Dashboard Analytics Website</h1>
+                    <p class="header-subtitle">IAI STIBA Makassar - stibamakassar.ac.id</p>
+                </div>
+                <div class="header-right">
+                    <div class="date-range-picker">
+                        <span>📅</span>
+                        <span>30 Hari Terakhir</span>
+                    </div>
+                    <div class="real-time-badge">
+                        <div class="pulse-dot"></div>
+                        <span>Live</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-card primary">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Total Visitors</div>
+                        </div>
+                        <div class="stat-icon primary">👥</div>
+                    </div>
+                    <div class="stat-value" id="totalVisitors">0</div>
+                    <div class="stat-trend">
+                        <div class="trend-badge up">
+                            <span>↑</span>
+                            <span id="visitorsTrend">0%</span>
+                        </div>
+                        <span class="stat-comparison">vs bulan lalu</span>
+                    </div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Page Views</div>
+                        </div>
+                        <div class="stat-icon success">📄</div>
+                    </div>
+                    <div class="stat-value" id="pageViews">0</div>
+                    <div class="stat-trend">
+                        <div class="trend-badge up">
+                            <span>↑</span>
+                            <span id="pageViewsTrend">0%</span>
+                        </div>
+                        <span class="stat-comparison">vs bulan lalu</span>
+                    </div>
+                </div>
+
+                <div class="stat-card warning">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Avg. Session Duration</div>
+                        </div>
+                        <div class="stat-icon warning">⏱️</div>
+                    </div>
+                    <div class="stat-value" id="avgDuration">0:00</div>
+                    <div class="stat-trend">
+                        <div class="trend-badge up">
+                            <span>↑</span>
+                            <span id="durationTrend">0%</span>
+                        </div>
+                        <span class="stat-comparison">vs bulan lalu</span>
+                    </div>
+                </div>
+
+                <div class="stat-card info">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Bounce Rate</div>
+                        </div>
+                        <div class="stat-icon info">📉</div>
+                    </div>
+                    <div class="stat-value" id="bounceRate">0%</div>
+                    <div class="stat-trend">
+                        <div class="trend-badge down">
+                            <span>↓</span>
+                            <span id="bounceTrend">0%</span>
+                        </div>
+                        <span class="stat-comparison">vs bulan lalu</span>
+                    </div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">New Visitors</div>
+                        </div>
+                        <div class="stat-icon success">✨</div>
+                    </div>
+                    <div class="stat-value" id="newVisitors">0</div>
+                    <div class="stat-trend">
+                        <div class="trend-badge up">
+                            <span>↑</span>
+                            <span id="newVisitorsTrend">0%</span>
+                        </div>
+                        <span class="stat-comparison">vs bulan lalu</span>
+                    </div>
+                </div>
+
+                <div class="stat-card accent">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Conversion Rate</div>
+                        </div>
+                        <div class="stat-icon primary">🎯</div>
+                    </div>
+                    <div class="stat-value" id="conversionRate">0%</div>
+                    <div class="stat-trend">
+                        <div class="trend-badge up">
+                            <span>↑</span>
+                            <span id="conversionTrend">0%</span>
+                        </div>
+                        <span class="stat-comparison">vs bulan lalu</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Grid -->
+            <div class="analytics-grid">
+                <!-- Traffic Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Traffic Overview</h3>
+                        <div class="chart-actions">
+                            <select class="chart-filter" id="trafficFilter">
+                                <option value="7">7 Hari</option>
+                                <option value="30" selected>30 Hari</option>
+                                <option value="90">90 Hari</option>
+                            </select>
+                        </div>
+                    </div>
+                    <canvas id="trafficChart"></canvas>
+                </div>
+
+                <!-- Traffic Sources -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Traffic Sources</h3>
+                    </div>
+                    <div class="traffic-sources">
+                        <div class="source-item">
+                            <div class="source-icon organic">🔍</div>
+                            <div class="source-info">
+                                <div class="source-name">Organic Search</div>
+                                <div class="source-visitors"><span id="organicVisitors">0</span> visitors</div>
+                                <div class="source-bar">
+                                    <div class="source-bar-fill" style="background: linear-gradient(90deg, #10B981 0%, #34D399 100%); width: 0%" id="organicBar"></div>
+                                </div>
+                            </div>
+                            <div class="source-percentage" id="organicPercent">0%</div>
+                        </div>
+
+                        <div class="source-item">
+                            <div class="source-icon social">📱</div>
+                            <div class="source-info">
+                                <div class="source-name">Social Media</div>
+                                <div class="source-visitors"><span id="socialVisitors">0</span> visitors</div>
+                                <div class="source-bar">
+                                    <div class="source-bar-fill" style="background: linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%); width: 0%" id="socialBar"></div>
+                                </div>
+                            </div>
+                            <div class="source-percentage" id="socialPercent">0%</div>
+                        </div>
+
+                        <div class="source-item">
+                            <div class="source-icon direct">🔗</div>
+                            <div class="source-info">
+                                <div class="source-name">Direct</div>
+                                <div class="source-visitors"><span id="directVisitors">0</span> visitors</div>
+                                <div class="source-bar">
+                                    <div class="source-bar-fill" style="background: linear-gradient(90deg, #8B5CF6 0%, #A78BFA 100%); width: 0%" id="directBar"></div>
+                                </div>
+                            </div>
+                            <div class="source-percentage" id="directPercent">0%</div>
+                        </div>
+
+                        <div class="source-item">
+                            <div class="source-icon referral">🌐</div>
+                            <div class="source-info">
+                                <div class="source-name">Referral</div>
+                                <div class="source-visitors"><span id="referralVisitors">0</span> visitors</div>
+                                <div class="source-bar">
+                                    <div class="source-bar-fill" style="background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%); width: 0%" id="referralBar"></div>
+                                </div>
+                            </div>
+                            <div class="source-percentage" id="referralPercent">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time & Demographics -->
+            <div class="analytics-grid">
+                <!-- Real-time Stats -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Real-time Analytics</h3>
+                        <div class="real-time-badge" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.85rem; padding: 0.5rem 1rem;">
+                            <div class="pulse-dot" style="width: 8px; height: 8px;"></div>
+                            <span>Updating...</span>
+                        </div>
+                    </div>
+                    <div class="realtime-section">
+                        <div class="realtime-card">
+                            <div class="realtime-value" id="activeUsers">0</div>
+                            <div class="realtime-label">Active Users</div>
+                        </div>
+                        <div class="realtime-card">
+                            <div class="realtime-value" id="activePages">0</div>
+                            <div class="realtime-label">Active Pages</div>
+                        </div>
+                        <div class="realtime-card">
+                            <div class="realtime-value" id="todayVisits">0</div>
+                            <div class="realtime-label">Today's Visits</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 2rem;">
+                        <canvas id="realtimeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Demographics -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Demographics</h3>
+                    </div>
+                    <div class="demographics-grid">
+                        <div>
+                            <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">Top Countries</h4>
+                            <div class="demo-item">
+                                <div class="demo-label">🇮🇩 Indonesia</div>
+                                <div class="demo-value">78.5%</div>
+                            </div>
+                            <div class="demo-item">
+                                <div class="demo-label">🇲🇾 Malaysia</div>
+                                <div class="demo-value">8.2%</div>
+                            </div>
+                            <div class="demo-item">
+                                <div class="demo-label">🇸🇬 Singapore</div>
+                                <div class="demo-value">5.3%</div>
+                            </div>
+                            <div class="demo-item">
+                                <div class="demo-label">🇸🇦 Saudi Arabia</div>
+                                <div class="demo-value">4.1%</div>
+                            </div>
+                            <div class="demo-item">
+                                <div class="demo-label">🌍 Others</div>
+                                <div class="demo-value">3.9%</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">Top Cities</h4>
+                            <div class="demo-item">
+                                <div class="demo-label">📍 Makassar</div>
+                                <div class="demo-value">42.3%</div>
+                            </div>
+                            <div class="demo-item">
+                                <div class="demo-label">📍 Jakarta</div>
+                                <div class="demo-value">18.7%</div>
+                            </div>
+                            <div class="demo-item">
+                                <div class="demo-label">📍 Surabaya</div>
+                                <div class="demo-value">12.1%</div>
+                            </div>
+                            <div class="demo-item">
+                                <div class="demo-label">📍 Bandung</div>
+                                <div class="demo-value">8.5%</div>
+                            </div>
+                            <div class="demo-item">
+                                <div class="demo-label">📍 Others</div>
+                                <div class="demo-value">18.4%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Device Stats -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Device Distribution</h3>
+                </div>
+                <div class="device-stats">
+                    <div class="device-card">
+                        <div class="device-icon">📱</div>
+                        <div class="device-name">Mobile</div>
+                        <div class="device-percentage">62.5%</div>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">💻</div>
+                        <div class="device-name">Desktop</div>
+                        <div class="device-percentage">31.2%</div>
+                    </div>
+                    <div class="device-card">
+                        <div class="device-icon">📲</div>
+                        <div class="device-name">Tablet</div>
+                        <div class="device-percentage">6.3%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Pages -->
+            <div class="chart-card full-width">
+                <div class="chart-header">
+                    <h3 class="chart-title">Top Performing Pages</h3>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="pages-table">
+                        <thead>
+                            <tr>
+                                <th>Page</th>
+                                <th>Page Views</th>
+                                <th>Unique Visitors</th>
+                                <th>Avg. Time on Page</th>
+                                <th>Bounce Rate</th>
+                                <th>Conversions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pagesTableBody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SEO Metrics -->
+            <div class="chart-card full-width">
+                <div class="chart-header">
+                    <h3 class="chart-title">SEO Performance Metrics</h3>
+                </div>
+                <div class="seo-grid">
+                    <div class="seo-card">
+                        <div class="seo-title">🔍 Search Rankings</div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Average Position</span>
+                            <span class="seo-metric-value">8.5</span>
+                        </div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Top 10 Keywords</span>
+                            <span class="seo-metric-value">127</span>
+                        </div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Total Impressions</span>
+                            <span class="seo-metric-value">45.2K</span>
+                        </div>
+                    </div>
+
+                    <div class="seo-card">
+                        <div class="seo-title">📊 Page Performance</div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Page Load Time</span>
+                            <span class="seo-metric-value">1.8s</span>
+                        </div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Mobile Score</span>
+                            <span class="seo-metric-value">92/100</span>
+                        </div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Desktop Score</span>
+                            <span class="seo-metric-value">96/100</span>
+                        </div>
+                    </div>
+
+                    <div class="seo-card">
+                        <div class="seo-title">🎯 Click Metrics</div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Total Clicks</span>
+                            <span class="seo-metric-value">3,847</span>
+                        </div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">CTR</span>
+                            <span class="seo-metric-value">8.51%</span>
+                        </div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Avg. CTR Increase</span>
+                            <span class="seo-metric-value">+12.4%</span>
+                        </div>
+                    </div>
+
+                    <div class="seo-card">
+                        <div class="seo-title">🔗 Backlinks</div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Total Backlinks</span>
+                            <span class="seo-metric-value">2,145</span>
+                        </div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Referring Domains</span>
+                            <span class="seo-metric-value">348</span>
+                        </div>
+                        <div class="seo-metric">
+                            <span class="seo-metric-label">Domain Authority</span>
+                            <span class="seo-metric-value">42/100</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn secondary" onclick="refreshData()">
+                🔄 Refresh Data
+            </button>
+            <button class="action-btn" onclick="exportReport()">
+                📄 Export Report
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Sample Data
+        const analyticsData = {
+            totalVisitors: 28450,
+            visitorsTrend: 24.5,
+            pageViews: 89720,
+            pageViewsTrend: 18.3,
+            avgDuration: '3:42',
+            durationTrend: 15.7,
+            bounceRate: 42.3,
+            bounceTrend: 8.2,
+            newVisitors: 18920,
+            newVisitorsTrend: 28.1,
+            conversionRate: 3.8,
+            conversionTrend: 12.4
+        };
+
+        const trafficSources = {
+            organic: { visitors: 12850, percentage: 45.2 },
+            social: { visitors: 7420, percentage: 26.1 },
+            direct: { visitors: 5180, percentage: 18.2 },
+            referral: { visitors: 3000, percentage: 10.5 }
+        };
+
+        const topPages = [
+            {
+                url: '/beranda',
+                title: 'Beranda - IAI STIBA Makassar',
+                pageViews: 15420,
+                uniqueVisitors: 12340,
+                avgTime: '4:23',
+                bounceRate: 38.5,
+                conversions: 245
+            },
+            {
+                url: '/pendaftaran',
+                title: 'Pendaftaran Mahasiswa Baru',
+                pageViews: 12850,
+                uniqueVisitors: 10920,
+                avgTime: '6:15',
+                bounceRate: 28.3,
+                conversions: 892
+            },
+            {
+                url: '/program-studi',
+                title: 'Program Studi',
+                pageViews: 9420,
+                uniqueVisitors: 7850,
+                avgTime: '3:45',
+                bounceRate: 42.1,
+                conversions: 156
+            },
+            {
+                url: '/berita',
+                title: 'Berita & Artikel',
+                pageViews: 7680,
+                uniqueVisitors: 6420,
+                avgTime: '2:18',
+                bounceRate: 52.8,
+                conversions: 45
+            },
+            {
+                url: '/akademik',
+                title: 'Informasi Akademik',
+                pageViews: 6230,
+                uniqueVisitors: 5120,
+                avgTime: '5:02',
+                bounceRate: 35.7,
+                conversions: 178
+            }
+        ];
+
+        // Initialize Dashboard
+        function initDashboard() {
+            populateStats();
+            populateTrafficSources();
+            populateTopPages();
+            initCharts();
+            startRealTimeUpdates();
+        }
+
+        // Populate Stats
+        function populateStats() {
+            document.getElementById('totalVisitors').textContent = analyticsData.totalVisitors.toLocaleString('id-ID');
+            document.getElementById('visitorsTrend').textContent = analyticsData.visitorsTrend + '%';
+            
+            document.getElementById('pageViews').textContent = analyticsData.pageViews.toLocaleString('id-ID');
+            document.getElementById('pageViewsTrend').textContent = analyticsData.pageViewsTrend + '%';
+            
+            document.getElementById('avgDuration').textContent = analyticsData.avgDuration;
+            document.getElementById('durationTrend').textContent = analyticsData.durationTrend + '%';
+            
+            document.getElementById('bounceRate').textContent = analyticsData.bounceRate + '%';
+            document.getElementById('bounceTrend').textContent = analyticsData.bounceTrend + '%';
+            
+            document.getElementById('newVisitors').textContent = analyticsData.newVisitors.toLocaleString('id-ID');
+            document.getElementById('newVisitorsTrend').textContent = analyticsData.newVisitorsTrend + '%';
+            
+            document.getElementById('conversionRate').textContent = analyticsData.conversionRate + '%';
+            document.getElementById('conversionTrend').textContent = analyticsData.conversionTrend + '%';
+        }
+
+        // Populate Traffic Sources
+        function populateTrafficSources() {
+            // Organic
+            document.getElementById('organicVisitors').textContent = trafficSources.organic.visitors.toLocaleString('id-ID');
+            document.getElementById('organicPercent').textContent = trafficSources.organic.percentage + '%';
+            document.getElementById('organicBar').style.width = trafficSources.organic.percentage + '%';
+            
+            // Social
+            document.getElementById('socialVisitors').textContent = trafficSources.social.visitors.toLocaleString('id-ID');
+            document.getElementById('socialPercent').textContent = trafficSources.social.percentage + '%';
+            document.getElementById('socialBar').style.width = trafficSources.social.percentage + '%';
+            
+            // Direct
+            document.getElementById('directVisitors').textContent = trafficSources.direct.visitors.toLocaleString('id-ID');
+            document.getElementById('directPercent').textContent = trafficSources.direct.percentage + '%';
+            document.getElementById('directBar').style.width = trafficSources.direct.percentage + '%';
+            
+            // Referral
+            document.getElementById('referralVisitors').textContent = trafficSources.referral.visitors.toLocaleString('id-ID');
+            document.getElementById('referralPercent').textContent = trafficSources.referral.percentage + '%';
+            document.getElementById('referralBar').style.width = trafficSources.referral.percentage + '%';
+        }
+
+        // Populate Top Pages Table
+        function populateTopPages() {
+            const tbody = document.getElementById('pagesTableBody');
+            tbody.innerHTML = '';
+            
+            topPages.forEach(page => {
+                const row = `
+                    <tr>
+                        <td>
+                            <div class="page-url">${page.url}</div>
+                            <div class="page-title">${page.title}</div>
+                        </td>
+                        <td>
+                            <div class="metric-value">${page.pageViews.toLocaleString('id-ID')}</div>
+                        </td>
+                        <td>
+                            <div class="metric-value">${page.uniqueVisitors.toLocaleString('id-ID')}</div>
+                        </td>
+                        <td>
+                            <div class="metric-value">${page.avgTime}</div>
+                        </td>
+                        <td>
+                            <div class="metric-value">${page.bounceRate}%</div>
+                        </td>
+                        <td>
+                            <div class="metric-value">${page.conversions}</div>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Initialize Charts
+        let trafficChart, realtimeChart;
+
+        function initCharts() {
+            // Traffic Overview Chart
+            const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+            trafficChart = new Chart(trafficCtx, {
+                type: 'line',
+                data: {
+                    labels: generateDateLabels(30),
+                    datasets: [
+                        {
+                            label: 'Visitors',
+                            data: generateTrafficData(30, 800, 1200),
+                            borderColor: '#0A4D3C',
+                            backgroundColor: 'rgba(10, 77, 60, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Page Views',
+                            data: generateTrafficData(30, 2400, 3600),
+                            borderColor: '#D4A574',
+                            backgroundColor: 'rgba(212, 165, 116, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
+                            borderWidth: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12,
+                                    weight: '600'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Real-time Chart
+            const realtimeCtx = document.getElementById('realtimeChart').getContext('2d');
+            realtimeChart = new Chart(realtimeCtx, {
+                type: 'line',
+                data: {
+                    labels: generateTimeLabels(12),
+                    datasets: [{
+                        label: 'Active Users',
+                        data: generateRealtimeData(12),
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateDateLabels(days) {
+            const labels = [];
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }));
+            }
+            return labels;
+        }
+
+        function generateTimeLabels(hours) {
+            const labels = [];
+            for (let i = hours - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setHours(date.getHours() - i);
+                labels.push(date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }));
+            }
+            return labels;
+        }
+
+        function generateTrafficData(days, min, max) {
+            const data = [];
+            for (let i = 0; i < days; i++) {
+                data.push(Math.floor(Math.random() * (max - min + 1)) + min);
+            }
+            return data;
+        }
+
+        function generateRealtimeData(hours) {
+            const data = [];
+            for (let i = 0; i < hours; i++) {
+                data.push(Math.floor(Math.random() * 50) + 10);
+            }
+            return data;
+        }
+
+        // Real-time Updates
+        function startRealTimeUpdates() {
+            updateRealTimeStats();
+            setInterval(updateRealTimeStats, 5000); // Update every 5 seconds
+        }
+
+        function updateRealTimeStats() {
+            const activeUsers = Math.floor(Math.random() * 50) + 20;
+            const activePages = Math.floor(Math.random() * 30) + 10;
+            const todayVisits = Math.floor(Math.random() * 1000) + 2500;
+            
+            document.getElementById('activeUsers').textContent = activeUsers;
+            document.getElementById('activePages').textContent = activePages;
+            document.getElementById('todayVisits').textContent = todayVisits.toLocaleString('id-ID');
+        }
+
+        // Refresh Data
+        function refreshData() {
+            // Simulate data refresh
+            const refreshBtn = event.target;
+            refreshBtn.innerHTML = '⏳ Refreshing...';
+            refreshBtn.disabled = true;
+            
+            setTimeout(() => {
+                initDashboard();
+                refreshBtn.innerHTML = '🔄 Refresh Data';
+                refreshBtn.disabled = false;
+                alert('✅ Data berhasil di-refresh!');
+            }, 1500);
+        }
+
+        // Export Report
+        function exportReport() {
+            const reportData = {
+                generatedAt: new Date().toISOString(),
+                period: '30 Hari Terakhir',
+                analytics: analyticsData,
+                trafficSources: trafficSources,
+                topPages: topPages,
+                seo: {
+                    averagePosition: 8.5,
+                    top10Keywords: 127,
+                    totalImpressions: '45.2K',
+                    pageLoadTime: '1.8s',
+                    mobileScore: 92,
+                    desktopScore: 96,
+                    totalClicks: 3847,
+                    ctr: 8.51,
+                    totalBacklinks: 2145,
+                    referringDomains: 348,
+                    domainAuthority: 42
+                }
+            };
+            
+            const dataStr = JSON.stringify(reportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `analytics-report-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            alert('📄 Laporan analytics berhasil diexport!');
+        }
+
+        // Initialize on load
+        window.addEventListener('load', initDashboard);
+    </script>
+</body>
+</html>

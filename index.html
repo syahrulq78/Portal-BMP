@@ -1,0 +1,903 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1B3A6B">
+<title>Portal BMP — IAI STIBA Makassar</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1B3A6B;
+  --navy-dark: #102347;
+  --navy-light: #2A4F8F;
+  --gold: #C5922A;
+  --gold-light: #E8B84B;
+  --gold-pale: #FDF6E3;
+  --cream: #FAFAF7;
+  --white: #FFFFFF;
+  --border: #D8D8D0;
+  --text: #1A1A1A;
+  --text-muted: #6B6B6B;
+  --success: #2e7d32;
+  --success-bg: #e8f5e9;
+  --sidebar-w: 260px;
+  --topbar-h: 56px;
+  --bnav-h: 60px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Sans 3',sans-serif;font-size:14px;background:var(--cream);color:var(--text);min-height:100vh}
+
+/* ── OVERLAY (mobile) ── */
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:140;backdrop-filter:blur(2px)}
+#overlay.open{display:block}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  position:fixed;top:0;bottom:0;left:0;
+  width:var(--sidebar-w);
+  background:var(--navy);
+  display:flex;flex-direction:column;
+  z-index:150;overflow:hidden;
+  transform:translateX(0);
+  transition:transform .25s ease;
+}
+@media(max-width:768px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+}
+.sb-logo{
+  padding:18px 16px 14px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  flex-shrink:0;
+}
+.sb-logo .inst{font-family:'Lora',serif;font-size:13px;font-weight:700;color:var(--gold-light);letter-spacing:.5px}
+.sb-logo .sub{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;line-height:1.4}
+.sb-logo .badge{display:inline-block;margin-top:8px;background:var(--gold);color:var(--navy-dark);font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:.8px;text-transform:uppercase}
+#nav-list{flex:1;overflow-y:auto;padding:6px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
+.nav-sec{padding:10px 14px 3px;font-size:9px;text-transform:uppercase;letter-spacing:1.4px;color:rgba(255,255,255,.3);font-weight:700;margin-top:4px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;cursor:pointer;
+  border-left:3px solid transparent;
+  transition:background .15s,border-color .15s;
+}
+.nav-item:hover{background:rgba(255,255,255,.07)}
+.nav-item.active{background:rgba(197,146,42,.18);border-left-color:var(--gold)}
+.nav-item .ni-icon{
+  width:30px;height:30px;border-radius:7px;
+  background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.nav-item.active .ni-icon{background:var(--gold);color:var(--navy-dark)}
+.nav-item .ni-label{font-size:12.5px;color:rgba(255,255,255,.7);line-height:1.3}
+.nav-item.active .ni-label{color:#fff;font-weight:600}
+.sb-footer{padding:12px 14px;border-top:1px solid rgba(255,255,255,.1);font-size:10.5px;color:rgba(255,255,255,.35);flex-shrink:0}
+
+/* ── MAIN ── */
+#main{
+  margin-left:var(--sidebar-w);
+  min-height:100vh;
+  display:flex;flex-direction:column;
+}
+@media(max-width:768px){
+  #main{margin-left:0;margin-bottom:var(--bnav-h)}
+}
+
+/* ── TOPBAR ── */
+#topbar{
+  position:sticky;top:0;z-index:100;
+  background:#fff;border-bottom:1px solid var(--border);
+  height:var(--topbar-h);padding:0 20px;
+  display:flex;align-items:center;gap:12px;
+}
+#hamburger{
+  display:none;background:none;border:none;cursor:pointer;
+  width:36px;height:36px;border-radius:8px;
+  align-items:center;justify-content:center;font-size:18px;
+  transition:background .15s;
+}
+#hamburger:hover{background:var(--gold-pale)}
+@media(max-width:768px){#hamburger{display:flex}}
+.tb-title{font-family:'Lora',serif;font-size:15px;font-weight:700;color:var(--navy);flex:1}
+.tb-badge{background:var(--gold-pale);color:var(--gold);border:1px solid var(--gold-light);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.5px}
+.tb-date{font-size:11px;color:var(--text-muted)}
+
+/* ── CONTENT ── */
+#content{flex:1;padding:0}
+.section{display:none;animation:fadeIn .2s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── BOTTOM NAV (mobile) ── */
+#bnav{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:130;
+  background:#fff;border-top:1px solid var(--border);
+  height:var(--bnav-h);
+  box-shadow:0 -2px 8px rgba(0,0,0,.07);
+}
+@media(max-width:768px){#bnav{display:flex}}
+.bn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:none;border:none;cursor:pointer;padding:6px 2px;
+  color:var(--text-muted);font-size:9.5px;font-family:inherit;gap:3px;
+  transition:color .15s;
+}
+.bn .bn-icon{font-size:18px;line-height:1}
+.bn.active{color:var(--navy)}
+.bn.active .bn-icon{filter:drop-shadow(0 0 3px rgba(27,58,107,.4))}
+
+/* ═══════════════════════════════════════════
+   BERANDA
+═══════════════════════════════════════════ */
+.beranda-hero{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);
+  padding:32px 24px 28px;position:relative;overflow:hidden;
+}
+.beranda-hero::before{
+  content:'';position:absolute;top:-30%;right:-5%;
+  width:350px;height:350px;border-radius:50%;
+  background:radial-gradient(circle,rgba(197,146,42,.2) 0%,transparent 70%);
+  pointer-events:none;
+}
+.beranda-hero .hero-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-light);margin-bottom:6px}
+.beranda-hero h1{font-family:'Lora',serif;font-size:22px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:4px}
+.beranda-hero .hero-sub{font-size:13px;color:rgba(255,255,255,.65);line-height:1.5}
+.hero-stats{display:flex;gap:16px;margin-top:20px;flex-wrap:wrap}
+.hstat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 14px;flex:1;min-width:90px;backdrop-filter:blur(4px)}
+.hstat .hval{font-size:20px;font-weight:800;color:#fff;font-family:'Lora',serif}
+.hstat .hlbl{font-size:10px;color:rgba(255,255,255,.6);margin-top:1px;line-height:1.3}
+
+.sec-body{padding:20px 20px 32px;max-width:900px}
+@media(max-width:600px){.sec-body{padding:16px 14px 28px}}
+
+.q-title{font-family:'Lora',serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.q-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.q-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+@media(max-width:600px){.q-grid{grid-template-columns:repeat(2,1fr)}}
+.q-card{
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:14px 12px;cursor:pointer;transition:all .15s;
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  text-align:left;
+}
+.q-card:hover{border-color:var(--gold);background:var(--gold-pale);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.q-card .qc-icon{font-size:22px;line-height:1}
+.q-card .qc-title{font-size:12.5px;font-weight:700;color:var(--navy);line-height:1.3}
+.q-card .qc-sub{font-size:10.5px;color:var(--text-muted);line-height:1.4}
+
+.info-strip{background:var(--gold-pale);border:1px solid var(--gold-light);border-radius:8px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:16px}
+.info-strip .is-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.info-strip .is-text{font-size:12px;color:#7a5a00;line-height:1.5}
+.info-strip .is-text strong{color:#5a3d00}
+
+/* ═══════════════════════════════════════════
+   MODULE SECTIONS (link-out)
+═══════════════════════════════════════════ */
+.mod-header{
+  background:linear-gradient(135deg,var(--navy),var(--navy-light));
+  padding:24px 24px 20px;
+}
+.mod-header .mh-badge{
+  display:inline-block;background:rgba(255,255,255,.2);color:#fff;
+  font-size:9.5px;font-weight:700;padding:2px 10px;border-radius:20px;
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;
+}
+.mod-header h2{font-family:'Lora',serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+.mod-header p{font-size:12.5px;color:rgba(255,255,255,.65);line-height:1.5}
+.mod-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;border:none;transition:all .15s;text-decoration:none}
+.btn-primary{background:var(--gold);color:var(--navy-dark)}
+.btn-primary:hover{background:var(--gold-light)}
+.btn-secondary{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)}
+.btn-secondary:hover{background:rgba(255,255,255,.25)}
+.btn-outline{background:#fff;color:var(--navy);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--navy);background:var(--gold-pale)}
+
+.mod-body{padding:20px 20px 40px}
+@media(max-width:600px){.mod-body{padding:16px 14px 32px}}
+
+/* ── FEATURE LIST ── */
+.feat-list{list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.feat-list li{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--text-muted);line-height:1.5}
+.feat-list li::before{content:'✓';color:var(--gold);font-weight:800;flex-shrink:0;margin-top:1px}
+
+/* ── MODULE CARD GRID ── */
+.mod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:500px){.mod-grid{grid-template-columns:1fr}}
+.mod-card{
+  background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:16px 14px;
+}
+.mod-card .mc-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.mod-card .mc-icon{width:32px;height:32px;border-radius:7px;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.mod-card .mc-title{font-size:13px;font-weight:700;color:var(--navy);line-height:1.3}
+.mod-card .mc-desc{font-size:11.5px;color:var(--text-muted);line-height:1.5;margin-bottom:10px}
+.mod-card .mc-count{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px}
+
+/* ── SOP LIST ── */
+.sop-list{display:flex;flex-direction:column;gap:8px}
+.sop-item{
+  background:#fff;border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px;display:flex;align-items:center;gap:12px;
+}
+.sop-item:hover{border-color:var(--gold);background:var(--gold-pale)}
+.sop-num{
+  width:32px;height:32px;border-radius:6px;
+  background:var(--navy);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;flex-shrink:0;
+}
+.sop-info{flex:1}
+.sop-info .sop-title{font-size:12.5px;font-weight:700;color:var(--text);line-height:1.3}
+.sop-info .sop-code{font-size:10.5px;color:var(--text-muted);margin-top:2px}
+.sop-link{font-size:11px;color:var(--navy);text-decoration:none;font-weight:600;flex-shrink:0;padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:#fff;cursor:pointer;transition:all .12s}
+.sop-link:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* ── BOOK CARDS ── */
+.book-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:500px){.book-grid{grid-template-columns:1fr}}
+.book-card{
+  background:#fff;border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;cursor:pointer;transition:all .15s;
+}
+.book-card:hover{border-color:var(--gold);box-shadow:0 6px 20px rgba(0,0,0,.1);transform:translateY(-2px)}
+.book-cover{
+  height:90px;display:flex;align-items:center;justify-content:center;
+  font-size:36px;
+}
+.book-info{padding:12px 14px 14px}
+.book-info h3{font-family:'Lora',serif;font-size:13px;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:4px}
+.book-info p{font-size:11px;color:var(--text-muted);line-height:1.4;margin-bottom:8px}
+.book-meta{display:flex;align-items:center;justify-content:space-between}
+.book-chaps{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.4px}
+.book-btn{font-size:10.5px;font-weight:700;color:var(--navy);background:var(--gold-pale);border:1px solid var(--gold-light);padding:4px 10px;border-radius:5px;text-decoration:none;transition:all .12s}
+.book-btn:hover{background:var(--gold);color:var(--navy-dark);border-color:var(--gold)}
+
+/* ── CHAPTER LIST ── */
+.chap-list{display:flex;flex-direction:column;gap:4px}
+.chap-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;border-radius:7px;background:#fff;
+  border:1px solid var(--border);font-size:12px;
+}
+.chap-num{width:24px;height:24px;border-radius:5px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.chap-title{flex:1;color:var(--text);line-height:1.3}
+
+/* ── PANDUAN CHAPTER LIST ── */
+.pan-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
+@media(max-width:500px){.pan-grid{grid-template-columns:1fr}}
+.pan-card{
+  background:#fff;border:1px solid var(--border);border-radius:8px;
+  padding:11px 12px;cursor:pointer;transition:all .12s;
+}
+.pan-card:hover{border-color:var(--gold);background:var(--gold-pale)}
+.pan-card .pc-num{font-size:9px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.pan-card .pc-title{font-size:12px;font-weight:700;color:var(--navy);line-height:1.3}
+
+/* ── FORMULIR LIST ── */
+.form-cat{margin-bottom:16px}
+.form-cat-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:8px}
+.form-chips{display:flex;flex-wrap:wrap;gap:6px}
+.form-chip{
+  background:#fff;border:1px solid var(--border);border-radius:6px;
+  padding:7px 12px;font-size:12px;font-weight:600;color:var(--navy);
+  cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:6px;
+}
+.form-chip:hover{border-color:var(--gold);background:var(--gold-pale)}
+.form-chip .fc-code{
+  width:20px;height:20px;border-radius:4px;background:var(--navy);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;
+}
+
+/* ── SECTION DIVIDER ── */
+.sec-div{font-family:'Lora',serif;font-size:13.5px;font-weight:700;color:var(--navy);padding:8px 0 6px;border-bottom:2px solid var(--gold);margin:18px 0 12px;display:flex;align-items:center;gap:8px}
+
+/* ── RESPONSIVE TWEAKS ── */
+@media(max-width:768px){
+  .beranda-hero{padding:24px 16px 20px}
+  .beranda-hero h1{font-size:18px}
+  .hero-stats{gap:8px}
+  .hstat{min-width:75px}
+  .mod-header{padding:20px 16px 16px}
+  .mod-header h2{font-size:15px}
+  .q-grid{gap:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- OVERLAY -->
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sb-logo">
+    <div class="inst">IAI STIBA Makassar</div>
+    <div class="sub">Bagian Media dan Pers</div>
+    <div class="badge">Portal BMP 2026</div>
+  </div>
+  <nav id="nav-list">
+    <div class="nav-item active" onclick="showSection('beranda','Beranda','🏠')">
+      <div class="ni-icon">🏠</div>
+      <div class="ni-label">Beranda</div>
+    </div>
+
+    <div class="nav-sec">Monitoring &amp; Laporan</div>
+    <div class="nav-item" onclick="showSection('dashboard','Dashboard Medsos','📊')">
+      <div class="ni-icon">📊</div>
+      <div class="ni-label">Dashboard Medsos</div>
+    </div>
+    <div class="nav-item" onclick="showSection('formulir','Formulir SPMI','📋')">
+      <div class="ni-icon">📋</div>
+      <div class="ni-label">Formulir &amp; Lampiran SPMI</div>
+    </div>
+
+    <div class="nav-sec">Panduan &amp; SOP</div>
+    <div class="nav-item" onclick="showSection('panduan','Panduan PPEPP','📖')">
+      <div class="ni-icon">📖</div>
+      <div class="ni-label">Panduan PPEPP BMP</div>
+    </div>
+    <div class="nav-item" onclick="showSection('sop','SOP BMP','📑')">
+      <div class="ni-icon">📑</div>
+      <div class="ni-label">Dokumen SOP BMP</div>
+    </div>
+    <div class="nav-item" onclick="showSection('spmi','Panduan SPMI','📄')">
+      <div class="ni-icon">📄</div>
+      <div class="ni-label">Panduan Dokumen SPMI</div>
+    </div>
+
+    <div class="nav-sec">Perpustakaan Skill</div>
+    <div class="nav-item" onclick="showSection('foto','Teknik Fotografi','📸')">
+      <div class="ni-icon">📸</div>
+      <div class="ni-label">Teknik Fotografi HP</div>
+    </div>
+    <div class="nav-item" onclick="showSection('video','Teknik Sinematografi','🎬')">
+      <div class="ni-icon">🎬</div>
+      <div class="ni-label">Teknik Sinematografi HP</div>
+    </div>
+    <div class="nav-item" onclick="showSection('capcut','Edit CapCut','✂️')">
+      <div class="ni-icon">✂️</div>
+      <div class="ni-label">Edit Seperti Pro — CapCut</div>
+    </div>
+    <div class="nav-item" onclick="showSection('canva','Edit Canva','🎨')">
+      <div class="ni-icon">🎨</div>
+      <div class="ni-label">Edit Seperti Pro — Canva</div>
+    </div>
+  </nav>
+  <div class="sb-footer">Portal BMP &copy; 2026 · IAI STIBA Makassar</div>
+</aside>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <button id="hamburger" onclick="toggleSidebar()">☰</button>
+    <div class="tb-title" id="tb-title">Beranda</div>
+    <span class="tb-badge" id="tb-badge">🏠</span>
+    <span class="tb-date" id="tb-date"></span>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- ══════════ BERANDA ══════════ -->
+    <section id="sec-beranda" class="section active">
+      <div class="beranda-hero">
+        <div class="hero-label">Portal Bagian Media dan Pers</div>
+        <h1>Selamat Datang di<br>BMP Hub 2026</h1>
+        <div class="hero-sub">IAI STIBA Makassar · Satu portal untuk semua kebutuhan media</div>
+        <div class="hero-stats">
+          <div class="hstat"><div class="hval">18</div><div class="hlbl">SOP Aktif</div></div>
+          <div class="hstat"><div class="hval">20</div><div class="hlbl">Bab Panduan</div></div>
+          <div class="hstat"><div class="hval">4</div><div class="hlbl">Buku Skill</div></div>
+          <div class="hstat"><div class="hval">20+</div><div class="hlbl">Formulir SPMI</div></div>
+        </div>
+      </div>
+      <div class="sec-body">
+        <div class="info-strip">
+          <span class="is-icon">💡</span>
+          <div class="is-text"><strong>Cara pakai:</strong> Pilih menu di sidebar kiri (desktop) atau tombol di bawah (HP). Semua modul bisa dibuka langsung dari sini tanpa perlu cari file satu-satu.</div>
+        </div>
+
+        <div class="q-title">Akses Cepat</div>
+        <div class="q-grid">
+          <div class="q-card" onclick="showSection('dashboard','Dashboard Medsos','📊')">
+            <div class="qc-icon">📊</div>
+            <div class="qc-title">Dashboard Medsos</div>
+            <div class="qc-sub">Monitoring performa &amp; statistik platform digital</div>
+          </div>
+          <div class="q-card" onclick="showSection('formulir','Formulir SPMI','📋')">
+            <div class="qc-icon">📋</div>
+            <div class="qc-title">Formulir SPMI</div>
+            <div class="qc-sub">20+ formulir &amp; lampiran kerja BMP</div>
+          </div>
+          <div class="q-card" onclick="showSection('panduan','Panduan PPEPP','📖')">
+            <div class="qc-icon">📖</div>
+            <div class="qc-title">Panduan PPEPP</div>
+            <div class="qc-sub">20 bab panduan proker lengkap</div>
+          </div>
+          <div class="q-card" onclick="showSection('sop','SOP BMP','📑')">
+            <div class="qc-icon">📑</div>
+            <div class="qc-title">SOP BMP</div>
+            <div class="qc-sub">18 standar operasional prosedur</div>
+          </div>
+          <div class="q-card" onclick="showSection('foto','Teknik Fotografi','📸')">
+            <div class="qc-icon">📸</div>
+            <div class="qc-title">Buku Fotografi</div>
+            <div class="qc-sub">Foto keren dari genggaman HP</div>
+          </div>
+          <div class="q-card" onclick="showSection('capcut','Edit CapCut','✂️')">
+            <div class="qc-icon">✂️</div>
+            <div class="qc-title">Edit Seperti Pro</div>
+            <div class="qc-sub">CapCut &amp; Canva untuk konten media</div>
+          </div>
+        </div>
+
+        <div class="q-title">Tentang Portal Ini</div>
+        <div class="mod-grid">
+          <div class="mod-card">
+            <div class="mc-head"><div class="mc-icon">📊</div><div class="mc-title">Monitoring &amp; Laporan</div></div>
+            <div class="mc-desc">Dashboard real-time statistik media sosial, form pelaporan SPMI, dan evaluasi kinerja digital.</div>
+            <div class="mc-count">2 modul aktif</div>
+          </div>
+          <div class="mod-card">
+            <div class="mc-head"><div class="mc-icon">📚</div><div class="mc-title">Panduan &amp; SOP</div></div>
+            <div class="mc-desc">Dokumen resmi operasional BMP, panduan PPEPP, dan standar kerja tim media STIBA.</div>
+            <div class="mc-count">38 dokumen</div>
+          </div>
+          <div class="mod-card">
+            <div class="mc-head"><div class="mc-icon">🎓</div><div class="mc-title">Perpustakaan Skill</div></div>
+            <div class="mc-desc">4 buku panduan teknis fotografi, sinematografi, dan editing konten — dioptimalkan untuk dibaca di HP.</div>
+            <div class="mc-count">4 buku · 50+ bab</div>
+          </div>
+          <div class="mod-card">
+            <div class="mc-head"><div class="mc-icon">📱</div><div class="mc-title">Mobile Friendly</div></div>
+            <div class="mc-desc">Semua modul dirancang responsif — nyaman dibaca dan digunakan langsung dari smartphone.</div>
+            <div class="mc-count">Offline &amp; online</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ DASHBOARD ══════════ -->
+    <section id="sec-dashboard" class="section">
+      <div class="mod-header">
+        <div class="mh-badge">Monitoring</div>
+        <h2>Dashboard Media Sosial</h2>
+        <p>Pantau performa konten, statistik platform, dan laporan kinerja digital BMP STIBA secara berkala.</p>
+        <div class="mod-actions">
+          <a class="btn btn-primary" href="dashboard.html" target="_blank">📊 Buka Dashboard</a>
+          <a class="btn btn-secondary" href="analytics.html" target="_blank">📈 Buka Analytics</a>
+        </div>
+      </div>
+      <div class="mod-body">
+        <div class="sec-div">Fitur Dashboard</div>
+        <ul class="feat-list">
+          <li>Statistik follower &amp; engagement per platform (Instagram, TikTok, YouTube, Facebook)</li>
+          <li>Grafik tren konten bulanan &amp; mingguan</li>
+          <li>Top performing content &amp; rekomendasi strategi</li>
+          <li>Export laporan ke PDF</li>
+          <li>Kalender konten bulanan</li>
+          <li>KPI tracking vs target</li>
+        </ul>
+        <div class="sec-div">Platform yang Dipantau</div>
+        <div class="mod-grid">
+          <div class="mod-card">
+            <div class="mc-head"><div class="mc-icon">📸</div><div class="mc-title">Instagram</div></div>
+            <div class="mc-desc">Feed, Reels, Stories — engagement rate &amp; reach</div>
+          </div>
+          <div class="mod-card">
+            <div class="mc-head"><div class="mc-icon">🎵</div><div class="mc-title">TikTok</div></div>
+            <div class="mc-desc">Views, likes, share &amp; pertumbuhan followers</div>
+          </div>
+          <div class="mod-card">
+            <div class="mc-head"><div class="mc-icon">▶️</div><div class="mc-title">YouTube</div></div>
+            <div class="mc-desc">Subscriber, watch time, click-through rate</div>
+          </div>
+          <div class="mod-card">
+            <div class="mc-head"><div class="mc-icon">👥</div><div class="mc-title">Facebook</div></div>
+            <div class="mc-desc">Jangkauan organik, reaksi &amp; komentar</div>
+          </div>
+        </div>
+        <div class="info-strip">
+          <span class="is-icon">🔗</span>
+          <div class="is-text">Klik <strong>"Buka Dashboard"</strong> di atas untuk masuk ke halaman dashboard penuh dengan grafik interaktif. Jika ingin versi yang tersinkron dengan data real-time, gunakan versi Firebase.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ FORMULIR SPMI ══════════ -->
+    <section id="sec-formulir" class="section">
+      <div class="mod-header">
+        <div class="mh-badge">SPMI</div>
+        <h2>Formulir &amp; Lampiran SPMI</h2>
+        <p>Seluruh formulir kerja, laporan, dan lampiran resmi Sistem Penjaminan Mutu Internal BMP — bisa diisi digital dan dicetak.</p>
+        <div class="mod-actions">
+          <a class="btn btn-primary" href="formulir.html" target="_blank">📋 Buka Semua Formulir</a>
+        </div>
+      </div>
+      <div class="mod-body">
+        <div class="form-cat">
+          <div class="form-cat-title">Referensi</div>
+          <div class="form-chips">
+            <div class="form-chip" onclick="openForm('A')"><div class="fc-code">A</div>Peta 14 Standar BMP</div>
+            <div class="form-chip" onclick="openForm('O')"><div class="fc-code">O</div>Daftar Singkatan &amp; Istilah</div>
+          </div>
+        </div>
+        <div class="form-cat">
+          <div class="form-cat-title">Konten Digital</div>
+          <div class="form-chips">
+            <div class="form-chip" onclick="openForm('B')"><div class="fc-code">B</div>Editorial Plan Konten</div>
+            <div class="form-chip" onclick="openForm('C')"><div class="fc-code">C</div>Logbook Unggahan</div>
+            <div class="form-chip" onclick="openForm('D')"><div class="fc-code">D</div>Checklist Kendali Mutu</div>
+          </div>
+        </div>
+        <div class="form-cat">
+          <div class="form-cat-title">Pemberitaan</div>
+          <div class="form-chips">
+            <div class="form-chip" onclick="openForm('E')"><div class="fc-code">E</div>Register Arsip Berita</div>
+            <div class="form-chip" onclick="openForm('F')"><div class="fc-code">F</div>Daftar Narasumber</div>
+          </div>
+        </div>
+        <div class="form-cat">
+          <div class="form-cat-title">Podcast &amp; Video</div>
+          <div class="form-chips">
+            <div class="form-chip" onclick="openForm('G')"><div class="fc-code">G</div>Script Podcast</div>
+            <div class="form-chip" onclick="openForm('H')"><div class="fc-code">H</div>Log Produksi Video</div>
+          </div>
+        </div>
+        <div class="form-cat">
+          <div class="form-cat-title">Evaluasi &amp; Pelaporan</div>
+          <div class="form-chips">
+            <div class="form-chip" onclick="openForm('I')"><div class="fc-code">I</div>Monthly Insight</div>
+            <div class="form-chip" onclick="openForm('J')"><div class="fc-code">J</div>Dokumen RTL</div>
+          </div>
+        </div>
+        <div class="form-cat">
+          <div class="form-cat-title">Operasional</div>
+          <div class="form-chips">
+            <div class="form-chip" onclick="openForm('K')"><div class="fc-code">K</div>Surat Tugas Peliputan</div>
+            <div class="form-chip" onclick="openForm('L')"><div class="fc-code">L</div>Berita Acara Review Redaksi</div>
+            <div class="form-chip" onclick="openForm('M')"><div class="fc-code">M</div>Notula Rapat Koordinasi</div>
+            <div class="form-chip" onclick="openForm('N')"><div class="fc-code">N</div>Form Permintaan Konten</div>
+          </div>
+        </div>
+        <div class="form-cat">
+          <div class="form-cat-title">Publikasi &amp; Desain</div>
+          <div class="form-chips">
+            <div class="form-chip" onclick="openForm('P')"><div class="fc-code">P</div>Rekap Tautan Konten</div>
+            <div class="form-chip" onclick="openForm('Q')"><div class="fc-code">Q</div>Portofolio Aset Visual</div>
+          </div>
+        </div>
+        <div class="form-cat">
+          <div class="form-cat-title">Analisis Kinerja</div>
+          <div class="form-chips">
+            <div class="form-chip" onclick="openForm('R')"><div class="fc-code">R</div>Evaluasi Strategi Konten</div>
+            <div class="form-chip" onclick="openForm('S')"><div class="fc-code">S</div>Data Pemetaan Audiens</div>
+            <div class="form-chip" onclick="openForm('T')"><div class="fc-code">T</div>Arsip Digital</div>
+          </div>
+        </div>
+        <div class="info-strip">
+          <span class="is-icon">💾</span>
+          <div class="is-text"><strong>Cara pakai:</strong> Klik formulir di atas untuk langsung buka dan isi. Data bisa disimpan lokal di browser atau dicetak sebagai PDF.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ PANDUAN PPEPP ══════════ -->
+    <section id="sec-panduan" class="section">
+      <div class="mod-header">
+        <div class="mh-badge">Panduan</div>
+        <h2>Panduan PPEPP BMP</h2>
+        <p>20 bab panduan lengkap pelaksanaan Program Kerja BMP — dari konsep hingga evaluasi dan pelaporan.</p>
+        <div class="mod-actions">
+          <a class="btn btn-primary" href="panduan-ppepp.html" target="_blank">📖 Baca Panduan Lengkap</a>
+        </div>
+      </div>
+      <div class="mod-body">
+        <div class="sec-div">Daftar Bab</div>
+        <div class="pan-grid">
+          <div class="pan-card" onclick="openPanduan(1)"><div class="pc-num">Bab 1</div><div class="pc-title">Mengenal BMP dan Kerangka Kerja</div></div>
+          <div class="pan-card" onclick="openPanduan(2)"><div class="pc-num">Bab 2</div><div class="pc-title">Peta Tujuh Proker &amp; Perbedaannya</div></div>
+          <div class="pan-card" onclick="openPanduan(3)"><div class="pc-num">Bab 3</div><div class="pc-title">Pengelolaan Platform Digital</div></div>
+          <div class="pan-card" onclick="openPanduan(4)"><div class="pc-num">Bab 4</div><div class="pc-title">Kendali Mutu Desain dan Visual</div></div>
+          <div class="pan-card" onclick="openPanduan(5)"><div class="pc-num">Bab 5</div><div class="pc-title">Konsistensi Identitas Visual</div></div>
+          <div class="pan-card" onclick="openPanduan(6)"><div class="pc-num">Bab 6</div><div class="pc-title">Produksi Konten Branding</div></div>
+          <div class="pan-card" onclick="openPanduan(7)"><div class="pc-num">Bab 7</div><div class="pc-title">Pengembangan Konten Strategis</div></div>
+          <div class="pan-card" onclick="openPanduan(8)"><div class="pc-num">Bab 8</div><div class="pc-title">Analisis dan Evaluasi Kinerja</div></div>
+          <div class="pan-card" onclick="openPanduan(9)"><div class="pc-num">Bab 9</div><div class="pc-title">Monitoring dan Pelaporan Media</div></div>
+          <div class="pan-card" onclick="openPanduan(10)"><div class="pc-num">Bab 10</div><div class="pc-title">Koordinasi Antar-Proker</div></div>
+          <div class="pan-card" onclick="openPanduan(11)"><div class="pc-num">Bab 11</div><div class="pc-title">Penyusunan Kalender Konten Bulanan</div></div>
+          <div class="pan-card" onclick="openPanduan(12)"><div class="pc-num">Bab 12</div><div class="pc-title">Penyusunan Konten Berita</div></div>
+          <div class="pan-card" onclick="openPanduan(13)"><div class="pc-num">Bab 13</div><div class="pc-title">Dokumentasi Kegiatan</div></div>
+          <div class="pan-card" onclick="openPanduan(14)"><div class="pc-num">Bab 14</div><div class="pc-title">Dokumentasi Kegiatan Strategis</div></div>
+          <div class="pan-card" onclick="openPanduan(15)"><div class="pc-num">Bab 15</div><div class="pc-title">Penyusunan Press Kit &amp; Media Brief</div></div>
+          <div class="pan-card" onclick="openPanduan(16)"><div class="pc-num">Bab 16</div><div class="pc-title">Training SOP Tim Media</div></div>
+          <div class="pan-card" onclick="openPanduan(17)"><div class="pc-num">Bab 17</div><div class="pc-title">Pengadaan Sarana Multimedia</div></div>
+          <div class="pan-card" onclick="openPanduan(18)"><div class="pc-num">Bab 18</div><div class="pc-title">Peningkatan Kualitas Produksi Digital</div></div>
+          <div class="pan-card" onclick="openPanduan(19)"><div class="pc-num">Bab 19</div><div class="pc-title">Pembuatan Jurnal Berita Tahunan (Akhbar)</div></div>
+          <div class="pan-card" onclick="openPanduan(20)"><div class="pc-num">Bab 20</div><div class="pc-title">Produksi &amp; Publikasi STIBA Podcast</div></div>
+        </div>
+        <div class="info-strip">
+          <span class="is-icon">📖</span>
+          <div class="is-text">Klik bab di atas atau tombol <strong>"Baca Panduan Lengkap"</strong> untuk membuka semua 20 bab dalam tampilan mobile-friendly dengan fitur pencarian &amp; navigasi bab.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ SOP BMP ══════════ -->
+    <section id="sec-sop" class="section">
+      <div class="mod-header">
+        <div class="mh-badge">SOP</div>
+        <h2>Dokumen SOP BMP</h2>
+        <p>18 Standar Operasional Prosedur resmi Bagian Media dan Pers IAI STIBA Makassar.</p>
+        <div class="mod-actions">
+          <a class="btn btn-secondary" href="sop/" target="_blank">📁 Buka Folder SOP</a>
+        </div>
+      </div>
+      <div class="mod-body">
+        <div class="sec-div">Daftar SOP</div>
+        <div class="sop-list">
+          <div class="sop-item"><div class="sop-num">01</div><div class="sop-info"><div class="sop-title">Pengelolaan Platform Digital</div><div class="sop-code">SOP-BMP-01</div></div><a class="sop-link" href="sop/SOP_BMP_01_Pengelolaan_Platform_Digital.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">02</div><div class="sop-info"><div class="sop-title">Penyusunan Kalender Konten Bulanan</div><div class="sop-code">SOP-BMP-02</div></div><a class="sop-link" href="sop/SOP_BMP_02_Penyusunan_Kalender_Konten_Bulanan.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">03</div><div class="sop-info"><div class="sop-title">Kendali Mutu Desain Visual</div><div class="sop-code">SOP-BMP-03</div></div><a class="sop-link" href="sop/SOP_BMP_03_Kendali_Mutu_Desain_Visual.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">04</div><div class="sop-info"><div class="sop-title">Analisis &amp; Evaluasi Kinerja Medsos</div><div class="sop-code">SOP-BMP-04</div></div><a class="sop-link" href="sop/SOP_BMP_04_Analisis_Evaluasi_Kinerja_Medsos.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">05</div><div class="sop-info"><div class="sop-title">Penyusunan Konten Berita</div><div class="sop-code">SOP-BMP-05</div></div><a class="sop-link" href="sop/SOP_BMP_05_Penyusunan_Konten_Berita.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">06</div><div class="sop-info"><div class="sop-title">Dokumentasi Kegiatan</div><div class="sop-code">SOP-BMP-06</div></div><a class="sop-link" href="sop/SOP_BMP_06_Dokumentasi_Kegiatan.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">07</div><div class="sop-info"><div class="sop-title">Dokumentasi Kegiatan Strategis</div><div class="sop-code">SOP-BMP-07</div></div><a class="sop-link" href="sop/SOP_BMP_07_Dokumentasi_Kegiatan_Strategis.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">08</div><div class="sop-info"><div class="sop-title">Penyusunan Press Kit &amp; Media Brief</div><div class="sop-code">SOP-BMP-08</div></div><a class="sop-link" href="sop/SOP_BMP_08_Penyusunan_Press_Kit_Media_Brief.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">09</div><div class="sop-info"><div class="sop-title">Konsistensi Identitas Visual</div><div class="sop-code">SOP-BMP-09</div></div><a class="sop-link" href="sop/SOP_BMP_09_Konsistensi_Identitas_Visual.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">10</div><div class="sop-info"><div class="sop-title">Produksi Konten Branding</div><div class="sop-code">SOP-BMP-10</div></div><a class="sop-link" href="sop/SOP_BMP_10_Produksi_Konten_Branding.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">11</div><div class="sop-info"><div class="sop-title">Kolaborasi Internal</div><div class="sop-code">SOP-BMP-11</div></div><a class="sop-link" href="sop/SOP_BMP_11_Kolaborasi_Internal.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">12</div><div class="sop-info"><div class="sop-title">Pengembangan Konten Strategis</div><div class="sop-code">SOP-BMP-12</div></div><a class="sop-link" href="sop/SOP_BMP_12_Pengembangan_Konten_Strategis.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">13</div><div class="sop-info"><div class="sop-title">Training SOP Tim Media</div><div class="sop-code">SOP-BMP-13</div></div><a class="sop-link" href="sop/SOP_BMP_13_Training_SOP_Tim_Media.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">14</div><div class="sop-info"><div class="sop-title">Monitoring &amp; Pelaporan Media</div><div class="sop-code">SOP-BMP-14</div></div><a class="sop-link" href="sop/SOP_BMP_14_Monitoring_Pelaporan_Media.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">15</div><div class="sop-info"><div class="sop-title">Pengadaan Sarana Multimedia</div><div class="sop-code">SOP-BMP-15</div></div><a class="sop-link" href="sop/SOP_BMP_15_Pengadaan_Sarana_Multimedia.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">16</div><div class="sop-info"><div class="sop-title">Peningkatan Kualitas Produksi Digital</div><div class="sop-code">SOP-BMP-16</div></div><a class="sop-link" href="sop/SOP_BMP_16_Peningkatan_Kualitas_Produksi_Digital.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">17</div><div class="sop-info"><div class="sop-title">Jurnal Berita Tahunan Akhbar STIBA</div><div class="sop-code">SOP-BMP-17</div></div><a class="sop-link" href="sop/SOP_BMP_17_Jurnal_Berita_Tahunan_Akhbar_STIBA.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">18</div><div class="sop-info"><div class="sop-title">Produksi &amp; Publikasi STIBA Podcast</div><div class="sop-code">SOP-BMP-18</div></div><a class="sop-link" href="sop/SOP_BMP_18_Produksi_Publikasi_STIBA_Podcast.docx" download>⬇ Unduh</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ PANDUAN SPMI BMP ══════════ -->
+    <section id="sec-spmi" class="section">
+      <div class="mod-header">
+        <div class="mh-badge">SPMI</div>
+        <h2>Panduan Dokumen SPMI BMP</h2>
+        <p>Panduan lengkap pengelolaan dokumen Sistem Penjaminan Mutu Internal — dari konsep hingga lampiran teknis.</p>
+        <div class="mod-actions">
+          <a class="btn btn-primary" href="spmi/Panduan_Dokumen_SPMI_BMP_LENGKAP.docx" download>⬇ Unduh Versi Lengkap</a>
+        </div>
+      </div>
+      <div class="mod-body">
+        <div class="sec-div">Daftar Bab</div>
+        <div class="sop-list">
+          <div class="sop-item"><div class="sop-num">01</div><div class="sop-info"><div class="sop-title">Bab 1 — Pendahuluan</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab1.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">02</div><div class="sop-info"><div class="sop-title">Bab 2 — Struktur Dokumen SPMI</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab2.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">03</div><div class="sop-info"><div class="sop-title">Bab 3 — Standar Mutu BMP</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab3.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">04</div><div class="sop-info"><div class="sop-title">Bab 4 — Manual Penetapan Standar</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab4.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">05</div><div class="sop-info"><div class="sop-title">Bab 5 — Manual Pelaksanaan Standar</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab5.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">06</div><div class="sop-info"><div class="sop-title">Bab 6 — Evaluasi dan Pengendalian</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab6.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">07</div><div class="sop-info"><div class="sop-title">Bab 7 — Peningkatan Standar</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab7.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">08</div><div class="sop-info"><div class="sop-title">Bab 8 — Audit Internal</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab8.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">09</div><div class="sop-info"><div class="sop-title">Bab 9 — Keterlaksanaan Proker</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab9.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">10</div><div class="sop-info"><div class="sop-title">Bab 10-11 — Rekap &amp; Tindak Lanjut</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab10-11.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">12</div><div class="sop-info"><div class="sop-title">Bab 12-13 — Penutup &amp; Referensi</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Bab12-13.docx" download>⬇ Unduh</a></div>
+          <div class="sop-item"><div class="sop-num">LA</div><div class="sop-info"><div class="sop-title">Lampiran A — O</div></div><a class="sop-link" href="spmi/Panduan_Dokumen_SPMI_BMP_Lampiran-A-O.docx" download>⬇ Unduh</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ PERPUSTAKAAN: FOTOGRAFI ══════════ -->
+    <section id="sec-foto" class="section">
+      <div class="mod-header">
+        <div class="mh-badge">Buku Skill</div>
+        <h2>Teknik Fotografi dengan Kamera HP</h2>
+        <p>Panduan lengkap menghasilkan foto keren dari genggaman tangan — untuk kebutuhan konten media sosial STIBA.</p>
+        <div class="mod-actions">
+          <a class="btn btn-primary" href="buku-foto.html">📖 Baca Sekarang</a>
+          <a class="btn btn-secondary" href="../../BUKU/TEKNIK FOTOGRAFI DENGAN KAMERA HP/FINAL-Foto-Keren-dari-Genggaman-LENGKAP.docx" download>⬇ Unduh .docx</a>
+        </div>
+      </div>
+      <div class="mod-body">
+        <div class="info-strip">
+          <span class="is-icon">📸</span>
+          <div class="is-text"><strong>14 bab</strong> · Dari mengenal kamera HP, teknik cahaya, komposisi, portrait, lanskap, makanan, editing, hingga peluang karir dari fotografi. Klik <strong>"Baca Sekarang"</strong> untuk baca langsung di HP tanpa perlu unduh.</div>
+        </div>
+        <div class="sec-div">Daftar Bab</div>
+        <div class="chap-list">
+          <div class="chap-item"><div class="chap-num">00</div><div class="chap-title">Pembuka &amp; Kata Pengantar</div></div>
+          <div class="chap-item"><div class="chap-num">1</div><div class="chap-title">Mengenal Kamera HP</div></div>
+          <div class="chap-item"><div class="chap-num">2</div><div class="chap-title">Cahaya adalah Segalanya</div></div>
+          <div class="chap-item"><div class="chap-num">3</div><div class="chap-title">Komposisi: Roh Sebuah Foto</div></div>
+          <div class="chap-item"><div class="chap-num">4</div><div class="chap-title">Fokus, Eksposur &amp; Kontrol Manual</div></div>
+          <div class="chap-item"><div class="chap-num">5</div><div class="chap-title">Foto Portrait yang Memukau</div></div>
+          <div class="chap-item"><div class="chap-num">6</div><div class="chap-title">Foto Lanskap dan Arsitektur</div></div>
+          <div class="chap-item"><div class="chap-num">7</div><div class="chap-title">Foto Makanan dan Produk</div></div>
+          <div class="chap-item"><div class="chap-num">8</div><div class="chap-title">Foto Bergerak</div></div>
+          <div class="chap-item"><div class="chap-num">9</div><div class="chap-title">Editing Foto di HP</div></div>
+          <div class="chap-item"><div class="chap-num">10</div><div class="chap-title">Estetika Feed dan Peluang</div></div>
+          <div class="chap-item"><div class="chap-num">11</div><div class="chap-title">Tips Khusus Berdasarkan Situasi</div></div>
+          <div class="chap-item"><div class="chap-num">12</div><div class="chap-title">Dari Hobi Menjadi Peluang</div></div>
+          <div class="chap-item"><div class="chap-num">LA</div><div class="chap-title">Lampiran</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ PERPUSTAKAAN: SINEMATOGRAFI ══════════ -->
+    <section id="sec-video" class="section">
+      <div class="mod-header">
+        <div class="mh-badge">Buku Skill</div>
+        <h2>Teknik Sinematografi dengan Kamera HP</h2>
+        <p>Panduan produksi video keren dari genggaman — untuk konten media sosial, dokumentasi kegiatan &amp; podcast visual STIBA.</p>
+        <div class="mod-actions">
+          <a class="btn btn-primary" href="buku-video.html">📖 Baca Sekarang</a>
+          <a class="btn btn-secondary" href="../../BUKU/Teknik Sinematografi dengan Kamera HP/FINAL-Video-Keren-dari-Genggaman-LENGKAP.docx" download>⬇ Unduh .docx</a>
+        </div>
+      </div>
+      <div class="mod-body">
+        <div class="info-strip">
+          <span class="is-icon">🎬</span>
+          <div class="is-text"><strong>14 bab</strong> · Dari dasar kamera video HP, teknik cahaya, komposisi, gerakan kamera, audio, shot list, hingga format konten untuk tiap platform. Klik <strong>"Baca Sekarang"</strong> untuk baca langsung di HP.</div>
+        </div>
+        <div class="sec-div">Daftar Bab</div>
+        <div class="chap-list">
+          <div class="chap-item"><div class="chap-num">00</div><div class="chap-title">Pembuka</div></div>
+          <div class="chap-item"><div class="chap-num">1</div><div class="chap-title">Mengenal Kamera Video HP</div></div>
+          <div class="chap-item"><div class="chap-num">2</div><div class="chap-title">Cahaya untuk Video</div></div>
+          <div class="chap-item"><div class="chap-num">3</div><div class="chap-title">Komposisi dan Framing</div></div>
+          <div class="chap-item"><div class="chap-num">4</div><div class="chap-title">Gerakan Kamera</div></div>
+          <div class="chap-item"><div class="chap-num">5</div><div class="chap-title">Stabilisasi</div></div>
+          <div class="chap-item"><div class="chap-num">6</div><div class="chap-title">Audio</div></div>
+          <div class="chap-item"><div class="chap-num">7</div><div class="chap-title">Shot List dan Bahasa Sinematik</div></div>
+          <div class="chap-item"><div class="chap-num">8</div><div class="chap-title">Video Portrait dan Wawancara</div></div>
+          <div class="chap-item"><div class="chap-num">9</div><div class="chap-title">Video Bergerak</div></div>
+          <div class="chap-item"><div class="chap-num">10</div><div class="chap-title">Log Color Profile</div></div>
+          <div class="chap-item"><div class="chap-num">11</div><div class="chap-title">Format Konten Platform</div></div>
+          <div class="chap-item"><div class="chap-num">12</div><div class="chap-title">Dari Hobi Menjadi Profesi</div></div>
+          <div class="chap-item"><div class="chap-num">LA</div><div class="chap-title">Lampiran</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ PERPUSTAKAAN: CAPCUT ══════════ -->
+    <section id="sec-capcut" class="section">
+      <div class="mod-header">
+        <div class="mh-badge">Buku Skill</div>
+        <h2>Edit Seperti Pro — CapCut</h2>
+        <p>Panduan editing video profesional menggunakan CapCut — dari dasar teknik editing hingga efek sinematik dan workflow produksi.</p>
+        <div class="mod-actions">
+          <a class="btn btn-primary" href="buku-capcut.html">📖 Baca Sekarang</a>
+        </div>
+      </div>
+      <div class="mod-body">
+        <div class="info-strip">
+          <span class="is-icon">✂️</span>
+          <div class="is-text"><strong>49 sub-bab</strong> · Mencakup rhythm editing, J/L-cut, color grading, audio mixing, transisi sinematik, efek visual, AI tools, hingga workflow produksi lengkap. Klik <strong>"Baca Sekarang"</strong> untuk baca langsung di HP.</div>
+        </div>
+        <div class="sec-div">Topik yang Dibahas</div>
+        <div class="mod-grid">
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">✂️</div><div class="mc-title">Teknik Editing</div></div><div class="mc-desc">J-Cut, L-Cut, Jump Cut, Speed Ramp, Rhythm Editing, Beat vs Emotion</div></div>
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">🎨</div><div class="mc-title">Color Grading</div></div><div class="mc-desc">Teal & Orange, Mood Grading, Skin Tone, HSL Mastery</div></div>
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">🎵</div><div class="mc-title">Audio</div></div><div class="mc-desc">Noise Reduction, Ducking, Layering, Lip Sync, EQ & Kompressor</div></div>
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">✨</div><div class="mc-title">Efek & Transisi</div></div><div class="mc-desc">Green Screen, Masking, Glitch, Composite Shot, Whip Pan</div></div>
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">🤖</div><div class="mc-title">AI Tools</div></div><div class="mc-desc">AI Caption, Text-to-Speech, AI Enhancement</div></div>
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">⚙️</div><div class="mc-title">Workflow</div></div><div class="mc-desc">Struktur cerita, audio workflow, color grading workflow, export & QC</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ PERPUSTAKAAN: CANVA ══════════ -->
+    <section id="sec-canva" class="section">
+      <div class="mod-header">
+        <div class="mh-badge">Buku Skill</div>
+        <h2>Edit Seperti Pro — Canva</h2>
+        <p>Panduan desain grafis profesional menggunakan Canva — dari elemen dasar hingga brand identity visual yang konsisten.</p>
+        <div class="mod-actions">
+          <a class="btn btn-primary" href="buku-canva.html">📖 Baca Sekarang</a>
+        </div>
+      </div>
+      <div class="mod-body">
+        <div class="info-strip">
+          <span class="is-icon">🎨</span>
+          <div class="is-text"><strong>26 sub-bab</strong> · Dari interface Canva, prinsip desain visual, tipografi, branding, infografis, presentasi, animasi, hingga monetisasi dan karir freelance desainer. Klik <strong>"Baca Sekarang"</strong> untuk baca langsung di HP.</div>
+        </div>
+        <div class="sec-div">Topik yang Dibahas</div>
+        <div class="mod-grid">
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">🖥️</div><div class="mc-title">Dasar Canva</div></div><div class="mc-desc">Interface, template, elemen, Brand Kit</div></div>
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">🎯</div><div class="mc-title">Desain Konten</div></div><div class="mc-desc">Prinsip visual, tipografi, palet warna, layout feeds & stories</div></div>
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">🏷️</div><div class="mc-title">Branding</div></div><div class="mc-desc">Brand identity, logo, media kit, style guide, konsistensi visual</div></div>
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">📊</div><div class="mc-title">Desain Lanjutan</div></div><div class="mc-desc">Infografis, presentasi, desain print & digital</div></div>
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">🎬</div><div class="mc-title">Animasi & Video</div></div><div class="mc-desc">Animasi, transisi, motion, export</div></div>
+          <div class="mod-card"><div class="mc-head"><div class="mc-icon">💼</div><div class="mc-title">Karir & Monetisasi</div></div><div class="mc-desc">Freelance, komunitas, growth, penutup</div></div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- BOTTOM NAV (mobile) -->
+<nav id="bnav">
+  <button class="bn active" id="bn-beranda" onclick="showSection('beranda','Beranda','🏠');setActiveBot('bn-beranda')">
+    <span class="bn-icon">🏠</span>Beranda
+  </button>
+  <button class="bn" id="bn-dashboard" onclick="showSection('dashboard','Dashboard Medsos','📊');setActiveBot('bn-dashboard')">
+    <span class="bn-icon">📊</span>Dashboard
+  </button>
+  <button class="bn" id="bn-formulir" onclick="showSection('formulir','Formulir SPMI','📋');setActiveBot('bn-formulir')">
+    <span class="bn-icon">📋</span>Formulir
+  </button>
+  <button class="bn" id="bn-panduan" onclick="showSection('panduan','Panduan PPEPP','📖');setActiveBot('bn-panduan')">
+    <span class="bn-icon">📖</span>Panduan
+  </button>
+  <button class="bn" id="bn-buku" onclick="showSection('foto','Teknik Fotografi','📸');setActiveBot('bn-buku')">
+    <span class="bn-icon">📚</span>Buku
+  </button>
+</nav>
+
+<script>
+// ── Date ──
+(function(){
+  const d=new Date();
+  const days=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+  document.getElementById('tb-date').textContent=days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+})();
+
+// ── Section switching ──
+function showSection(id, title, badge) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.getElementById('tb-title').textContent=title;
+  document.getElementById('tb-badge').textContent=badge;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  closeSidebar();
+  window.scrollTo({top:0,behavior:'smooth'});
+  // highlight correct nav item
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")){
+      n.classList.add('active');
+    }
+  });
+}
+
+// ── Sidebar ──
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ── Bottom nav ──
+function setActiveBot(id){
+  document.querySelectorAll('.bn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── Form opener ──
+function openForm(code){
+  const url='formulir.html#form-'+code;
+  window.open('formulir.html','_blank');
+}
+
+// ── Panduan opener ──
+function openPanduan(bab){
+  window.open('panduan-ppepp.html','_blank');
+}
+</script>
+
+</body>
+</html>
+
