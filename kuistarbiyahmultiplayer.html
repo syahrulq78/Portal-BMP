@@ -817,9 +817,12 @@ function _ambilKonfig() {
       g.textContent = "Ruang tidak ditemukan. Periksa kembali kodenya."; g.classList.add("tampil"); return;
     }
     refRuangP = db.ref("ruang/" + kode);
-    const refSaya = await refRuangP.child("peserta").push({ nama: namaSaya, skor: 0 });
+    /* ambil key SEBELUM await — push() mengembalikan ThenableReference,
+       key tersedia sinkron; await hanya menunggu penulisan selesai */
+    const refSaya = refRuangP.child("peserta").push({ nama: namaSaya, skor: 0 });
     idSaya = refSaya.key;
     skorSaya = 0;
+    await refSaya;
     refSaya.onDisconnect().remove();
     el("pesanTunggu").innerHTML = `Ahlan, <b style="color:var(--emas-terang)">${aman(namaSaya)}</b>! Menunggu pemandu memulai kuis...`;
     indeksAktifP = -1;
