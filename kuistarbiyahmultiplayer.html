@@ -194,22 +194,22 @@ body{
 <!-- ====== LAYAR 0: SETUP WIZARD FIREBASE ====== -->
 <section class="layar" id="layarKonfig">
   <div style="margin:auto 0;padding:24px 0">
-    <h1 class="judul">⚙️ Setup <span>Firebase</span></h1>
+    <h1 class="judul">&#9881;&#65039; Setup <span>Firebase</span></h1>
     <div class="garis-emas"></div>
-    <p class="sub">Tempel isi objek <b style="color:var(--emas-terang)">firebaseConfig</b> dari Firebase Console. Konfigurasi disimpan di perangkat ini (localStorage) — tidak perlu edit kode.</p>
+    <p class="sub">Tempel isi objek <b style="color:var(--emas-terang)">firebaseConfig</b> dari Firebase Console. Konfigurasi disimpan di perangkat ini (localStorage) &mdash; tidak perlu edit kode.</p>
     <div class="kartu" style="margin-top:14px">
-      <label for="inputKonfig">Tempel firebaseConfig &#123; … &#125; di sini</label>
+      <label for="inputKonfig">Tempel firebaseConfig &#123; &hellip; &#125; di sini</label>
       <textarea id="inputKonfig" style="min-height:190px;font-size:.78rem;font-family:monospace;line-height:1.6" placeholder='Contoh:&#10;{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "nama-proyek.firebaseapp.com",&#10;  "databaseURL": "https://nama-proyek-default-rtdb.firebaseio.com",&#10;  "projectId": "nama-proyek",&#10;  "storageBucket": "nama-proyek.appspot.com",&#10;  "messagingSenderId": "123456789",&#10;  "appId": "1:123..."&#10;}'></textarea>
     </div>
     <div class="galat" id="galatKonfig"></div>
-    <button class="tombol-utama" id="btnSimpanKonfig">💾 SIMPAN &amp; MULAI</button>
+    <button class="tombol-utama" id="btnSimpanKonfig">&#128190; SIMPAN &amp; MULAI</button>
     <div class="kartu" style="margin-top:14px">
       <p style="font-size:.82rem;line-height:1.8;color:#e4e4ee">
         <b style="color:var(--emas-terang)">Cara mendapatkan firebaseConfig:</b><br>
         1. Buka <b style="color:var(--emas-terang)">console.firebase.google.com</b><br>
-        2. Pilih proyek → ikon ⚙️ Project Settings<br>
-        3. Tab <b style="color:var(--emas-terang)">Your apps</b> → klik ikon Web &lt;/&gt;<br>
-        4. Salin seluruh isi objek <b style="color:var(--emas-terang)">firebaseConfig = &#123; … &#125;</b><br>
+        2. Pilih proyek &rarr; ikon &#9881;&#65039; Project Settings<br>
+        3. Tab <b style="color:var(--emas-terang)">Your apps</b> &rarr; klik ikon Web &lt;/&gt;<br>
+        4. Salin seluruh isi objek <b style="color:var(--emas-terang)">firebaseConfig = &#123; &hellip; &#125;</b><br>
         5. Pastikan <b style="color:var(--emas-terang)">Realtime Database</b> sudah diaktifkan di proyek
       </p>
     </div>
@@ -219,30 +219,30 @@ body{
 <!-- ====== LAYAR 1: PILIH PERAN ====== -->
 <section class="layar" id="layarPeran">
   <div style="margin:auto 0;padding:30px 0">
-    <div class="bismillah">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+    <div class="bismillah">&#1576;&#1616;&#1587;&#1618;&#1605;&#1616; &#1575;&#1604;&#1604;&#1607;&#1616; &#1575;&#1604;&#1585;&#1617;&#1614;&#1581;&#1618;&#1605;&#1648;&#1606;&#1616; &#1575;&#1604;&#1585;&#1617;&#1614;&#1581;&#1616;&#1610;&#1618;&#1605;&#1616;</div>
     <h1 class="judul">Kuis Tarbiyah <span>Multiplayer</span></h1>
     <div class="garis-emas"></div>
-    <p class="sub">IAI STIBA Makassar — kuis interaktif serentak dari HP masing-masing</p>
+    <p class="sub">IAI STIBA Makassar &mdash; kuis interaktif serentak dari HP masing-masing</p>
     <div class="kartu-peran">
       <button class="btn-peran" id="btnJadiPeserta">
-        <span class="ikon">🙋</span>
+        <span class="ikon">&#128587;</span>
         <span><b>SAYA PESERTA</b><small>Masukkan kode dari pemandu, jawab soal, raih peringkat</small></span>
       </button>
       <button class="btn-peran" id="btnJadiPemandu">
-        <span class="ikon">🎙️</span>
+        <span class="ikon">&#127908;&#65039;</span>
         <span><b>SAYA PEMANDU</b><small>Siapkan soal, buat ruang kuis, pimpin jalannya kuis</small></span>
       </button>
     </div>
   </div>
-  <p class="catatan-kaki">Versi multiplayer • Firebase Realtime<br>
-    <button onclick="localStorage.removeItem('kuis_firebase_config');location.reload()" style="background:none;border:none;color:#b9b9d2;font-size:.72rem;cursor:pointer;text-decoration:underline;padding:4px 0;margin-top:4px">⚙️ Ganti Konfigurasi Firebase</button>
+  <p class="catatan-kaki">Versi multiplayer &bull; Firebase Realtime<br>
+    <button onclick="localStorage.removeItem('kuis_firebase_config');location.reload()" style="background:none;border:none;color:#b9b9d2;font-size:.72rem;cursor:pointer;text-decoration:underline;padding:4px 0;margin-top:4px">&#9881;&#65039; Ganti Konfigurasi Firebase</button>
   </p>
 </section>
 
 <!-- ====== LAYAR 2 (PEMANDU): SUMBER SOAL ====== -->
 <section class="layar" id="layarMateri">
   <div style="padding:20px 0 0">
-    <h1 class="judul">🎙️ Siapkan <span>Soal</span></h1>
+    <h1 class="judul">&#127908;&#65039; Siapkan <span>Soal</span></h1>
     <div class="garis-emas"></div>
     <div class="kartu" style="margin-top:14px">
       <label for="judulMateri">Judul Kuis (opsional)</label>
@@ -253,21 +253,21 @@ body{
       <textarea id="teksJSON" style="min-height:200px" placeholder='Tempel JSON soal di sini...&#10;&#10;Format:&#10;{"judul":"...","soal":[{"t":"teks soal","o":["A","B","C","D"],"benar":0}]}'></textarea>
     </div>
     <div class="galat" id="galat"></div>
-    <button class="tombol-utama" id="btnMuatJSON">📋 MUAT SOAL</button>
-    <button class="tombol-garis" id="btnKembaliPeran1">← Kembali</button>
+    <button class="tombol-utama" id="btnMuatJSON">&#128203; MUAT SOAL</button>
+    <button class="tombol-garis" id="btnKembaliPeran1">&larr; Kembali</button>
   </div>
 </section>
 
 <!-- ====== LAYAR 3 (PEMANDU): PRATINJAU & EDIT ====== -->
 <section class="layar" id="layarPratinjau">
   <div style="padding-top:20px">
-    <h2 class="judul" style="font-size:1.4rem">✅ Pratinjau <span>Soal</span></h2>
+    <h2 class="judul" style="font-size:1.4rem">&#9989; Pratinjau <span>Soal</span></h2>
     <div class="garis-emas"></div>
-    <p class="sub" style="margin-bottom:14px">Ketuk ✏️ Edit untuk mengubah soal sebelum kuis dimulai.</p>
+    <p class="sub" style="margin-bottom:14px">Ketuk &#9999;&#65039; Edit untuk mengubah soal sebelum kuis dimulai.</p>
     <div id="isiPratinjau"></div>
-    <button class="tombol-utama" id="btnBuatRuang">🚪 BUAT RUANG KUIS</button>
-    <button class="tombol-garis" id="btnSalinJSON">📋 Salin JSON Soal</button>
-    <button class="tombol-garis" id="btnGantiMateri">← Ganti Soal</button>
+    <button class="tombol-utama" id="btnBuatRuang">&#128682; BUAT RUANG KUIS</button>
+    <button class="tombol-garis" id="btnSalinJSON">&#128203; Salin JSON Soal</button>
+    <button class="tombol-garis" id="btnGantiMateri">&larr; Ganti Soal</button>
   </div>
 </section>
 
@@ -277,10 +277,10 @@ body{
     <h2 class="judul" style="font-size:1.4rem" id="judulLobi">Ruang Kuis</h2>
     <div class="garis-emas"></div>
     <p class="sub">Minta peserta membuka aplikasi ini, pilih <b style="color:var(--emas-terang)">SAYA PESERTA</b>, lalu masukkan kode:</p>
-    <div class="kode-besar" id="kodeRuang">······</div>
+    <div class="kode-besar" id="kodeRuang">&middot;&middot;&middot;&middot;&middot;&middot;</div>
     <div class="hitung-peserta"><b id="jumlahPeserta">0</b> peserta sudah bergabung</div>
     <div class="chip-peserta" id="chipPeserta"></div>
-    <button class="tombol-utama" id="btnMulaiKuis" disabled>▶️ MULAI KUIS</button>
+    <button class="tombol-utama" id="btnMulaiKuis" disabled>&#9654;&#65039; MULAI KUIS</button>
     <button class="tombol-garis" id="btnBatalRuang">Batalkan Ruang</button>
   </div>
 </section>
@@ -290,7 +290,7 @@ body{
   <div class="bar-atas">
     <div>
       <div class="nomor-soal" id="nomorSoalHost">Soal 1 / 10</div>
-      <div class="skor-live">👥 <span id="masukHost">0</span>/<span id="totalHost">0</span> menjawab</div>
+      <div class="skor-live">&#128101; <span id="masukHost">0</span>/<span id="totalHost">0</span> menjawab</div>
     </div>
     <div class="cincin-wrap" id="cincinWrapHost">
       <svg width="64" height="64" viewBox="0 0 64 64">
@@ -302,7 +302,7 @@ body{
   </div>
   <h2 class="teks-soal" id="teksSoalHost"></h2>
   <div class="daftar-opsi" id="daftarOpsiHost"></div>
-  <button class="tombol-garis" id="btnTutupSoal" style="margin-top:18px">⏭️ Tutup Soal Sekarang</button>
+  <button class="tombol-garis" id="btnTutupSoal" style="margin-top:18px">&#9197;&#65039; Tutup Soal Sekarang</button>
 </section>
 
 <!-- ====== LAYAR 6 (PEMANDU): JAWABAN + LEADERBOARD ====== -->
@@ -314,27 +314,27 @@ body{
       <div class="t" id="soalJawaban"></div>
       <div class="k" id="kunciJawaban"></div>
     </div>
-    <p class="sub" style="margin-top:14px">🏆 Peringkat Sementara</p>
+    <p class="sub" style="margin-top:14px">&#127942; Peringkat Sementara</p>
     <div class="papan" id="papanHost"></div>
-    <button class="tombol-utama" id="btnLanjutSoal">SOAL BERIKUTNYA →</button>
+    <button class="tombol-utama" id="btnLanjutSoal">SOAL BERIKUTNYA &rarr;</button>
   </div>
 </section>
 
 <!-- ====== LAYAR 7 (PEMANDU): PODIUM ====== -->
 <section class="layar" id="layarPodiumHost">
   <div style="padding-top:24px">
-    <h2 class="judul">🏆 Hasil <span>Akhir</span></h2>
+    <h2 class="judul">&#127942; Hasil <span>Akhir</span></h2>
     <div class="garis-emas"></div>
     <div class="podium" id="podiumHost"></div>
     <div class="papan" id="papanAkhirHost" style="margin-top:20px"></div>
-    <button class="tombol-utama" id="btnKuisBaru">🔄 KUIS BARU</button>
+    <button class="tombol-utama" id="btnKuisBaru">&#128260; KUIS BARU</button>
   </div>
 </section>
 
 <!-- ====== LAYAR 8 (PESERTA): GABUNG ====== -->
 <section class="layar" id="layarGabung">
   <div style="margin:auto 0;padding:30px 0">
-    <h1 class="judul">🙋 Gabung <span>Kuis</span></h1>
+    <h1 class="judul">&#128587; Gabung <span>Kuis</span></h1>
     <div class="garis-emas"></div>
     <div class="kartu">
       <label for="inputKode">Kode Ruang (6 huruf)</label>
@@ -346,7 +346,7 @@ body{
     </div>
     <button class="tombol-utama" id="btnGabung">MASUK RUANG</button>
     <div class="galat" id="galatGabung"></div>
-    <button class="tombol-garis" id="btnKembaliPeran2">← Kembali</button>
+    <button class="tombol-garis" id="btnKembaliPeran2">&larr; Kembali</button>
   </div>
 </section>
 
@@ -354,7 +354,7 @@ body{
 <section class="layar" id="layarTunggu">
   <div style="margin:auto 0">
     <div class="status-tunggu">
-      <div class="ikon">⏳</div>
+      <div class="ikon">&#9203;</div>
       <h2 class="judul" style="font-size:1.3rem;margin-top:14px">Anda sudah <span>terdaftar!</span></h2>
       <div class="garis-emas"></div>
       <p class="sub" id="pesanTunggu">Menunggu pemandu memulai kuis...</p>
@@ -367,7 +367,7 @@ body{
   <div class="bar-atas">
     <div>
       <div class="nomor-soal" id="nomorSoalPeserta">Soal 1 / 10</div>
-      <div class="skor-live">⭐ <span id="skorPeserta">0</span></div>
+      <div class="skor-live">&#11088; <span id="skorPeserta">0</span></div>
     </div>
     <div class="cincin-wrap" id="cincinWrapP">
       <svg width="64" height="64" viewBox="0 0 64 64">
@@ -385,7 +385,7 @@ body{
 <!-- ====== LAYAR 11 (PESERTA): HASIL SOAL ====== -->
 <section class="layar" id="layarHasilSoal">
   <div style="margin:auto 0;text-align:center">
-    <div style="font-size:3rem" id="ikonHasilSoal">✓</div>
+    <div style="font-size:3rem" id="ikonHasilSoal">&#10003;</div>
     <h2 class="judul" style="font-size:1.4rem;margin-top:10px" id="teksHasilSoal">Benar!</h2>
     <div class="garis-emas"></div>
     <p class="hasil-label">Skor Anda</p>
@@ -398,7 +398,7 @@ body{
 <!-- ====== LAYAR 12 (PESERTA): AKHIR ====== -->
 <section class="layar" id="layarAkhirPeserta">
   <div style="margin:auto 0;padding:30px 0">
-    <h2 class="judul">🏁 Kuis <span>Selesai</span></h2>
+    <h2 class="judul">&#127937; Kuis <span>Selesai</span></h2>
     <div class="garis-emas"></div>
     <p class="hasil-label">Skor Akhir</p>
     <div class="hasil-skor" id="skorAkhirPeserta">0</div>
@@ -411,11 +411,6 @@ body{
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script>
-/* ============================================================
-   KONFIG_FIREBASE — opsional: isi langsung di sini, ATAU
-   biarkan kosong dan isi melalui Setup Wizard di browser.
-   Salin dari Firebase Console → Project Settings → Your apps
-============================================================ */
 const KONFIG_FIREBASE = {
   apiKey: "AIzaSyCU866mYh7-mvJztUvt0usHgDVhME_5wh0",
   authDomain: "kuis-tarbiah.firebaseapp.com",
@@ -425,15 +420,13 @@ const KONFIG_FIREBASE = {
   messagingSenderId: "824795207277",
   appId: "1:824795207277:web:50d49311bc0a14c2d2d164"
 };
-const WAKTU_PER_SOAL = 15; // detik
+const WAKTU_PER_SOAL = 15;
 const JUMLAH_SOAL = 10;
 
 function _ambilKonfig() {
-  // Prioritas 1: config hardcoded (jika apiKey diisi dan bukan placeholder)
   if (KONFIG_FIREBASE.apiKey && !KONFIG_FIREBASE.apiKey.includes("GANTI")) {
     return KONFIG_FIREBASE;
   }
-  // Prioritas 2: config tersimpan di localStorage
   try {
     const s = localStorage.getItem("kuis_firebase_config");
     if (s) {
@@ -450,7 +443,6 @@ function _ambilKonfig() {
   const HURUF = ["A","B","C","D"];
   const KELILING = 2 * Math.PI * 27;
 
-  /* ====== LAYAR ====== */
   const semuaLayar = ["layarKonfig","layarPeran","layarMateri","layarPratinjau","layarLobi",
     "layarSoalHost","layarJawabanHost","layarPodiumHost","layarGabung","layarTunggu",
     "layarJawab","layarHasilSoal","layarAkhirPeserta"];
@@ -460,7 +452,6 @@ function _ambilKonfig() {
     window.scrollTo(0,0);
   }
 
-  /* ====== FIREBASE ====== */
   let db = null, offsetWaktu = 0;
   const _konfig = _ambilKonfig();
   if (_konfig){
@@ -475,7 +466,6 @@ function _ambilKonfig() {
   }
   const kini = () => Date.now() + offsetWaktu;
 
-  /* ====== SETUP WIZARD: SIMPAN KONFIG ====== */
   el("btnSimpanKonfig").addEventListener("click", () => {
     const galatEl = el("galatKonfig");
     galatEl.classList.remove("tampil");
@@ -496,19 +486,15 @@ function _ambilKonfig() {
     }
   });
 
-  /* ====== STATE ====== */
   let soalKuis = [], judulKuis = "Kuis Tarbiyah";
   let indeksEdit = -1;
-  // host
   let kodeRuang = "", refRuang = null, timerHost = null, lepasPeserta = null, lepasJawaban = null;
-  // peserta
   let idSaya = "", namaSaya = "", skorSaya = 0, refRuangP = null, lepasRuangP = null;
   let indeksAktifP = -1, sudahJawab = false, timerP = null, dataRuangP = null;
 
   el("cincinIsiHost").style.strokeDasharray = KELILING;
   el("cincinIsiP").style.strokeDasharray = KELILING;
 
-  /* ====== PILIH PERAN ====== */
   el("btnJadiPemandu").addEventListener("click", () => tampilkan("layarMateri"));
   el("btnJadiPeserta").addEventListener("click", () => tampilkan("layarGabung"));
   el("btnKembaliPeran1").addEventListener("click", () => tampilkan("layarPeran"));
@@ -519,9 +505,7 @@ function _ambilKonfig() {
 
   function normalisasi(item) {
     if (!item || typeof item !== "object") return item;
-    // Sudah format internal {t, o, benar}
     if (item.t && Array.isArray(item.o)) return item;
-    // Format Claude: {pertanyaan, pilihan:{A,B,C,D}, jawaban:"B"}
     const t = item.t || item.pertanyaan || item.question || item.soal || "";
     let o, benar;
     if (Array.isArray(item.o)) {
@@ -541,7 +525,6 @@ function _ambilKonfig() {
   const valid = s => s && s.t && Array.isArray(s.o) && s.o.length === 4 &&
     Number.isInteger(s.benar) && s.benar >= 0 && s.benar <= 3;
 
-  /* ====== MUAT DARI JSON ====== */
   el("btnMuatJSON").addEventListener("click", () => {
     sembunyikanGalat();
     try {
@@ -561,7 +544,6 @@ function _ambilKonfig() {
     }
   });
 
-  /* ====== PRATINJAU + EDIT PER SOAL ====== */
   function gambarPratinjau(){
     el("isiPratinjau").innerHTML = soalKuis.map((s, i) =>
       i === indeksEdit ? formEdit(s, i) : itemBiasa(s, i)).join("");
@@ -571,15 +553,15 @@ function _ambilKonfig() {
     return `<div class="pratinjau-item" data-i="${i}">
       <div class="no">SOAL ${i+1}</div>
       <div class="t">${aman(s.t)}</div>
-      <div class="k">Kunci: ${HURUF[s.benar]} — ${aman(s.o[s.benar])}</div>
+      <div class="k">Kunci: ${HURUF[s.benar]} &mdash; ${aman(s.o[s.benar])}</div>
       <div class="aksi-soal">
-        <button class="btn-mini" data-aksi="edit" data-i="${i}">✏️ Edit</button>
+        <button class="btn-mini" data-aksi="edit" data-i="${i}">&#9999;&#65039; Edit</button>
       </div>
     </div>`;
   }
   function formEdit(s, i){
     return `<div class="pratinjau-item sedang-edit" data-i="${i}">
-      <div class="no">✏️ EDIT SOAL ${i+1}</div>
+      <div class="no">&#9999;&#65039; EDIT SOAL ${i+1}</div>
       <label class="label-edit">Teks soal</label>
       <textarea class="edit-soal" id="editT${i}">${aman(s.t)}</textarea>
       ${s.o.map((o, j) => `<div class="baris-opsi-edit">
@@ -589,7 +571,7 @@ function _ambilKonfig() {
       </div>`).join("")}
       <p class="petunjuk-edit">Tandai bulatan di samping huruf jawaban yang benar.</p>
       <div class="aksi-soal">
-        <button class="btn-mini btn-simpan" data-aksi="simpan" data-i="${i}">✓ Simpan</button>
+        <button class="btn-mini btn-simpan" data-aksi="simpan" data-i="${i}">&#10003; Simpan</button>
         <button class="btn-mini" data-aksi="batal" data-i="${i}">Batal</button>
       </div>
     </div>`;
@@ -618,14 +600,11 @@ function _ambilKonfig() {
 
   el("btnSalinJSON").addEventListener("click", async () => {
     const json = JSON.stringify({ judul: judulKuis, soal: soalKuis });
-    try { await navigator.clipboard.writeText(json); alert("JSON soal tersalin! Tempel di tab 'Tempel JSON' pada versi hosting."); }
+    try { await navigator.clipboard.writeText(json); alert("JSON soal tersalin!"); }
     catch(e){ prompt("Salin manual JSON berikut:", json); }
   });
   el("btnGantiMateri").addEventListener("click", () => tampilkan("layarMateri"));
 
-  /* ============================================================
-     PEMANDU: RUANG & JALANNYA KUIS
-  ============================================================ */
   el("btnBuatRuang").addEventListener("click", buatRuang);
 
   function buatKode(){
@@ -653,12 +632,26 @@ function _ambilKonfig() {
     el("chipPeserta").innerHTML = "";
     el("jumlahPeserta").textContent = "0";
     el("btnMulaiKuis").disabled = true;
-    lepasPeserta = refRuang.child("peserta").on("value", s => {
-      const data = s.val() || {};
-      const daftar = Object.values(data);
-      el("jumlahPeserta").textContent = daftar.length;
-      el("chipPeserta").innerHTML = daftar.map(p => `<span class="chip">${aman(p.nama)}</span>`).join("");
-      el("btnMulaiKuis").disabled = daftar.length === 0;
+    const refPeserta = refRuang.child("peserta");
+    function _updateLobiCount(){
+      const n = el("chipPeserta").children.length;
+      el("jumlahPeserta").textContent = n;
+      el("btnMulaiKuis").disabled = n === 0;
+    }
+    refPeserta.on("child_added", s => {
+      const p = s.val();
+      if (!p || !p.nama) return;
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.dataset.pid = s.key;
+      chip.textContent = p.nama;
+      el("chipPeserta").appendChild(chip);
+      _updateLobiCount();
+    });
+    refPeserta.on("child_removed", s => {
+      const chip = el("chipPeserta").querySelector(`[data-pid="${s.key}"]`);
+      if (chip) chip.remove();
+      _updateLobiCount();
     });
     tampilkan("layarLobi");
   }
@@ -724,7 +717,7 @@ function _ambilKonfig() {
     el("judulJawaban").textContent = `Jawaban Soal ${indeksHost + 1}`;
     el("soalJawaban").textContent = s.t;
     el("kunciJawaban").textContent = `Kunci: ${HURUF[s.benar]} — ${s.o[s.benar]}`;
-    el("btnLanjutSoal").textContent = indeksHost + 1 < soalKuis.length ? "SOAL BERIKUTNYA →" : "🏁 LIHAT HASIL AKHIR";
+    el("btnLanjutSoal").textContent = indeksHost + 1 < soalKuis.length ? "SOAL BERIKUTNYA →" : "&#127937; LIHAT HASIL AKHIR";
     refRuang.child("peserta").off("value");
     refRuang.child("peserta").on("value", ss => gambarPapanHost(ss.val() || {}, "papanHost", 10));
     tampilkan("layarJawabanHost");
@@ -735,7 +728,7 @@ function _ambilKonfig() {
     el(idWadah).innerHTML = daftar.length === 0
       ? `<p class="kosong-papan">Belum ada peserta.</p>`
       : daftar.map((p, i) => `<div class="baris-papan">
-          <span class="peringkat">${i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1)}</span>
+          <span class="peringkat">${i===0?"&#129351;":i===1?"&#129352;":i===2?"&#129353;":(i+1)}</span>
           <span class="nama">${aman(p.nama)}</span>
           <span class="nilai">${p.skor||0}</span></div>`).join("");
   }
@@ -747,7 +740,7 @@ function _ambilKonfig() {
     const t = (p, kelas, medali) => p ? `<div class="tiang ${kelas}">
       <div class="nama-p">${aman(p.nama)}</div><div class="skor-p">${p.skor||0}</div>
       <div class="balok">${medali}</div></div>` : "";
-    el("podiumHost").innerHTML = t(daftar[1], "dua", "🥈") + t(daftar[0], "satu", "🥇") + t(daftar[2], "tiga", "🥉");
+    el("podiumHost").innerHTML = t(daftar[1], "dua", "&#129352;") + t(daftar[0], "satu", "&#129351;") + t(daftar[2], "tiga", "&#129353;");
     gambarPapanHost(ss.val() || {}, "papanAkhirHost", 50);
     tampilkan("layarPodiumHost");
   }
@@ -757,9 +750,6 @@ function _ambilKonfig() {
     tampilkan("layarPratinjau");
   });
 
-  /* ============================================================
-     PESERTA
-  ============================================================ */
   el("inputKode").addEventListener("input", e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); });
 
   el("btnGabung").addEventListener("click", async () => {
@@ -776,10 +766,9 @@ function _ambilKonfig() {
       g.textContent = "Ruang tidak ditemukan. Periksa kembali kodenya."; g.classList.add("tampil"); return;
     }
     refRuangP = db.ref("ruang/" + kode);
-    const refSaya = refRuangP.child("peserta").push();
+    const refSaya = await refRuangP.child("peserta").push({ nama: namaSaya, skor: 0 });
     idSaya = refSaya.key;
     skorSaya = 0;
-    await refSaya.set({ nama: namaSaya, skor: 0 });
     refSaya.onDisconnect().remove();
     el("pesanTunggu").innerHTML = `Ahlan, <b style="color:var(--emas-terang)">${aman(namaSaya)}</b>! Menunggu pemandu memulai kuis...`;
     indeksAktifP = -1;
@@ -912,7 +901,6 @@ function _ambilKonfig() {
   }
   el("btnSelesaiPeserta").addEventListener("click", keluarPeserta);
 })();
-
 </script>
 </body>
 </html>
