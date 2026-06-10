@@ -199,7 +199,7 @@ body{
     <p class="sub">Tempel isi objek <b style="color:var(--emas-terang)">firebaseConfig</b> dari Firebase Console. Konfigurasi disimpan di perangkat ini (localStorage) — tidak perlu edit kode.</p>
     <div class="kartu" style="margin-top:14px">
       <label for="inputKonfig">Tempel firebaseConfig &#123; … &#125; di sini</label>
-      <textarea id="inputKonfig" style="min-height:190px;font-size:.78rem;font-family:monospace;line-height:1.6" placeholder='Contoh:&#10;{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "nama-proyek.firebaseapp.com",&#10;  "databaseURL": "https://nama-proyek-default-rtdb.firebasedatabase.app",&#10;  "projectId": "nama-proyek",&#10;  "storageBucket": "nama-proyek.appspot.com",&#10;  "messagingSenderId": "123456789",&#10;  "appId": "1:123..."&#10;}'></textarea>
+      <textarea id="inputKonfig" style="min-height:190px;font-size:.78rem;font-family:monospace;line-height:1.6" placeholder='Contoh:&#10;{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "nama-proyek.firebaseapp.com",&#10;  "databaseURL": "https://nama-proyek-default-rtdb.firebaseio.com",&#10;  "projectId": "nama-proyek",&#10;  "storageBucket": "nama-proyek.appspot.com",&#10;  "messagingSenderId": "123456789",&#10;  "appId": "1:123..."&#10;}'></textarea>
     </div>
     <div class="galat" id="galatKonfig"></div>
     <button class="tombol-utama" id="btnSimpanKonfig">💾 SIMPAN &amp; MULAI</button>
@@ -517,6 +517,27 @@ function _ambilKonfig() {
   function tampilkanGalat(p){ const g = el("galat"); g.textContent = p; g.classList.add("tampil"); }
   function sembunyikanGalat(){ el("galat").classList.remove("tampil"); }
 
+  function normalisasi(item) {
+    if (!item || typeof item !== "object") return item;
+    // Sudah format internal {t, o, benar}
+    if (item.t && Array.isArray(item.o)) return item;
+    // Format Claude: {pertanyaan, pilihan:{A,B,C,D}, jawaban:"B"}
+    const t = item.t || item.pertanyaan || item.question || item.soal || "";
+    let o, benar;
+    if (Array.isArray(item.o)) {
+      o = item.o; benar = item.benar;
+    } else if (item.pilihan && typeof item.pilihan === "object") {
+      o = ["A","B","C","D"].map(h => item.pilihan[h] || "");
+      const huruf = String(item.jawaban || item.kunci || item.answer || "A").trim().toUpperCase().charAt(0);
+      benar = ["A","B","C","D"].indexOf(huruf);
+      if (benar < 0) benar = 0;
+    } else if (Array.isArray(item.options)) {
+      o = item.options;
+      benar = typeof item.benar === "number" ? item.benar : 0;
+    } else return item;
+    return { t, o, benar };
+  }
+
   const valid = s => s && s.t && Array.isArray(s.o) && s.o.length === 4 &&
     Number.isInteger(s.benar) && s.benar >= 0 && s.benar <= 3;
 
@@ -527,15 +548,16 @@ function _ambilKonfig() {
       const teks = el("teksJSON").value.trim();
       const a = teks.indexOf("{"), b = teks.lastIndexOf("}");
       const data = JSON.parse(teks.slice(a, b + 1));
-      const soal = (data.soal || data).filter ? (data.soal || data).filter(valid) : [];
+      const mentah = Array.isArray(data) ? data : (data.soal || data.questions || data.quiz || []);
+      const soal = mentah.map(normalisasi).filter(valid);
       if (soal.length < 2) throw new Error("minimal 2 soal valid");
       soalKuis = soal.slice(0, 30);
-      judulKuis = el("judulMateri").value.trim() || data.judul || "Kuis Tarbiyah";
+      judulKuis = el("judulMateri").value.trim() || data.judul || data.title || "Kuis Tarbiyah";
       indeksEdit = -1;
       gambarPratinjau();
       tampilkan("layarPratinjau");
     } catch(e){
-      tampilkanGalat("JSON tidak valid: " + String(e && e.message || e) + ". Pastikan menempel utuh hasil dari tombol Salin JSON Soal.");
+      tampilkanGalat("JSON tidak valid: " + String(e && e.message || e));
     }
   });
 
