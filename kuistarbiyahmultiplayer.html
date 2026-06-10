@@ -850,7 +850,7 @@ function _ambilKonfig() {
     if (sudahJawab) return;
     sudahJawab = true;
     el("daftarOpsiPeserta").querySelectorAll(".opsi").forEach(b => b.disabled = true);
-    el("umpanBalikPeserta").textContent = "&#9203; Waktu habis!";
+    el("umpanBalikPeserta").textContent = "⏱ Waktu habis!";
     el("umpanBalikPeserta").classList.add("tidak");
   }
 
@@ -868,7 +868,7 @@ function _ambilKonfig() {
       skorSaya += poin;
       await refRuangP.child("peserta/" + idSaya + "/skor").set(skorSaya);
     }
-    el("ikonHasilSoal").textContent = betul ? "&#10003;" : (pilihanSaya === -1 ? "&#9203;" : "&#10007;");
+    el("ikonHasilSoal").textContent = betul ? "✅" : (pilihanSaya === -1 ? "⏱" : "❌");
     el("teksHasilSoal").innerHTML = betul ? `Benar! <span>+${poin}</span>` :
       (pilihanSaya === -1 ? "Waktu habis" : `Belum tepat &mdash; kunci: ${HURUF[s.benar]}`);
     el("skorBerjalan").textContent = skorSaya;
