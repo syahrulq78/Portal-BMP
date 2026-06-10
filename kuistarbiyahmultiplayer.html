@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Kuis Tarbiyah Multiplayer — IAI STIBA Makassar</title>
+<title>Kuis Tarbiah — Halakah Habib bin Abi Tsabit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -123,6 +123,25 @@ body{
 .hitung-peserta{text-align:center;font-size:.9rem;color:#e4e4ee;margin-top:14px}
 .hitung-peserta b{color:var(--emas-terang);font-size:1.2rem}
 
+/* daftar nama peserta */
+.daftar-nama{
+  display:flex;flex-direction:column;gap:8px;
+  max-height:280px;overflow-y:auto;padding:2px;
+  scrollbar-width:thin;scrollbar-color:rgba(212,175,55,.4) transparent;
+}
+.btn-nama{
+  display:block;width:100%;text-align:left;
+  padding:13px 16px;border-radius:12px;
+  background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);
+  color:var(--putih);font-family:inherit;font-size:.97rem;font-weight:600;cursor:pointer;
+  transition:background .15s,border-color .15s,color .15s;
+}
+.btn-nama:active{transform:scale(.98)}
+.btn-nama.terpilih{
+  background:rgba(212,175,55,.2);border-color:var(--emas-terang);
+  color:var(--emas-terang);
+}
+
 /* kuis berjalan */
 .bar-atas{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .nomor-soal{font-size:.85rem;font-weight:700;color:var(--emas-terang)}
@@ -220,9 +239,9 @@ body{
 <section class="layar" id="layarPeran">
   <div style="margin:auto 0;padding:30px 0">
     <div class="bismillah">&#1576;&#1616;&#1587;&#1618;&#1605;&#1616; &#1575;&#1604;&#1604;&#1607;&#1616; &#1575;&#1604;&#1585;&#1617;&#1614;&#1581;&#1618;&#1605;&#1648;&#1606;&#1616; &#1575;&#1604;&#1585;&#1617;&#1614;&#1581;&#1616;&#1610;&#1618;&#1605;&#1616;</div>
-    <h1 class="judul">Kuis Tarbiyah <span>Multiplayer</span></h1>
+    <h1 class="judul">Kuis <span>Tarbiah</span></h1>
     <div class="garis-emas"></div>
-    <p class="sub">IAI STIBA Makassar &mdash; kuis interaktif serentak dari HP masing-masing</p>
+    <p class="sub">Halakah Habib bin Abi Tsabit &mdash; kuis interaktif serentak dari HP masing-masing</p>
     <div class="kartu-peran">
       <button class="btn-peran" id="btnJadiPeserta">
         <span class="ikon">&#128587;</span>
@@ -341,8 +360,8 @@ body{
       <input type="text" id="inputKode" placeholder="Contoh: KAJIAN" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:.2em;text-align:center;font-weight:800;font-size:1.3rem">
     </div>
     <div class="kartu">
-      <label for="inputNama">Nama Anda</label>
-      <input type="text" id="inputNama" placeholder="Tulis nama..." maxlength="20" autocomplete="off">
+      <label>Pilih nama Anda</label>
+      <div class="daftar-nama" id="daftarNama"></div>
     </div>
     <button class="tombol-utama" id="btnGabung">MASUK RUANG</button>
     <div class="galat" id="galatGabung"></div>
@@ -423,6 +442,24 @@ const KONFIG_FIREBASE = {
 const WAKTU_PER_SOAL = 15;
 const JUMLAH_SOAL = 10;
 
+const DAFTAR_NAMA = [
+  "Usaid",
+  "Asmulyadi Ramadani",
+  "Ahmad Robi",
+  "Saifullah",
+  "Muh. Farhan Anugrah",
+  "Muh. Zhaki Syahwan",
+  "Umar Faruq",
+  "Ahmad Fuad Mubarak",
+  "Ahsan Ash Shiddiq Asbar",
+  "Muh Azhar",
+  "M. Shadiq Shabran",
+  "Abdullah Fauzan",
+  "Muammar Al Fauzan",
+  "Farhan Abdul Mannan Ma'ruf",
+  "Abdullah"
+];
+
 function _ambilKonfig() {
   if (KONFIG_FIREBASE.apiKey && !KONFIG_FIREBASE.apiKey.includes("GANTI")) {
     return KONFIG_FIREBASE;
@@ -486,14 +523,28 @@ function _ambilKonfig() {
     }
   });
 
-  let soalKuis = [], judulKuis = "Kuis Tarbiyah";
+  let soalKuis = [], judulKuis = "Kuis Tarbiah";
   let indeksEdit = -1;
   let kodeRuang = "", refRuang = null, timerHost = null, lepasPeserta = null, lepasJawaban = null;
   let idSaya = "", namaSaya = "", skorSaya = 0, refRuangP = null, lepasRuangP = null;
   let indeksAktifP = -1, sudahJawab = false, timerP = null, dataRuangP = null;
+  let namaDipilih = "";
 
   el("cincinIsiHost").style.strokeDasharray = KELILING;
   el("cincinIsiP").style.strokeDasharray = KELILING;
+
+  /* isi daftar nama peserta */
+  DAFTAR_NAMA.forEach(n => {
+    const b = document.createElement("button");
+    b.className = "btn-nama";
+    b.textContent = n;
+    b.addEventListener("click", () => {
+      el("daftarNama").querySelectorAll(".btn-nama").forEach(x => x.classList.remove("terpilih"));
+      b.classList.add("terpilih");
+      namaDipilih = n;
+    });
+    el("daftarNama").appendChild(b);
+  });
 
   el("btnJadiPemandu").addEventListener("click", () => tampilkan("layarMateri"));
   el("btnJadiPeserta").addEventListener("click", () => tampilkan("layarGabung"));
@@ -535,7 +586,7 @@ function _ambilKonfig() {
       const soal = mentah.map(normalisasi).filter(valid);
       if (soal.length < 2) throw new Error("minimal 2 soal valid");
       soalKuis = soal.slice(0, 30);
-      judulKuis = el("judulMateri").value.trim() || data.judul || data.title || "Kuis Tarbiyah";
+      judulKuis = el("judulMateri").value.trim() || data.judul || data.title || "Kuis Tarbiah";
       indeksEdit = -1;
       gambarPratinjau();
       tampilkan("layarPratinjau");
@@ -756,9 +807,9 @@ function _ambilKonfig() {
     const g = el("galatGabung");
     g.classList.remove("tampil");
     const kode = el("inputKode").value.trim();
-    namaSaya = el("inputNama").value.trim();
+    namaSaya = namaDipilih;
     if (kode.length !== 6 || !namaSaya){
-      g.textContent = "Isi kode 6 huruf dan nama Anda."; g.classList.add("tampil"); return;
+      g.textContent = "Isi kode 6 huruf dan pilih nama Anda."; g.classList.add("tampil"); return;
     }
     if (!db){ g.textContent = "Firebase belum dikonfigurasi."; g.classList.add("tampil"); return; }
     const ss = await db.ref("ruang/" + kode).once("value");
@@ -896,7 +947,9 @@ function _ambilKonfig() {
   function keluarPeserta(){
     if (refRuangP){ refRuangP.off(); refRuangP = null; }
     clearInterval(timerP);
-    indeksAktifP = -1; soalDinilai = -1; skorSaya = 0;
+    indeksAktifP = -1; soalDinilai = -1; skorSaya = 0; namaDipilih = "";
+    el("daftarNama").querySelectorAll(".btn-nama").forEach(x => x.classList.remove("terpilih"));
+    el("inputKode").value = "";
     tampilkan("layarPeran");
   }
   el("btnSelesaiPeserta").addEventListener("click", keluarPeserta);
