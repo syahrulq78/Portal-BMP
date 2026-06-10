@@ -206,6 +206,32 @@ body{
 .tab-sumber button.aktif{background:rgba(212,175,55,.18);color:var(--emas-terang);border-color:var(--emas)}
 .panel-sumber{display:none}
 .panel-sumber.aktif{display:block}
+
+/* distribusi jawaban */
+.dist-baris{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.dist-huruf{flex:0 0 26px;font-weight:800;font-size:.9rem;text-align:center;color:var(--emas-terang)}
+.dist-bar{flex:1;height:30px;border-radius:8px;background:rgba(255,255,255,.1);overflow:hidden;position:relative}
+.dist-isi{height:100%;border-radius:8px;transition:width .6s ease;min-width:0}
+.dist-isi.benar{background:linear-gradient(90deg,#27ae60,#2ecc71)}
+.dist-isi.salah{background:rgba(255,255,255,.2)}
+.dist-jml{flex:0 0 24px;text-align:right;font-weight:700;font-size:.88rem}
+
+/* modal riwayat */
+#modalRiwayat{
+  display:none;position:fixed;inset:0;z-index:999;
+  background:rgba(12,12,72,.97);overflow-y:auto;padding:20px 16px;
+}
+
+@media print{
+  body>*{display:none!important}
+  #modalRiwayat{display:block!important;position:static!important;background:#fff!important;padding:20px!important;overflow:visible!important}
+  #btnCetakRiwayat,#btnTutupRiwayat{display:none!important}
+  #modalRiwayat .judul,#modalRiwayat .judul span{color:#111!important}
+  #isiRiwayat,#isiRiwayat *{color:#111!important;background:transparent!important}
+  #isiRiwayat table{border-collapse:collapse;width:100%}
+  #isiRiwayat td,#isiRiwayat th{border:1px solid #bbb!important;padding:5px 7px!important;color:#111!important}
+  #isiRiwayat p{color:#444!important}
+}
 </style>
 </head>
 <body>
@@ -333,8 +359,13 @@ body{
       <div class="t" id="soalJawaban"></div>
       <div class="k" id="kunciJawaban"></div>
     </div>
-    <p class="sub" style="margin-top:14px">&#127942; Peringkat Sementara</p>
+    <div id="distribusiJawaban" style="margin-top:18px;display:none">
+      <p class="sub" style="margin-bottom:10px">&#128202; Distribusi Jawaban</p>
+      <div id="distribusiIsi"></div>
+    </div>
+    <p class="sub" style="margin-top:18px">&#127942; Peringkat Sementara</p>
     <div class="papan" id="papanHost"></div>
+    <button class="tombol-garis" id="btnRiwayat" style="margin-top:4px;display:none">&#128101; Riwayat Jawaban Peserta</button>
     <button class="tombol-utama" id="btnLanjutSoal">SOAL BERIKUTNYA &rarr;</button>
   </div>
 </section>
@@ -346,6 +377,7 @@ body{
     <div class="garis-emas"></div>
     <div class="podium" id="podiumHost"></div>
     <div class="papan" id="papanAkhirHost" style="margin-top:20px"></div>
+    <button class="tombol-garis" id="btnRiwayatAkhir">&#128101; Riwayat Jawaban Peserta</button>
     <button class="tombol-utama" id="btnKuisBaru">&#128260; KUIS BARU</button>
   </div>
 </section>
@@ -426,6 +458,20 @@ body{
     <button class="tombol-utama" id="btnSelesaiPeserta">KEMBALI KE AWAL</button>
   </div>
 </section>
+
+<!-- ====== MODAL RIWAYAT JAWABAN ====== -->
+<div id="modalRiwayat">
+  <div style="max-width:740px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+      <h2 class="judul" style="font-size:1.2rem">&#128101; Riwayat <span>Jawaban</span></h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="tombol-garis" id="btnCetakRiwayat" style="width:auto;margin:0;padding:10px 18px;font-size:.85rem">&#128438; Simpan PDF</button>
+        <button class="tombol-garis" id="btnTutupRiwayat" style="width:auto;margin:0;padding:10px 18px;font-size:.85rem">&#10005; Tutup</button>
+      </div>
+    </div>
+    <div id="isiRiwayat"></div>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
@@ -772,6 +818,28 @@ function _ambilKonfig() {
     refRuang.child("peserta").off("value");
     refRuang.child("peserta").on("value", ss => gambarPapanHost(ss.val() || {}, "papanHost", 10));
     tampilkan("layarJawabanHost");
+    /* distribusi jawaban — tampilkan setelah data tiba */
+    el("distribusiJawaban").style.display = "none";
+    el("btnRiwayat").style.display = "none";
+    db.ref("ruang/" + kodeRuang + "/jawaban/" + indeksHost).once("value").then(jawSnap => {
+      const jawData = jawSnap.val() || {};
+      const hitung = [0, 0, 0, 0];
+      Object.values(jawData).forEach(j => {
+        if (j && typeof j.p === "number" && j.p >= 0 && j.p <= 3) hitung[j.p]++;
+      });
+      const maks = Math.max(...hitung, 1);
+      el("distribusiIsi").innerHTML = hitung.map((n, i) => {
+        const pct = Math.round(n / maks * 100);
+        const benar = i === s.benar;
+        return `<div class="dist-baris">
+          <span class="dist-huruf">${HURUF[i]}</span>
+          <div class="dist-bar"><div class="dist-isi ${benar ? "benar" : "salah"}" style="width:${pct}%"></div></div>
+          <span class="dist-jml">${n}</span>
+        </div>`;
+      }).join("");
+      el("distribusiJawaban").style.display = "";
+      el("btnRiwayat").style.display = "";
+    });
   }
 
   function gambarPapanHost(data, idWadah, batas){
@@ -956,6 +1024,52 @@ function _ambilKonfig() {
     tampilkan("layarPeran");
   }
   el("btnSelesaiPeserta").addEventListener("click", keluarPeserta);
+
+  /* ====== RIWAYAT JAWABAN PESERTA ====== */
+  el("btnRiwayat").addEventListener("click", tampilkanRiwayat);
+  el("btnRiwayatAkhir").addEventListener("click", tampilkanRiwayat);
+  el("btnTutupRiwayat").addEventListener("click", () => { el("modalRiwayat").style.display = "none"; });
+  el("btnCetakRiwayat").addEventListener("click", () => window.print());
+
+  async function tampilkanRiwayat(){
+    el("modalRiwayat").style.display = "block";
+    el("isiRiwayat").innerHTML = '<div class="memuat tampil"><div class="spinner"></div><p>Memuat data...</p></div>';
+    const qTotal = indeksHost + 1;
+    const [pesSnap, jawSnap] = await Promise.all([
+      db.ref("ruang/" + kodeRuang + "/peserta").once("value"),
+      db.ref("ruang/" + kodeRuang + "/jawaban").once("value")
+    ]);
+    const peserta = pesSnap.val() || {};
+    const jawaban = jawSnap.val() || {};
+    const daftar = Object.entries(peserta).sort((a, b) => (b[1].skor || 0) - (a[1].skor || 0));
+    const headQ = Array.from({length: qTotal}, (_, i) =>
+      `<th style="padding:6px 8px;text-align:center;color:var(--emas-terang);border-bottom:1.5px solid rgba(212,175,55,.4)">S${i + 1}</th>`).join("");
+    const rows = daftar.map(([pid, p]) => {
+      const sel = Array.from({length: qTotal}, (_, i) => {
+        const j = jawaban[i] && jawaban[i][pid];
+        if (!j) return `<td style="text-align:center;padding:6px 4px;color:rgba(255,255,255,.3)">&#8212;</td>`;
+        const benar = soalKuis[i] && j.p === soalKuis[i].benar;
+        return `<td style="text-align:center;padding:6px 4px;font-weight:800;color:${benar ? "#2ecc71" : "#ff8a7a"}">${HURUF[j.p]}</td>`;
+      }).join("");
+      return `<tr style="border-bottom:1px solid rgba(255,255,255,.07)">
+        <td style="padding:8px 6px;font-weight:600;white-space:nowrap">${aman(p.nama)}</td>
+        ${sel}
+        <td style="padding:8px 6px;text-align:right;font-weight:800;color:var(--emas-terang)">${p.skor || 0}</td>
+      </tr>`;
+    }).join("");
+    el("isiRiwayat").innerHTML =
+      `<p style="font-size:.75rem;color:#b9b9d2;margin-bottom:12px">Hijau = benar &nbsp;|&nbsp; Merah = salah &nbsp;|&nbsp; &#8212; = tidak menjawab</p>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table style="width:100%;border-collapse:collapse;font-size:.82rem;min-width:300px">
+          <thead><tr>
+            <th style="padding:8px 6px;text-align:left;color:var(--emas-terang);border-bottom:1.5px solid rgba(212,175,55,.4);white-space:nowrap">Peserta</th>
+            ${headQ}
+            <th style="padding:8px 6px;text-align:right;color:var(--emas-terang);border-bottom:1.5px solid rgba(212,175,55,.4)">Skor</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
 })();
 </script>
 </body>
