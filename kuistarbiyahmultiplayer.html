@@ -717,7 +717,7 @@ function _ambilKonfig() {
     el("judulJawaban").textContent = `Jawaban Soal ${indeksHost + 1}`;
     el("soalJawaban").textContent = s.t;
     el("kunciJawaban").textContent = `Kunci: ${HURUF[s.benar]} — ${s.o[s.benar]}`;
-    el("btnLanjutSoal").textContent = indeksHost + 1 < soalKuis.length ? "SOAL BERIKUTNYA →" : "&#127937; LIHAT HASIL AKHIR";
+    el("btnLanjutSoal").innerHTML = indeksHost + 1 < soalKuis.length ? "SOAL BERIKUTNYA &#8594;" : "&#127937; LIHAT HASIL AKHIR";
     refRuang.child("peserta").off("value");
     refRuang.child("peserta").on("value", ss => gambarPapanHost(ss.val() || {}, "papanHost", 10));
     tampilkan("layarJawabanHost");
@@ -850,7 +850,7 @@ function _ambilKonfig() {
     if (sudahJawab) return;
     sudahJawab = true;
     el("daftarOpsiPeserta").querySelectorAll(".opsi").forEach(b => b.disabled = true);
-    el("umpanBalikPeserta").textContent = "⏱ Waktu habis!";
+    el("umpanBalikPeserta").textContent = "&#9203; Waktu habis!";
     el("umpanBalikPeserta").classList.add("tidak");
   }
 
@@ -868,9 +868,9 @@ function _ambilKonfig() {
       skorSaya += poin;
       await refRuangP.child("peserta/" + idSaya + "/skor").set(skorSaya);
     }
-    el("ikonHasilSoal").textContent = betul ? "✅" : (pilihanSaya === -1 ? "⏱" : "❌");
+    el("ikonHasilSoal").textContent = betul ? "&#10003;" : (pilihanSaya === -1 ? "&#9203;" : "&#10007;");
     el("teksHasilSoal").innerHTML = betul ? `Benar! <span>+${poin}</span>` :
-      (pilihanSaya === -1 ? "Waktu habis" : `Belum tepat — kunci: ${HURUF[s.benar]}`);
+      (pilihanSaya === -1 ? "Waktu habis" : `Belum tepat &mdash; kunci: ${HURUF[s.benar]}`);
     el("skorBerjalan").textContent = skorSaya;
     const ss = await refRuangP.child("peserta").once("value");
     const urut = Object.entries(ss.val() || {}).sort((a,b) => (b[1].skor||0) - (a[1].skor||0));
