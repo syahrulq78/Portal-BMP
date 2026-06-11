@@ -132,6 +132,18 @@ body{
 .hitung-peserta{text-align:center;font-size:.9rem;color:#efe9ff;margin-top:14px}
 .hitung-peserta b{color:var(--kuning);font-size:1.2rem}
 
+/* pilih nama cepat */
+.pilih-cepat{display:flex;gap:10px;margin-bottom:10px}
+.btn-cepat{
+  flex:1;padding:12px 8px;border-radius:14px;cursor:pointer;
+  background:rgba(255,255,255,.09);border:2px solid rgba(255,217,61,.45);
+  color:var(--kuning);font-family:'Baloo 2',cursive;font-size:1rem;font-weight:700;
+  transition:transform .12s ease,background .15s,border-color .15s;
+}
+.btn-cepat:active{transform:scale(.95)}
+.btn-cepat.terpilih{background:rgba(255,217,61,.25);border-color:var(--kuning);transform:scale(1.04)}
+.atau-nama{text-align:center;font-size:.74rem;color:#d9d0f5;margin-bottom:8px;letter-spacing:.06em}
+
 /* pilih avatar */
 .grid-avatar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .btn-avatar{
@@ -455,7 +467,12 @@ body{
       <input type="text" id="inputKode" placeholder="Contoh: SERU12" maxlength="6" autocomplete="off" style="text-transform:uppercase;letter-spacing:.2em;text-align:center;font-weight:700;font-size:1.3rem">
     </div>
     <div class="kartu">
-      <label for="inputNama">Namamu</label>
+      <label>Namamu</label>
+      <div class="pilih-cepat">
+        <button class="btn-cepat" data-nama="Rufaydah">🌸 Rufaydah</button>
+        <button class="btn-cepat" data-nama="Karimah">🌺 Karimah</button>
+      </div>
+      <p class="atau-nama">— atau tulis namamu sendiri —</p>
       <input type="text" id="inputNama" placeholder="Tulis namamu di sini..." maxlength="20" autocomplete="off">
     </div>
     <div class="kartu">
@@ -730,6 +747,21 @@ function _ambilKonfig() {
 
   el("cincinIsiHost").style.strokeDasharray = KELILING;
   el("cincinIsiP").style.strokeDasharray = KELILING;
+
+  /* tombol nama cepat: ketuk → nama langsung terisi */
+  document.querySelectorAll(".btn-cepat").forEach(b => {
+    b.addEventListener("click", () => {
+      el("inputNama").value = b.dataset.nama;
+      document.querySelectorAll(".btn-cepat").forEach(x => x.classList.remove("terpilih"));
+      b.classList.add("terpilih");
+      bunyi("klik");
+    });
+  });
+  el("inputNama").addEventListener("input", () => {
+    document.querySelectorAll(".btn-cepat").forEach(x => {
+      x.classList.toggle("terpilih", el("inputNama").value.trim() === x.dataset.nama);
+    });
+  });
 
   /* isi pilihan avatar */
   DAFTAR_AVATAR.forEach(a => {
