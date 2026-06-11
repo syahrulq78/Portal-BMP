@@ -207,30 +207,63 @@ body{
 .panel-sumber{display:none}
 .panel-sumber.aktif{display:block}
 
-/* distribusi jawaban */
-.dist-baris{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.dist-huruf{flex:0 0 26px;font-weight:800;font-size:.9rem;text-align:center;color:var(--emas-terang)}
-.dist-bar{flex:1;height:30px;border-radius:8px;background:rgba(255,255,255,.1);overflow:hidden;position:relative}
-.dist-isi{height:100%;border-radius:8px;transition:width .6s ease;min-width:0}
-.dist-isi.benar{background:linear-gradient(90deg,#27ae60,#2ecc71)}
-.dist-isi.salah{background:rgba(255,255,255,.2)}
-.dist-jml{flex:0 0 24px;text-align:right;font-weight:700;font-size:.88rem}
+/* distribusi jawaban (grafik batang vertikal) */
+.dist-grafik{display:flex;align-items:flex-end;justify-content:space-around;gap:12px;height:170px;padding:0 6px}
+.dist-kolom{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  height:100%;cursor:pointer;background:none;border:none;font-family:inherit;color:var(--putih);padding:0;
+}
+.dist-kolom:active{opacity:.8}
+.dist-jml{font-weight:800;font-size:1rem;margin-bottom:5px}
+.dist-batang{width:68%;max-width:54px;border-radius:8px 8px 0 0;min-height:5px;transition:height .5s ease}
+.dist-batang.benar{background:linear-gradient(180deg,#2ecc71,#27ae60)}
+.dist-batang.salah{background:rgba(255,255,255,.28)}
+.dist-label{margin-top:7px;font-weight:800;font-size:.95rem;color:var(--emas-terang)}
+.dist-nama-panel{
+  display:none;margin-top:12px;background:rgba(255,255,255,.07);
+  border:1px solid rgba(212,175,55,.3);border-radius:12px;padding:12px 14px;
+  font-size:.86rem;line-height:1.7;
+}
+.dist-nama-panel b{color:var(--emas-terang)}
 
 /* modal riwayat */
 #modalRiwayat{
   display:none;position:fixed;inset:0;z-index:999;
   background:rgba(12,12,72,.97);overflow-y:auto;padding:20px 16px;
 }
+.btn-riwayat-nama{position:relative}
+.btn-riwayat-nama .skor-kanan{float:right;font-weight:800;color:var(--emas-terang)}
+
+/* laporan per peserta */
+.lap-kepala{background:rgba(255,255,255,.07);border:1px solid rgba(212,175,55,.35);border-radius:14px;padding:16px;margin-bottom:16px}
+.lap-kepala h3{color:var(--emas-terang);font-size:1.2rem;font-weight:800}
+.lap-kepala p{font-size:.86rem;color:#e4e4ee;margin-top:6px;line-height:1.7}
+.lap-soal{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px;margin-bottom:12px}
+.lap-no{font-size:.72rem;font-weight:800;color:var(--emas-terang);letter-spacing:.08em;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.lap-status{font-size:.72rem;font-weight:800;white-space:nowrap}
+.lap-status.ya{color:#2ecc71}
+.lap-status.no{color:#ff8a7a}
+.lap-t{font-size:.92rem;font-weight:600;margin:8px 0 10px;line-height:1.5}
+.lap-opsi{font-size:.85rem;padding:7px 10px;border-radius:8px;margin-top:5px;border:1px solid transparent;line-height:1.45}
+.lap-opsi.kunci{background:rgba(46,204,113,.14);border-color:rgba(46,204,113,.5);color:#8fe6b3}
+.lap-opsi.dipilih:not(.kunci){background:rgba(192,57,43,.16);border-color:rgba(192,57,43,.55);color:#ffb3a8}
+.lap-opsi b{font-size:.74rem;margin-left:4px}
 
 @media print{
   body>*{display:none!important}
-  #modalRiwayat{display:block!important;position:static!important;background:#fff!important;padding:20px!important;overflow:visible!important}
-  #btnCetakRiwayat,#btnTutupRiwayat{display:none!important}
+  #modalRiwayat{display:block!important;position:static!important;background:#fff!important;padding:14px!important;overflow:visible!important}
+  #btnCetakRiwayat,#btnTutupRiwayat,#btnKembaliRiwayat{display:none!important}
   #modalRiwayat .judul,#modalRiwayat .judul span{color:#111!important}
   #isiRiwayat,#isiRiwayat *{color:#111!important;background:transparent!important}
-  #isiRiwayat table{border-collapse:collapse;width:100%}
-  #isiRiwayat td,#isiRiwayat th{border:1px solid #bbb!important;padding:5px 7px!important;color:#111!important}
-  #isiRiwayat p{color:#444!important}
+  #isiRiwayat .lap-kepala{border:1.5px solid #888!important;border-radius:8px}
+  #isiRiwayat .lap-kepala h3{color:#111!important}
+  #isiRiwayat .lap-soal{border:1px solid #bbb!important;border-radius:8px;page-break-inside:avoid;margin-bottom:10px}
+  #isiRiwayat .lap-opsi{border:1px solid transparent!important}
+  #isiRiwayat .lap-opsi.kunci{color:#15803d!important;font-weight:700;border-color:#15803d!important}
+  #isiRiwayat .lap-opsi.dipilih:not(.kunci){color:#b91c1c!important;font-weight:700;border-color:#b91c1c!important}
+  #isiRiwayat .lap-status.ya{color:#15803d!important}
+  #isiRiwayat .lap-status.no{color:#b91c1c!important}
+  #isiRiwayat .btn-nama{border:1px solid #ccc!important}
 }
 </style>
 </head>
@@ -295,7 +328,7 @@ body{
     </div>
     <div class="kartu">
       <label>JSON Soal</label>
-      <textarea id="teksJSON" style="min-height:200px" placeholder='Tempel JSON soal di sini...&#10;&#10;Format:&#10;{"judul":"...","soal":[{"t":"teks soal","o":["A","B","C","D"],"benar":0}]}'></textarea>
+      <textarea id="teksJSON" style="min-height:200px" placeholder='Tempel JSON soal di sini (disarankan 15 soal)...&#10;&#10;Format:&#10;{"judul":"...","soal":[{"t":"teks soal","o":["A","B","C","D"],"benar":0}]}'></textarea>
     </div>
     <div class="galat" id="galat"></div>
     <button class="tombol-utama" id="btnMuatJSON">&#128203; MUAT SOAL</button>
@@ -334,7 +367,7 @@ body{
 <section class="layar" id="layarSoalHost">
   <div class="bar-atas">
     <div>
-      <div class="nomor-soal" id="nomorSoalHost">Soal 1 / 10</div>
+      <div class="nomor-soal" id="nomorSoalHost">Soal 1 / 15</div>
       <div class="skor-live">&#128101; <span id="masukHost">0</span>/<span id="totalHost">0</span> menjawab</div>
     </div>
     <div class="cincin-wrap" id="cincinWrapHost">
@@ -360,7 +393,7 @@ body{
       <div class="k" id="kunciJawaban"></div>
     </div>
     <div id="distribusiJawaban" style="margin-top:18px;display:none">
-      <p class="sub" style="margin-bottom:10px">&#128202; Distribusi Jawaban</p>
+      <p class="sub" style="margin-bottom:12px">&#128202; Distribusi Jawaban &mdash; ketuk batang untuk melihat nama</p>
       <div id="distribusiIsi"></div>
     </div>
     <p class="sub" style="margin-top:18px">&#127942; Peringkat Sementara</p>
@@ -417,7 +450,7 @@ body{
 <section class="layar" id="layarJawab">
   <div class="bar-atas">
     <div>
-      <div class="nomor-soal" id="nomorSoalPeserta">Soal 1 / 10</div>
+      <div class="nomor-soal" id="nomorSoalPeserta">Soal 1 / 15</div>
       <div class="skor-live">&#11088; <span id="skorPeserta">0</span></div>
     </div>
     <div class="cincin-wrap" id="cincinWrapP">
@@ -463,8 +496,9 @@ body{
 <div id="modalRiwayat">
   <div style="max-width:740px;margin:0 auto">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px">
-      <h2 class="judul" style="font-size:1.2rem">&#128101; Riwayat <span>Jawaban</span></h2>
+      <h2 class="judul" style="font-size:1.2rem" id="judulRiwayat">&#128101; Riwayat <span>Jawaban</span></h2>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="tombol-garis" id="btnKembaliRiwayat" style="width:auto;margin:0;padding:10px 18px;font-size:.85rem;display:none">&larr; Daftar Peserta</button>
         <button class="tombol-garis" id="btnCetakRiwayat" style="width:auto;margin:0;padding:10px 18px;font-size:.85rem">&#128438; Simpan PDF</button>
         <button class="tombol-garis" id="btnTutupRiwayat" style="width:auto;margin:0;padding:10px 18px;font-size:.85rem">&#10005; Tutup</button>
       </div>
@@ -486,7 +520,7 @@ const KONFIG_FIREBASE = {
   appId: "1:824795207277:web:50d49311bc0a14c2d2d164"
 };
 const WAKTU_PER_SOAL = 15;
-const JUMLAH_SOAL = 10;
+const JUMLAH_SOAL = 15;
 
 const DAFTAR_NAMA = [
   "Usaid",
@@ -818,25 +852,45 @@ function _ambilKonfig() {
     refRuang.child("peserta").off("value");
     refRuang.child("peserta").on("value", ss => gambarPapanHost(ss.val() || {}, "papanHost", 10));
     tampilkan("layarJawabanHost");
-    /* distribusi jawaban — tampilkan setelah data tiba */
+    /* distribusi jawaban: grafik batang vertikal, klik untuk lihat nama pemilih */
     el("distribusiJawaban").style.display = "none";
     el("btnRiwayat").style.display = "none";
-    db.ref("ruang/" + kodeRuang + "/jawaban/" + indeksHost).once("value").then(jawSnap => {
+    Promise.all([
+      db.ref("ruang/" + kodeRuang + "/jawaban/" + indeksHost).once("value"),
+      db.ref("ruang/" + kodeRuang + "/peserta").once("value")
+    ]).then(([jawSnap, pesSnap]) => {
       const jawData = jawSnap.val() || {};
-      const hitung = [0, 0, 0, 0];
-      Object.values(jawData).forEach(j => {
-        if (j && typeof j.p === "number" && j.p >= 0 && j.p <= 3) hitung[j.p]++;
+      const peserta = pesSnap.val() || {};
+      const pemilih = [[], [], [], []];
+      Object.entries(jawData).forEach(([pid, j]) => {
+        if (j && typeof j.p === "number" && j.p >= 0 && j.p <= 3)
+          pemilih[j.p].push((peserta[pid] && peserta[pid].nama) || "(tidak dikenal)");
       });
-      const maks = Math.max(...hitung, 1);
-      el("distribusiIsi").innerHTML = hitung.map((n, i) => {
-        const pct = Math.round(n / maks * 100);
-        const benar = i === s.benar;
-        return `<div class="dist-baris">
-          <span class="dist-huruf">${HURUF[i]}</span>
-          <div class="dist-bar"><div class="dist-isi ${benar ? "benar" : "salah"}" style="width:${pct}%"></div></div>
-          <span class="dist-jml">${n}</span>
-        </div>`;
-      }).join("");
+      const maks = Math.max(pemilih[0].length, pemilih[1].length, pemilih[2].length, pemilih[3].length, 1);
+      el("distribusiIsi").innerHTML =
+        `<div class="dist-grafik">` + pemilih.map((arr, i) => {
+          const tinggi = Math.max(Math.round(arr.length / maks * 100), 4);
+          return `<button class="dist-kolom" data-i="${i}" aria-label="Pilihan ${HURUF[i]}: ${arr.length} peserta">
+            <span class="dist-jml">${arr.length}</span>
+            <span class="dist-batang ${i === s.benar ? "benar" : "salah"}" style="height:${tinggi}%"></span>
+            <span class="dist-label">${HURUF[i]}</span>
+          </button>`;
+        }).join("") + `</div><div class="dist-nama-panel" id="distNamaPanel"></div>`;
+      el("distribusiIsi").querySelectorAll(".dist-kolom").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const i = parseInt(btn.dataset.i, 10);
+          const panel = el("distNamaPanel");
+          if (panel.dataset.aktif === String(i) && panel.style.display === "block"){
+            panel.style.display = "none";
+            panel.dataset.aktif = "";
+            return;
+          }
+          panel.dataset.aktif = String(i);
+          panel.innerHTML = `<b>Memilih ${HURUF[i]} (${pemilih[i].length} peserta):</b><br>` +
+            (pemilih[i].length ? pemilih[i].map(aman).join(", ") : "&mdash; tidak ada");
+          panel.style.display = "block";
+        });
+      });
       el("distribusiJawaban").style.display = "";
       el("btnRiwayat").style.display = "";
     });
@@ -1025,50 +1079,97 @@ function _ambilKonfig() {
   }
   el("btnSelesaiPeserta").addEventListener("click", keluarPeserta);
 
-  /* ====== RIWAYAT JAWABAN PESERTA ====== */
+  /* ====== RIWAYAT JAWABAN PESERTA (LAPORAN PER ORANG) ====== */
+  let dataRiwayat = null;
   el("btnRiwayat").addEventListener("click", tampilkanRiwayat);
   el("btnRiwayatAkhir").addEventListener("click", tampilkanRiwayat);
   el("btnTutupRiwayat").addEventListener("click", () => { el("modalRiwayat").style.display = "none"; });
+  el("btnKembaliRiwayat").addEventListener("click", gambarDaftarRiwayat);
   el("btnCetakRiwayat").addEventListener("click", () => window.print());
 
   async function tampilkanRiwayat(){
     el("modalRiwayat").style.display = "block";
+    el("modalRiwayat").scrollTop = 0;
     el("isiRiwayat").innerHTML = '<div class="memuat tampil"><div class="spinner"></div><p>Memuat data...</p></div>';
-    const qTotal = indeksHost + 1;
     const [pesSnap, jawSnap] = await Promise.all([
       db.ref("ruang/" + kodeRuang + "/peserta").once("value"),
       db.ref("ruang/" + kodeRuang + "/jawaban").once("value")
     ]);
-    const peserta = pesSnap.val() || {};
-    const jawaban = jawSnap.val() || {};
-    const daftar = Object.entries(peserta).sort((a, b) => (b[1].skor || 0) - (a[1].skor || 0));
-    const headQ = Array.from({length: qTotal}, (_, i) =>
-      `<th style="padding:6px 8px;text-align:center;color:var(--emas-terang);border-bottom:1.5px solid rgba(212,175,55,.4)">S${i + 1}</th>`).join("");
-    const rows = daftar.map(([pid, p]) => {
-      const sel = Array.from({length: qTotal}, (_, i) => {
-        const j = jawaban[i] && jawaban[i][pid];
-        if (!j) return `<td style="text-align:center;padding:6px 4px;color:rgba(255,255,255,.3)">&#8212;</td>`;
-        const benar = soalKuis[i] && j.p === soalKuis[i].benar;
-        return `<td style="text-align:center;padding:6px 4px;font-weight:800;color:${benar ? "#2ecc71" : "#ff8a7a"}">${HURUF[j.p]}</td>`;
-      }).join("");
-      return `<tr style="border-bottom:1px solid rgba(255,255,255,.07)">
-        <td style="padding:8px 6px;font-weight:600;white-space:nowrap">${aman(p.nama)}</td>
-        ${sel}
-        <td style="padding:8px 6px;text-align:right;font-weight:800;color:var(--emas-terang)">${p.skor || 0}</td>
-      </tr>`;
-    }).join("");
+    dataRiwayat = {
+      peserta: pesSnap.val() || {},
+      jawaban: jawSnap.val() || {},
+      qTotal: Math.min(indeksHost + 1, soalKuis.length)
+    };
+    gambarDaftarRiwayat();
+  }
+
+  function gambarDaftarRiwayat(){
+    el("btnKembaliRiwayat").style.display = "none";
+    el("judulRiwayat").innerHTML = "&#128101; Riwayat <span>Jawaban</span>";
+    const urut = Object.entries(dataRiwayat.peserta).sort((a, b) => (b[1].skor || 0) - (a[1].skor || 0));
     el("isiRiwayat").innerHTML =
-      `<p style="font-size:.75rem;color:#b9b9d2;margin-bottom:12px">Hijau = benar &nbsp;|&nbsp; Merah = salah &nbsp;|&nbsp; &#8212; = tidak menjawab</p>
-      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-        <table style="width:100%;border-collapse:collapse;font-size:.82rem;min-width:300px">
-          <thead><tr>
-            <th style="padding:8px 6px;text-align:left;color:var(--emas-terang);border-bottom:1.5px solid rgba(212,175,55,.4);white-space:nowrap">Peserta</th>
-            ${headQ}
-            <th style="padding:8px 6px;text-align:right;color:var(--emas-terang);border-bottom:1.5px solid rgba(212,175,55,.4)">Skor</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
+      `<p class="sub" style="text-align:left;margin-bottom:14px">Ketuk nama peserta untuk melihat laporan lengkap: semua soal beserta jawaban yang ia pilih. Laporan bisa disimpan sebagai PDF untuk catatan belajar.</p>` +
+      (urut.length === 0
+        ? `<p class="kosong-papan">Belum ada peserta.</p>`
+        : urut.map(([pid, p], i) =>
+            `<button class="btn-nama btn-riwayat-nama" data-pid="${pid}" style="margin-bottom:8px">
+              <span class="skor-kanan">${p.skor || 0}</span>${i + 1}. ${aman(p.nama)}
+            </button>`).join(""));
+    el("isiRiwayat").querySelectorAll(".btn-riwayat-nama").forEach(btn => {
+      btn.addEventListener("click", () => gambarLaporanPeserta(btn.dataset.pid));
+    });
+  }
+
+  function gambarLaporanPeserta(pid){
+    const p = dataRiwayat.peserta[pid];
+    if (!p) return;
+    el("btnKembaliRiwayat").style.display = "";
+    el("judulRiwayat").innerHTML = `&#128203; Laporan <span>${aman(p.nama)}</span>`;
+    const urut = Object.entries(dataRiwayat.peserta).sort((a, b) => (b[1].skor || 0) - (a[1].skor || 0));
+    const posisi = urut.findIndex(([k]) => k === pid) + 1;
+    let benarN = 0, jawabN = 0;
+    const blok = [];
+    for (let i = 0; i < dataRiwayat.qTotal; i++){
+      const s = soalKuis[i];
+      if (!s) continue;
+      const j = dataRiwayat.jawaban[i] && dataRiwayat.jawaban[i][pid];
+      const pilih = (j && typeof j.p === "number") ? j.p : -1;
+      const betul = pilih === s.benar;
+      if (pilih !== -1) jawabN++;
+      if (betul) benarN++;
+      const status = betul
+        ? '<span class="lap-status ya">&#10003; BENAR</span>'
+        : (pilih === -1
+          ? '<span class="lap-status no">TIDAK MENJAWAB</span>'
+          : '<span class="lap-status no">&#10007; SALAH</span>');
+      const opsi = s.o.map((o, k) => {
+        const kunci = k === s.benar, dipilih = k === pilih;
+        let kelas = "lap-opsi";
+        if (kunci) kelas += " kunci";
+        if (dipilih) kelas += " dipilih";
+        let tanda = "";
+        if (kunci && dipilih) tanda = " &#10003; jawaban yang dipilih (benar)";
+        else if (kunci) tanda = " &#10003; kunci jawaban";
+        else if (dipilih) tanda = " &#9666; jawaban yang dipilih";
+        return `<div class="${kelas}">${HURUF[k]}. ${aman(o)}<b>${tanda}</b></div>`;
+      }).join("");
+      blok.push(`<div class="lap-soal">
+        <div class="lap-no"><span>SOAL ${i + 1}</span>${status}</div>
+        <div class="lap-t">${aman(s.t)}</div>
+        ${opsi}
+      </div>`);
+    }
+    const tgl = new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    el("isiRiwayat").innerHTML =
+      `<div class="lap-kepala">
+        <h3>${aman(p.nama)}</h3>
+        <p>${aman(judulKuis)} &mdash; Halakah Habib bin Abi Tsabit<br>
+        ${tgl}<br>
+        Skor: <b style="color:var(--emas-terang)">${p.skor || 0}</b> &nbsp;&bull;&nbsp;
+        Peringkat: <b style="color:var(--emas-terang)">#${posisi}</b> dari ${urut.length} peserta &nbsp;&bull;&nbsp;
+        Benar <b style="color:var(--emas-terang)">${benarN}</b> dari ${dataRiwayat.qTotal} soal (menjawab ${jawabN})</p>
+      </div>` + blok.join("");
+    el("modalRiwayat").scrollTop = 0;
   }
 })();
 </script>
