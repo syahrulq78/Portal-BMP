@@ -1,0 +1,676 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Kuis Merdeka Beppa Barugae</title>
+<style>
+  :root{
+    --merah:#e6112a; --merah2:#b8071c; --putih:#ffffff;
+    --emas:#ffd23f; --tinta:#1a1030; --tinta2:#2a1a4a;
+    --hijau:#22c55e; --biru:#2f7ce0; --kuning:#f5b81c; --oranye:#e8622a;
+    --r:18px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    color:#fff; min-height:100%;
+    background:
+      radial-gradient(1200px 500px at 50% -10%, rgba(255,210,63,.18), transparent 60%),
+      radial-gradient(900px 600px at 100% 100%, rgba(230,17,42,.28), transparent 55%),
+      linear-gradient(160deg,#3a0a14,#1a1030 55%,#0f0a1e);
+    overflow-x:hidden;
+  }
+  .layar{display:none; min-height:100vh; padding:22px 16px 40px; max-width:920px; margin:0 auto; animation:masuk .35s ease}
+  .layar.aktif{display:block}
+  @keyframes masuk{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .bendera{height:10px;border-radius:6px;overflow:hidden;display:flex;margin:0 auto 14px;max-width:340px;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+  .bendera>div{flex:1}.bendera .m{background:var(--merah)}.bendera .p{background:#fff}
+
+  h1.judul{font-size:clamp(1.6rem,6vw,2.6rem);text-align:center;margin:.2em 0;font-weight:900;letter-spacing:-.5px;line-height:1.05}
+  h1.judul span{color:var(--emas)}
+  .sub{text-align:center;color:#e9defb;opacity:.9;margin:.2em auto 1.2em;max-width:520px;line-height:1.5}
+
+  .kartu{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:18px;backdrop-filter:blur(6px)}
+  .kartu+.kartu{margin-top:14px}
+
+  label{display:block;font-size:.86rem;color:#e9defb;margin:0 0 6px;font-weight:600}
+  input,select,textarea{width:100%;padding:15px 16px;border-radius:14px;border:2px solid rgba(255,255,255,.15);
+    background:rgba(0,0,0,.28);color:#fff;font-size:1.05rem;font-family:inherit;outline:none}
+  input:focus,textarea:focus{border-color:var(--emas)}
+  input::placeholder{color:#b7add0}
+  input.pin{letter-spacing:.5em;text-align:center;font-weight:800;font-size:1.6rem}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:16px 18px;border:0;border-radius:14px;
+    font-size:1.1rem;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .08s, filter .15s;margin-top:12px}
+  .btn:active{transform:scale(.97)}
+  .btn-emas{background:linear-gradient(180deg,#ffe066,#ffcb1f);color:#5a3d00;box-shadow:0 8px 22px rgba(255,203,31,.35)}
+  .btn-merah{background:linear-gradient(180deg,#ff3b52,#d40f26);color:#fff;box-shadow:0 8px 22px rgba(212,15,38,.4)}
+  .btn-putih{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .baris{display:flex;gap:12px}.baris>*{flex:1}
+
+  .galat{color:#ffb4b4;font-size:.9rem;margin-top:10px;min-height:1.1em;text-align:center;font-weight:600}
+  .mini{font-size:.8rem;color:#c9bfe6;text-align:center;margin-top:16px;line-height:1.6}
+  a.tautan{color:var(--emas);cursor:pointer;text-decoration:underline;font-weight:700}
+
+  /* PIN besar di lobby host */
+  .pinbox{text-align:center;margin:6px 0 4px}
+  .pinbox .lbl{font-size:.9rem;color:#e9defb;text-transform:uppercase;letter-spacing:2px}
+  .pinbox .kode{font-size:clamp(2.8rem,14vw,5rem);font-weight:900;letter-spacing:.12em;color:var(--emas);
+    text-shadow:0 4px 20px rgba(255,203,31,.4);margin:.1em 0}
+
+  /* daftar pemain */
+  .pemainWrap{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}
+  .chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);
+    padding:8px 14px;border-radius:999px;font-weight:700;animation:pop .3s ease}
+  .chip .av{font-size:1.2rem}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+
+  /* soal */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+  .pill{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.14);padding:8px 14px;border-radius:999px;font-weight:800;font-size:.95rem}
+  .timer{width:64px;height:64px;position:relative;flex:0 0 auto}
+  .timer svg{transform:rotate(-90deg)}
+  .timer .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.5rem}
+  .soalTeks{font-size:clamp(1.3rem,4.5vw,2rem);font-weight:800;text-align:center;line-height:1.25;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:22px 18px;margin-bottom:14px}
+  .opsiGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .opsi{display:flex;align-items:center;gap:12px;padding:20px 16px;border-radius:16px;border:0;cursor:pointer;
+    font-size:clamp(1rem,3.5vw,1.3rem);font-weight:800;color:#fff;font-family:inherit;text-align:left;min-height:76px;
+    transition:transform .08s, filter .15s;line-height:1.2}
+  .opsi:active{transform:scale(.97)}
+  .opsi .bentuk{font-size:1.4rem;flex:0 0 auto}
+  .o0{background:linear-gradient(180deg,#ff4d63,#d40f26)} .o1{background:linear-gradient(180deg,#3d8bef,#1f5fc0)}
+  .o2{background:linear-gradient(180deg,#f7c73b,#e0a413);color:#4a3600} .o3{background:linear-gradient(180deg,#2fd06e,#17a44f)}
+  .opsi.pudar{filter:grayscale(.6) brightness(.6);opacity:.55}
+  .opsi.benar{outline:4px solid #fff;box-shadow:0 0 0 4px rgba(34,197,94,.6),0 10px 30px rgba(0,0,0,.4)}
+  .opsi.pilih{outline:4px solid var(--emas)}
+  .opsi .jml{margin-left:auto;background:rgba(0,0,0,.28);border-radius:999px;padding:3px 11px;font-size:.9rem}
+
+  /* status pemain */
+  .tengah{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:60vh;gap:10px}
+  .besar{font-size:clamp(2rem,9vw,3.4rem);font-weight:900}
+  .emoji{font-size:clamp(3rem,16vw,5rem);animation:bob 1.4s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+  /* leaderboard */
+  .papan{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+  .rank{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+    padding:14px 16px;border-radius:14px;font-weight:700;animation:masuk .3s ease}
+  .rank .no{font-size:1.3rem;font-weight:900;width:34px;text-align:center;flex:0 0 auto}
+  .rank .av{font-size:1.5rem}
+  .rank .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rank .sk{font-weight:900;color:var(--emas);font-size:1.15rem}
+  .rank.top1{background:linear-gradient(90deg,rgba(255,203,31,.32),rgba(255,203,31,.08));border-color:var(--emas)}
+  .rank.top2{background:linear-gradient(90deg,rgba(200,210,230,.28),transparent)}
+  .rank.top3{background:linear-gradient(90deg,rgba(205,127,50,.28),transparent)}
+
+  /* podium akhir */
+  .podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin:22px 0}
+  .pod{display:flex;flex-direction:column;align-items:center;gap:8px;width:30%}
+  .pod .av{font-size:2.2rem}.pod .nm{font-weight:800;font-size:.95rem;text-align:center;line-height:1.1}
+  .pod .sk{color:var(--emas);font-weight:900}
+  .pod .tiang{width:100%;border-radius:12px 12px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font-size:1.5rem;font-weight:900}
+  .pod.p1 .tiang{height:130px;background:linear-gradient(180deg,#ffe066,#e0a413)}
+  .pod.p2 .tiang{height:96px;background:linear-gradient(180deg,#cfd8ea,#9aa7c4)}
+  .pod.p3 .tiang{height:72px;background:linear-gradient(180deg,#e0a06a,#b06a34)}
+
+  .konfeti{position:fixed;top:-20px;font-size:1.4rem;pointer-events:none;animation:jatuh linear forwards;z-index:60}
+  @keyframes jatuh{to{transform:translateY(105vh) rotate(540deg);opacity:.2}}
+
+  .kembali{position:fixed;top:12px;left:12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.2);
+    color:#fff;border-radius:999px;padding:8px 14px;font-size:.85rem;cursor:pointer;font-weight:700;z-index:50}
+</style>
+
+<!-- ══════════ LAYAR: BERANDA ══════════ -->
+<section id="lyBeranda" class="layar aktif">
+  <div class="bendera"><div class="m"></div><div class="p"></div></div>
+  <h1 class="judul">🇮🇩 Kuis <span>Merdeka</span><br>Beppa Barugae</h1>
+  <p class="sub">Kuis rebutan ala Kahoot untuk memeriahkan HUT ke-81 Kemerdekaan RI. Host tayangkan soal di layar, semua ikut jawab dari HP masing-masing!</p>
+  <div class="kartu">
+    <button class="btn btn-emas" onclick="mulaiHost()">📺 Buat Kuis (Host / Layar Utama)</button>
+    <button class="btn btn-merah" onclick="tampil('lyGabung')">📱 Gabung sebagai Pemain</button>
+    <button class="btn btn-putih" onclick="bukaEditor()">✏️ Buat / Edit Soal</button>
+  </div>
+  <p class="mini">Butuh koneksi internet. Data tersimpan di Firebase. <a class="tautan" onclick="tampil('lySetup')">⚙️ Setup Firebase</a></p>
+</section>
+
+<!-- ══════════ LAYAR: GABUNG PEMAIN ══════════ -->
+<section id="lyGabung" class="layar">
+  <button class="kembali" onclick="lokasiAwal()">← Kembali</button>
+  <div class="bendera"><div class="m"></div><div class="p"></div></div>
+  <h1 class="judul">Gabung <span>Kuis</span></h1>
+  <div class="kartu" style="margin-top:16px">
+    <label>Kode PIN dari layar host</label>
+    <input id="inPin" class="pin" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="off">
+    <label style="margin-top:16px">Nama kamu</label>
+    <input id="inNama" maxlength="18" placeholder="ketik / pilih nama di bawah" autocomplete="off">
+    <div id="namaCepat" class="pemainWrap" style="justify-content:flex-start;margin-top:10px"></div>
+    <label style="margin-top:16px">Pilih avatar</label>
+    <div id="pilihAvatar" class="pemainWrap" style="justify-content:flex-start"></div>
+    <button class="btn btn-emas" onclick="gabung()">🚀 Masuk!</button>
+    <div class="galat" id="galatGabung"></div>
+  </div>
+</section>
+
+<!-- ══════════ LAYAR: SETUP FIREBASE ══════════ -->
+<section id="lySetup" class="layar">
+  <button class="kembali" onclick="lokasiAwal()">← Kembali</button>
+  <h1 class="judul">⚙️ Setup <span>Firebase</span></h1>
+  <p class="sub">Aplikasi sudah berisi konfigurasi bawaan. Ubah hanya bila ingin memakai proyek Firebase lain.</p>
+  <div class="kartu">
+    <label>Tempel firebaseConfig { … }</label>
+    <textarea id="inKonfig" style="min-height:170px;font-family:monospace;font-size:.8rem" placeholder='{ "apiKey":"...", "databaseURL":"...", ... }'></textarea>
+    <button class="btn btn-emas" onclick="simpanKonfig()">Simpan</button>
+    <button class="btn btn-putih" onclick="resetKonfig()">Pakai bawaan lagi</button>
+    <div class="galat" id="galatKonfig"></div>
+  </div>
+</section>
+
+<!-- ══════════ LAYAR: EDITOR SOAL ══════════ -->
+<section id="lyEditor" class="layar">
+  <button class="kembali" onclick="lokasiAwal()">← Beranda</button>
+  <div class="bendera"><div class="m"></div><div class="p"></div></div>
+  <h1 class="judul">✏️ Editor <span>Soal</span></h1>
+  <p class="sub" id="edInfo">Susun soal kuis. Tersimpan di perangkat ini.</p>
+  <button class="btn btn-emas" onclick="formSoalBaru()">➕ Tambah Soal</button>
+  <div id="edDaftar" style="margin-top:14px"></div>
+  <div class="kartu" style="margin-top:16px">
+    <button class="btn btn-putih" onclick="kembalikanSoalDefault()">↩️ Kembalikan ke soal bawaan (15 soal)</button>
+    <p class="mini" style="margin-top:10px">Setelah selesai, kembali ke Beranda lalu <b>Buat Kuis</b> — soal ini otomatis dipakai & dikirim ke HP peserta.</p>
+  </div>
+</section>
+
+<!-- ══════════ LAYAR: FORM SATU SOAL ══════════ -->
+<section id="lyFormSoal" class="layar">
+  <button class="kembali" onclick="bukaEditor()">← Batal</button>
+  <h1 class="judul" id="fsJudul" style="font-size:1.5rem">Tambah Soal</h1>
+  <div class="kartu">
+    <label>Pertanyaan</label>
+    <textarea id="fsTeks" style="min-height:90px" placeholder="Tulis pertanyaan di sini…"></textarea>
+    <p class="mini" style="text-align:left;margin:14px 0 4px">Isi 4 pilihan jawaban, lalu tandai <b style="color:var(--emas)">mana yang benar</b>:</p>
+    <div id="fsOpsi"></div>
+    <button class="btn btn-emas" onclick="simpanFormSoal()">💾 Simpan Soal</button>
+    <div class="galat" id="fsGalat"></div>
+  </div>
+</section>
+
+<!-- ══════════ LAYAR: LOBBY HOST ══════════ -->
+<section id="lyLobbyHost" class="layar">
+  <button class="kembali" onclick="bubarkanRoom()">✕ Tutup Room</button>
+  <div class="bendera"><div class="m"></div><div class="p"></div></div>
+  <div class="pinbox">
+    <div class="lbl">Gabung di HP • Buka file yang sama</div>
+    <div class="kode" id="pinTampil">------</div>
+    <div class="sub" style="margin:0">Ketuk <b>Gabung sebagai Pemain</b> lalu masukkan PIN di atas</div>
+  </div>
+  <div class="kartu">
+    <div class="topbar"><b>👥 Pemain bergabung</b><span class="pill" id="jmlPemain">0</span></div>
+    <div class="pemainWrap" id="daftarPemain"><span class="mini" style="margin:0">Menunggu pemain…</span></div>
+  </div>
+  <button class="btn btn-emas" id="btnMulai" onclick="hostMulai()" disabled>▶️ Mulai Kuis (min. 1 pemain)</button>
+</section>
+
+<!-- ══════════ LAYAR: SOAL (HOST) ══════════ -->
+<section id="lySoalHost" class="layar">
+  <div class="topbar">
+    <span class="pill" id="hNo">Soal 1</span>
+    <div class="timer"><svg width="64" height="64"><circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,.15)" stroke-width="7" fill="none"/><circle id="hRing" cx="32" cy="32" r="28" stroke="var(--emas)" stroke-width="7" fill="none" stroke-linecap="round"/></svg><div class="num" id="hDetik">20</div></div>
+    <span class="pill" id="hJawab">0 jawab</span>
+  </div>
+  <div class="soalTeks" id="hSoal">—</div>
+  <div class="opsiGrid" id="hOpsi"></div>
+  <button class="btn btn-putih" id="hLewati" onclick="hostSelesaikanSoal()" style="margin-top:14px">⏭️ Kunci Jawaban Sekarang</button>
+</section>
+
+<!-- ══════════ LAYAR: HASIL SOAL (HOST) ══════════ -->
+<section id="lyHasilHost" class="layar">
+  <h1 class="judul" style="font-size:1.5rem">🏆 Klasemen Sementara</h1>
+  <div class="papan" id="hPapan"></div>
+  <button class="btn btn-emas" id="hLanjut" onclick="hostLanjut()">Lanjut ➡️</button>
+</section>
+
+<!-- ══════════ LAYAR: SELESAI (HOST) ══════════ -->
+<section id="lySelesaiHost" class="layar">
+  <div class="bendera"><div class="m"></div><div class="p"></div></div>
+  <h1 class="judul">🎉 <span>Merdeka!</span> Juaranya…</h1>
+  <div class="podium" id="hPodium"></div>
+  <div class="papan" id="hPapanAkhir"></div>
+  <button class="btn btn-emas" onclick="lokasiAwal()" style="margin-top:16px">🏠 Selesai</button>
+</section>
+
+<!-- ══════════ LAYAR: MENUNGGU/SOAL (PEMAIN) ══════════ -->
+<section id="lyMainPemain" class="layar">
+  <div id="pTengah" class="tengah">
+    <div class="emoji" id="pEmoji">⏳</div>
+    <div class="besar" id="pStatus">Menunggu host…</div>
+    <div class="sub" id="pSub" style="margin:0"></div>
+  </div>
+  <div id="pSoalArea" style="display:none">
+    <div class="topbar">
+      <span class="pill" id="pNo">Soal 1</span>
+      <span class="pill" id="pSkorMini">0</span>
+      <div class="timer"><svg width="64" height="64"><circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,.15)" stroke-width="7" fill="none"/><circle id="pRing" cx="32" cy="32" r="28" stroke="var(--emas)" stroke-width="7" fill="none" stroke-linecap="round"/></svg><div class="num" id="pDetik">20</div></div>
+    </div>
+    <div class="soalTeks" id="pSoal" style="font-size:1.15rem;padding:16px">—</div>
+    <div class="opsiGrid" id="pOpsi"></div>
+  </div>
+</section>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+/* ═══════════════════ KONFIGURASI ═══════════════════ */
+const KONFIG_BAWAAN = {
+  apiKey: "AIzaSyCU866mYh7-mvJztUvt0usHgDVhME_5wh0",
+  authDomain: "kuis-tarbiah.firebaseapp.com",
+  databaseURL: "https://kuis-tarbiah-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "kuis-tarbiah",
+  storageBucket: "kuis-tarbiah.firebasestorage.app",
+  messagingSenderId: "824795207277",
+  appId: "1:824795207277:web:kuisbeppa"
+};
+const JALUR = "ruangBeppa/";        // path terpisah agar tak bentrok kuis lain
+const WAKTU = 20;                    // detik per soal
+const AVATAR = ["🦁","🐯","🦊","🐸","🦄","🐼","🐧","🦅","🐢","🐬","🌟","🔥","🍉","🥷","👑","🚀"];
+/* Nama peserta tim — muncul sbg tombol pilih cepat di layar Gabung. Ubah bebas. */
+const PESERTA = ["Lathifah","Uswah","Alfi","Nisa","Amel","Maryam","Mala","Ahmad","Eki","Ummi","Rukana"];
+
+/* ═══════════════════ SOAL ═══════════════════
+   Ubah bebas. benar = indeks jawaban benar (0=merah,1=biru,2=kuning,3=hijau).
+   Bagian "BEPPA BARUGAE" — sesuaikan dengan fakta tim Anda! */
+const SOAL_DEFAULT = [
+  // ── Sejarah & Kemerdekaan RI ──
+  { t:"Kapan Indonesia memproklamasikan kemerdekaannya?", o:["17 Agustus 1945","1 Juni 1945","28 Oktober 1928","10 November 1945"], benar:0 },
+  { t:"Siapa yang membacakan teks Proklamasi Kemerdekaan?", o:["Mohammad Hatta","Ir. Soekarno","Sutan Sjahrir","Ahmad Soebardjo"], benar:1 },
+  { t:"Siapa yang menjahit bendera Sang Saka Merah Putih pertama?", o:["Cut Nyak Dien","R.A. Kartini","Fatmawati","Dewi Sartika"], benar:2 },
+  { t:"Lagu kebangsaan \"Indonesia Raya\" diciptakan oleh …", o:["Ismail Marzuki","C. Simanjuntak","Kusbini","W.R. Supratman"], benar:3 },
+  { t:"Semboyan negara Indonesia adalah …", o:["Jalesveva Jayamahe","Bhinneka Tunggal Ika","Tut Wuri Handayani","Rawe-rawe Rantas"], benar:1 },
+  { t:"Warna merah pada bendera Indonesia melambangkan …", o:["Kesucian","Keberanian","Kemakmuran","Kedamaian"], benar:1 },
+
+  // ── Beppa Barugae — Terlaris Juli 2026 & Profil (dari dokumen tim) ──
+  { t:"[BEPPA] Juara Umum #1 terlaris SEMUA kategori Beppa Barugae Juli 2026?", o:["Lemper Ayam Bakar","Nona Manis","Jalangkote Gode","Donat Kentang"], benar:1 },
+  { t:"[BEPPA] Kue ASIN paling laris peringkat 1 pada Juli 2026?", o:["Lemper Ayam Bakar","Jalangkote Gode","Risol Mayo","Gogos Ikan"], benar:0 },
+  { t:"[BEPPA] Menu SARAPAN paling laris peringkat 1 pada Juli 2026?", o:["Bubur Kacang Ijo","Rebusan","Nasi Kuning","Sandwich Gandum"], benar:2 },
+  { t:"[BEPPA] Beppa Barugae mulai dirintis pada masa …", o:["Pandemi Covid-19","Krisis moneter 1998","Setelah Lebaran","Masa penjajahan"], benar:0 },
+  { t:"[BEPPA] Visi Beppa Barugae: menghadirkan \"kue kampung yang …\"", o:["naik kelas","murah meriah","kekinian","viral"], benar:0 },
+  { t:"[BEPPA] Saat ini Beppa Barugae memiliki berapa karyawan di outlet?", o:["5 orang","2 orang","10 orang","3 orang"], benar:0 },
+  { t:"[BEPPA] Sekitar berapa jenis kue tradisional yang ditawarkan Beppa Barugae?", o:["±30 jenis","±60 jenis","±100 jenis","±20 jenis"], benar:1 },
+  { t:"[BEPPA] Akun Instagram & TikTok resmi Beppa Barugae adalah …", o:["@beppa.barugae","@beppabarugae.id","@beppamart","@barugae.beppa"], benar:0 },
+
+  // ── Beppa Barugae — Katalog harga ──
+  { t:"[BEPPA] Berikut kue MANIS seharga Rp5.000, KECUALI …", o:["Barongko","Donat Kentang","Katrisala","Pie Buah"], benar:2 },
+  { t:"[BEPPA] Berikut kue ASIN seharga Rp5.500, KECUALI …", o:["Gogos Ikan","Risoles Ayam","Jalangkote","Lemper Surabaya"], benar:1 },
+
+  // ── Beppa Barugae — Bahan & cara olah ──
+  { t:"[BEPPA] Berikut kue berbahan dasar PISANG, KECUALI …", o:["Bolu Pisang","Sanggara Balanda","Klepon","Pisang Ijo"], benar:2 },
+  { t:"[BEPPA] Kelompok kue yang SEMUANYA dibungkus daun pisang adalah …", o:["Barongko, Bandang Singkong, Katrisala","Nagasari, Klepon, Bolu Pisang","Barongko, Nagasari, Roko Unti","Cangkuning, Dadar Gulung, Donat Kentang"], benar:2 },
+  { t:"[BEPPA] Berikut kue yang DIKUKUS, KECUALI …", o:["Bolu Kukus Pelangi","Jalangkote","Barongko","Nagasari"], benar:1 },
+  { t:"[BEPPA] Berikut jajanan yang DIGORENG, KECUALI …", o:["Bakwan Udang","Risoles Ayam","Puding Cokelat","Jalangkote"], benar:2 },
+  { t:"[BEPPA] Isi paket \"Rebusan\" Beppa: ubi jalar, pisang, jagung — KECUALI …", o:["Ubi jalar","Pisang","Jagung","Singkong"], benar:3 },
+  { t:"[BEPPA] Berikut kue berbahan dasar KETAN, KECUALI …", o:["Lupis","Taripang","Lemper Ayam Bakar","Donat Kentang"], benar:3 },
+  { t:"[BEPPA] Isian khas kue Onde Wijen & Onde Ungu adalah …", o:["Cokelat","Keju","Kacang hijau","Selai nanas"], benar:2 },
+  { t:"[BEPPA] Pemanis khas minuman \"Kopi Thesis\" Beppa adalah …", o:["Gula pasir","Gula aren jawa","Madu","Sirup gula"], benar:1 },
+  { t:"[BEPPA] Supplier yang paling banyak menyuplai produk ke Beppa Barugae?", o:["Aji","Ibu Heri","Ibu Ani","Bunda Aurel"], benar:0 },
+];
+
+/* soalMain = set soal yang dipakai game. Host pakai hasil editor (localStorage);
+   pemain memuatnya dari Firebase saat gabung agar semua HP identik. */
+let soalMain = muatSoal();
+function muatSoal(){
+  try{ const s=localStorage.getItem("kuis_beppa_soal"); if(s){ const a=JSON.parse(s); if(Array.isArray(a)&&a.length) return a; } }catch(e){}
+  return JSON.parse(JSON.stringify(SOAL_DEFAULT));
+}
+function simpanSoal(arr){ localStorage.setItem("kuis_beppa_soal", JSON.stringify(arr)); soalMain=arr; }
+
+/* ═══════════════════ STATE ═══════════════════ */
+let db=null, offset=0, uid=null, PIN=null;
+let editIdx=-1;   // soal yg sedang diedit (-1 = tambah baru)
+let peran=null;                 // 'host' | 'pemain'
+let avatarPilih = AVATAR[0];
+let refInfo=null, refPemain=null, refJawab=null;
+let tHost=null, tPemain=null;   // interval timer
+let idxLokal=-1, sudahKunci=false, sudahJawab=false, pilihanku=-1;
+let faseKini='';                // status room terakhir bagi pemain
+
+/* ═══════════════════ UTIL LAYAR ═══════════════════ */
+function tampil(id){ document.querySelectorAll('.layar').forEach(s=>s.classList.remove('aktif')); document.getElementById(id).classList.add('aktif'); window.scrollTo(0,0); }
+function lokasiAwal(){ bersihkan(); tampil('lyBeranda'); }
+function el(id){ return document.getElementById(id); }
+
+function bersihkan(){
+  try{ if(refInfo)refInfo.off(); if(refPemain)refPemain.off(); if(refJawab)refJawab.off(); }catch(e){}
+  clearInterval(tHost); clearInterval(tPemain);
+  refInfo=refPemain=refJawab=null; idxLokal=-1; sudahKunci=false; sudahJawab=false;
+}
+
+/* ═══════════════════ FIREBASE INIT ═══════════════════ */
+function ambilKonfig(){
+  try{ const s=localStorage.getItem("kuis_beppa_konfig"); if(s){const k=JSON.parse(s); if(k&&k.apiKey&&k.databaseURL)return k;} }catch(e){}
+  return KONFIG_BAWAAN;
+}
+function initDB(){
+  if(db) return true;
+  try{
+    firebase.initializeApp(ambilKonfig());
+    db=firebase.database();
+    db.ref(".info/serverTimeOffset").on("value", s=> offset = s.val()||0 );
+    return true;
+  }catch(e){ alert("Gagal koneksi Firebase: "+e.message); return false; }
+}
+function waktuServer(){ return Date.now()+offset; }
+
+function simpanKonfig(){
+  const g=el('galatKonfig'); g.textContent="";
+  try{
+    const t=el('inKonfig').value; const a=t.indexOf('{'), b=t.lastIndexOf('}');
+    const k=JSON.parse(t.slice(a,b+1));
+    if(!k.apiKey||!k.databaseURL) throw new Error("apiKey / databaseURL tidak lengkap.");
+    localStorage.setItem("kuis_beppa_konfig", JSON.stringify(k));
+    g.style.color="#9cf5b4"; g.textContent="Tersimpan. Muat ulang halaman untuk menerapkan.";
+  }catch(e){ g.style.color="#ffb4b4"; g.textContent="Format salah: "+e.message; }
+}
+function resetKonfig(){ localStorage.removeItem("kuis_beppa_konfig"); el('galatKonfig').style.color="#9cf5b4"; el('galatKonfig').textContent="Kembali ke bawaan. Muat ulang halaman."; }
+
+/* ═══════════════════ TIMER RING ═══════════════════ */
+const KELILING = 2*Math.PI*28;
+function setRing(idRing, frac){ const c=el(idRing); c.style.strokeDasharray=KELILING; c.style.strokeDashoffset=KELILING*(1-frac);
+  c.style.stroke = frac>.5? "var(--hijau)" : frac>.25? "var(--emas)" : "var(--merah)"; }
+
+/* ═══════════════════ HOST ═══════════════════ */
+function mulaiHost(){
+  if(!initDB()) return;
+  peran='host'; uid='host-'+Math.random().toString(36).slice(2,7);
+  buatRoom();
+}
+function buatRoom(){
+  soalMain = muatSoal();
+  PIN = String(Math.floor(100000+Math.random()*900000)); // 6 digit
+  const dasar = db.ref(JALUR+PIN);
+  Promise.all([
+    dasar.child('soal').set(soalMain),   // kirim soal agar semua HP identik
+    dasar.child('info').set({ status:'lobby', idx:-1, jml:soalMain.length, dibuat: firebase.database.ServerValue.TIMESTAMP })
+  ])
+    .then(()=>{
+      dasar.onDisconnect().remove();  // room hilang bila host tutup
+      el('pinTampil').textContent = PIN;
+      pantauPemainLobby();
+      tampil('lyLobbyHost');
+    })
+    .catch(e=> alert("Gagal buat room: "+e.message));
+}
+function pantauPemainLobby(){
+  refPemain = db.ref(JALUR+PIN+'/pemain');
+  refPemain.on('value', s=>{
+    const p=s.val()||{}; const arr=Object.values(p);
+    el('jmlPemain').textContent = arr.length;
+    const w=el('daftarPemain');
+    if(!arr.length){ w.innerHTML='<span class="mini" style="margin:0">Menunggu pemain…</span>'; }
+    else{ w.innerHTML = arr.map(x=>`<span class="chip"><span class="av">${x.avatar||'🙂'}</span>${escHTML(x.nama)}</span>`).join(''); }
+    const btn=el('btnMulai'); btn.disabled = arr.length<1;
+    btn.textContent = arr.length<1 ? "▶️ Mulai Kuis (min. 1 pemain)" : `▶️ Mulai Kuis (${arr.length} pemain)`;
+  });
+}
+function hostMulai(){ if(refPemain)refPemain.off(); tayangkanSoal(0); }
+
+function tayangkanSoal(idx){
+  idxLokal=idx; sudahKunci=false;
+  db.ref(JALUR+PIN+'/info').update({ status:'soal', idx:idx, mulai: firebase.database.ServerValue.TIMESTAMP });
+  const s=soalMain[idx];
+  el('hNo').textContent = `Soal ${idx+1}/${soalMain.length}`;
+  el('hSoal').textContent = s.t.replace(/^\[BEPPA\]\s*/,'⭐ ');
+  const bentuk=['▲','◆','●','■'];
+  el('hOpsi').innerHTML = s.o.map((op,i)=>`<div class="opsi o${i}" id="ho${i}"><span class="bentuk">${bentuk[i]}</span><span>${escHTML(op)}</span><span class="jml" id="hj${i}">0</span></div>`).join('');
+  el('hJawab').textContent="0 jawab"; el('hLewati').style.display='';
+  tampil('lySoalHost');
+
+  // pantau jawaban masuk (untuk hitung & auto-kunci)
+  refJawab = db.ref(JALUR+PIN+'/jawaban/'+idx);
+  refJawab.on('value', s2=>{
+    const j=s2.val()||{}; const n=Object.keys(j).length;
+    el('hJawab').textContent = n+" jawab";
+    const cnt=[0,0,0,0]; Object.values(j).forEach(x=>{ if(x.p>=0&&x.p<4)cnt[x.p]++; });
+    cnt.forEach((c,i)=>{ const e=el('hj'+i); if(e)e.textContent=c; });
+    db.ref(JALUR+PIN+'/pemain').once('value').then(ps=>{
+      const total=Object.keys(ps.val()||{}).length;
+      if(total>0 && n>=total) hostSelesaikanSoal();
+    });
+  });
+
+  // timer host
+  const mulai=waktuServer();
+  clearInterval(tHost);
+  tHost=setInterval(()=>{
+    const sisa = WAKTU - (waktuServer()-mulai)/1000;
+    const f=Math.max(0,sisa/WAKTU); setRing('hRing',f);
+    el('hDetik').textContent=Math.max(0,Math.ceil(sisa));
+    if(sisa<=0){ hostSelesaikanSoal(); }
+  },100);
+}
+
+function hostSelesaikanSoal(){
+  if(sudahKunci) return; sudahKunci=true;
+  clearInterval(tHost); if(refJawab)refJawab.off();
+  const idx=idxLokal, s=soalMain[idx];
+  el('hLewati').style.display='none';
+  el('hDetik').textContent='✓'; setRing('hRing',0);
+  document.querySelectorAll('#hOpsi .opsi').forEach((o,i)=>{ o.classList.add(i===s.benar?'benar':'pudar'); });
+
+  // hitung skor
+  Promise.all([ db.ref(JALUR+PIN+'/jawaban/'+idx).once('value'), db.ref(JALUR+PIN+'/pemain').once('value') ])
+  .then(([js,ps])=>{
+    const jaw=js.val()||{}, pem=ps.val()||{}; const upd={};
+    Object.keys(pem).forEach(u=>{
+      const a=jaw[u]; let tambah=0;
+      if(a && a.p===s.benar){ const frac=Math.min(1,Math.max(0,a.t/(WAKTU*1000))); tambah=Math.round(1000-500*frac); }
+      const skorLama=pem[u].skor||0;
+      upd['pemain/'+u+'/skor']=skorLama+tambah;
+      upd['pemain/'+u+'/tambah']=tambah;
+    });
+    upd['info/status']='hasil'; upd['info/benar']=s.benar;
+    return db.ref(JALUR+PIN).update(upd).then(()=>ps);
+  })
+  .then(()=> setTimeout(tampilkanHasilHost, 1400) );
+}
+
+function tampilkanHasilHost(){
+  db.ref(JALUR+PIN+'/pemain').once('value').then(ps=>{
+    const arr=daftarUrut(ps.val());
+    el('hPapan').innerHTML = arr.slice(0,8).map((p,i)=>barisRank(p,i)).join('') || '<p class="mini">Belum ada skor.</p>';
+    el('hLanjut').textContent = (idxLokal+1<soalMain.length) ? "Lanjut ➡️" : "Lihat Juara 🏆";
+    tampil('lyHasilHost');
+  });
+}
+function hostLanjut(){ if(idxLokal+1<soalMain.length) tayangkanSoal(idxLokal+1); else selesaiHost(); }
+
+function selesaiHost(){
+  db.ref(JALUR+PIN+'/info').update({status:'selesai'});
+  db.ref(JALUR+PIN+'/pemain').once('value').then(ps=>{
+    const arr=daftarUrut(ps.val());
+    const juara=[arr[1],arr[0],arr[2]]; const kelas=['p2','p1','p3'];
+    el('hPodium').innerHTML = juara.map((p,i)=> p? `<div class="pod ${kelas[i]}"><div class="av">${p.avatar||'🙂'}</div><div class="nm">${escHTML(p.nama)}</div><div class="sk">${p.skor||0}</div><div class="tiang">${['🥈','🥇','🥉'][i]}</div></div>` : `<div class="pod ${kelas[i]}"></div>`).join('');
+    el('hPapanAkhir').innerHTML = arr.map((p,i)=>barisRank(p,i)).join('');
+    tampil('lySelesaiHost'); konfeti();
+  });
+}
+function bubarkanRoom(){ if(PIN&&db){ db.ref(JALUR+PIN).remove(); } lokasiAwal(); }
+
+/* ═══════════════════ PEMAIN ═══════════════════ */
+function isiAvatarPilih(){
+  el('pilihAvatar').innerHTML = AVATAR.map((a,i)=>`<span class="chip" style="cursor:pointer;${i===0?'outline:3px solid var(--emas)':''}" onclick="pilihAvatar(${i},this)"><span class="av">${a}</span></span>`).join('');
+}
+function pilihAvatar(i,node){ avatarPilih=AVATAR[i]; document.querySelectorAll('#pilihAvatar .chip').forEach(c=>c.style.outline='none'); node.style.outline='3px solid var(--emas)'; }
+function isiNamaCepat(){
+  el('namaCepat').innerHTML = PESERTA.map((n,i)=>`<span class="chip" style="cursor:pointer" onclick="pakaiNama(${i},this)">${escHTML(n)}</span>`).join('');
+}
+function pakaiNama(i,node){ el('inNama').value=PESERTA[i]; document.querySelectorAll('#namaCepat .chip').forEach(c=>c.style.outline='none'); node.style.outline='3px solid var(--emas)'; }
+
+function gabung(){
+  const g=el('galatGabung'); g.textContent="";
+  const pin=el('inPin').value.trim(); const nama=el('inNama').value.trim();
+  if(pin.length<6){ g.textContent="PIN harus 6 angka."; return; }
+  if(!nama){ g.textContent="Isi nama dulu ya."; return; }
+  if(!initDB()) return;
+  db.ref(JALUR+pin+'/info').once('value').then(s=>{
+    const info=s.val();
+    if(!info){ g.textContent="Room tidak ditemukan. Cek PIN."; return; }
+    if(info.status!=='lobby'){ g.textContent="Kuis sudah dimulai. Minta host buat room baru."; return; }
+    peran='pemain'; PIN=pin; uid='p-'+Math.random().toString(36).slice(2,9);
+    db.ref(JALUR+PIN+'/soal').once('value').then(ss=>{        // muat soal dari host
+      const a=ss.val(); if(Array.isArray(a)&&a.length) soalMain=a;
+      const meRef=db.ref(JALUR+PIN+'/pemain/'+uid);
+      meRef.set({ nama:nama, avatar:avatarPilih, skor:0 });
+      meRef.onDisconnect().remove();
+      pantauSebagaiPemain();
+      tampil('lyMainPemain'); setStatusPemain('⏳','Berhasil masuk!','Menunggu host memulai…');
+    });
+  }).catch(e=> g.textContent="Gagal: "+e.message );
+}
+
+function pantauSebagaiPemain(){
+  refInfo=db.ref(JALUR+PIN+'/info');
+  refInfo.on('value', s=>{
+    const info=s.val();
+    if(!info){ alert("Room ditutup host."); lokasiAwal(); return; }
+    faseKini=info.status;
+    if(info.status==='lobby'){ mainArea(false); setStatusPemain('⏳','Menunggu host…','Bersiap ya!'); }
+    else if(info.status==='soal'){ pemainSoal(info); }
+    else if(info.status==='hasil'){ pemainHasil(info); }
+    else if(info.status==='selesai'){ pemainSelesai(); }
+  });
+}
+function mainArea(show){ el('pSoalArea').style.display=show?'':'none'; el('pTengah').style.display=show?'none':'flex'; }
+function setStatusPemain(emoji,judul,sub){ el('pEmoji').textContent=emoji; el('pStatus').textContent=judul; el('pSub').textContent=sub||''; }
+
+function pemainSoal(info){
+  if(info.idx===idxLokal && sudahJawab){ return; }         // sudah jawab soal ini
+  if(info.idx!==idxLokal){                                  // soal baru
+    idxLokal=info.idx; sudahJawab=false; pilihanku=-1;
+    const s=soalMain[info.idx];
+    el('pNo').textContent=`Soal ${info.idx+1}/${soalMain.length}`;
+    el('pSoal').textContent=s.t.replace(/^\[BEPPA\]\s*/,'⭐ ');
+    const bentuk=['▲','◆','●','■'];
+    el('pOpsi').innerHTML=s.o.map((op,i)=>`<button class="opsi o${i}" onclick="jawab(${i})"><span class="bentuk">${bentuk[i]}</span><span>${escHTML(op)}</span></button>`).join('');
+    db.ref(JALUR+PIN+'/pemain/'+uid+'/skor').once('value').then(v=> el('pSkorMini').textContent=(v.val()||0) );
+    mainArea(true);
+    // timer pemain
+    const mulaiTS = info.mulai || waktuServer();
+    clearInterval(tPemain);
+    tPemain=setInterval(()=>{
+      const sisa=WAKTU-(waktuServer()-mulaiTS)/1000; const f=Math.max(0,sisa/WAKTU);
+      setRing('pRing',f); el('pDetik').textContent=Math.max(0,Math.ceil(sisa));
+      if(sisa<=0){ clearInterval(tPemain); if(!sudahJawab){ sudahJawab=true; kunciTampilan(); } }
+    },100);
+  }
+}
+function jawab(i){
+  if(sudahJawab) return; sudahJawab=true; pilihanku=i;
+  const mulaiInfo = () => waktuServer(); // fallback
+  db.ref(JALUR+PIN+'/info/mulai').once('value').then(m=>{
+    const t = waktuServer() - (m.val()||waktuServer());
+    db.ref(JALUR+PIN+'/jawaban/'+idxLokal+'/'+uid).set({ p:i, t:Math.max(0,t) });
+  });
+  kunciTampilan();
+  setTimeout(()=>{ if(faseKini==='soal'){ mainArea(false); setStatusPemain('✅','Jawaban terkirim!','Menunggu peserta lain…'); } }, 350);
+}
+function kunciTampilan(){ document.querySelectorAll('#pOpsi .opsi').forEach((o,i)=>{ o.style.pointerEvents='none'; if(i===pilihanku)o.classList.add('pilih'); else o.classList.add('pudar'); }); clearInterval(tPemain); }
+
+function pemainHasil(info){
+  clearInterval(tPemain);
+  db.ref(JALUR+PIN+'/pemain').once('value').then(ps=>{
+    const pem=ps.val()||{}; const me=pem[uid]||{}; const arr=daftarUrut(pem);
+    const rank=arr.findIndex(x=>x.uid===uid)+1;
+    const benar = (pilihanku===info.benar);
+    const tambah = me.tambah||0;
+    mainArea(false);
+    if(sudahJawab && pilihanku>=0){
+      setStatusPemain(benar?'🎉':'😅', benar?`Benar! +${tambah}`:'Belum tepat', benar?'':'Semangat, soal berikutnya!');
+    }else{
+      setStatusPemain('⌛','Waktu habis','Coba lebih cepat di soal berikutnya!');
+    }
+    el('pSub').innerHTML += `<div style="margin-top:14px;font-size:1.5rem;font-weight:900;color:var(--emas)">Peringkat #${rank} • ${me.skor||0} poin</div>`;
+    el('pSkorMini').textContent=me.skor||0;
+  });
+}
+function pemainSelesai(){
+  clearInterval(tPemain); mainArea(false);
+  db.ref(JALUR+PIN+'/pemain').once('value').then(ps=>{
+    const arr=daftarUrut(ps.val()); const rank=arr.findIndex(x=>x.uid===uid)+1; const me=arr[rank-1]||{};
+    const juara = rank===1?'🥇 JUARA!':rank===2?'🥈 Runner-up!':rank===3?'🥉 Peringkat 3!':`Peringkat #${rank}`;
+    setStatusPemain(rank<=3?'🏆':'🇮🇩', juara, `Skor akhir kamu: ${me.skor||0} poin`);
+    if(rank<=3) konfeti();
+    el('pSub').innerHTML += `<div style="margin-top:18px"><button class="btn btn-emas" onclick="lokasiAwal()">🏠 Selesai</button></div>`;
+  });
+}
+
+/* ═══════════════════ EDITOR SOAL ═══════════════════ */
+const WARNA_OPSI = [
+  {n:"Merah",  b:"▲", c:"var(--merah)"},
+  {n:"Biru",   b:"◆", c:"#2f7ce0"},
+  {n:"Kuning", b:"●", c:"#e0a413"},
+  {n:"Hijau",  b:"■", c:"var(--hijau)"}
+];
+function bukaEditor(){ soalMain=muatSoal(); renderDaftarSoal(); tampil('lyEditor'); }
+function renderDaftarSoal(){
+  el('edInfo').textContent = `${soalMain.length} soal tersimpan. Ketuk soal untuk mengedit.`;
+  el('edDaftar').innerHTML = soalMain.map((s,i)=>{
+    const w=WARNA_OPSI[s.benar]||WARNA_OPSI[0];
+    return `<div class="kartu" style="margin-bottom:10px;padding:14px">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="font-weight:900;color:var(--emas);flex:0 0 auto">${i+1}.</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;line-height:1.35">${escHTML(s.t)}</div>
+          <div style="font-size:.82rem;color:#c9bfe6;margin-top:6px">✓ Jawaban: <b style="color:${w.c}">${w.b} ${escHTML(s.o[s.benar]||'-')}</b></div>
+        </div>
+      </div>
+      <div class="baris" style="margin-top:12px">
+        <button class="btn btn-putih" style="margin:0;padding:10px" onclick="editSoalUI(${i})">✏️ Edit</button>
+        <button class="btn btn-putih" style="margin:0;padding:10px" onclick="hapusSoalUI(${i})">🗑️ Hapus</button>
+      </div>
+    </div>`;
+  }).join('') || '<p class="mini">Belum ada soal. Ketuk “➕ Tambah Soal”.</p>';
+}
+function renderFormOpsi(opsi, benar){
+  el('fsOpsi').innerHTML = WARNA_OPSI.map((w,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <label style="margin:0;flex:0 0 auto;display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="radio" name="fsBenar" value="${i}" style="width:20px;height:20px" ${i===benar?'checked':''}>
+        <span style="color:${w.c};font-size:1.2rem">${w.b}</span>
+      </label>
+      <input id="fsOp${i}" style="flex:1" maxlength="60" placeholder="Pilihan ${w.n}" value="${escAttr(opsi[i]||'')}">
+    </div>`).join('');
+}
+function formSoalBaru(){ editIdx=-1; el('fsJudul').textContent="Tambah Soal"; el('fsTeks').value=""; el('fsGalat').textContent=""; renderFormOpsi(["","","",""],0); tampil('lyFormSoal'); }
+function editSoalUI(i){ editIdx=i; const s=soalMain[i]; el('fsJudul').textContent=`Edit Soal ${i+1}`; el('fsTeks').value=s.t; el('fsGalat').textContent=""; renderFormOpsi(s.o, s.benar); tampil('lyFormSoal'); }
+function hapusSoalUI(i){ if(!confirm(`Hapus soal ${i+1}?\n\n"${soalMain[i].t}"`)) return; soalMain.splice(i,1); simpanSoal(soalMain); renderDaftarSoal(); }
+function simpanFormSoal(){
+  const g=el('fsGalat'); g.textContent="";
+  const t=el('fsTeks').value.trim();
+  const o=[0,1,2,3].map(i=>el('fsOp'+i).value.trim());
+  const rb=document.querySelector('input[name="fsBenar"]:checked');
+  if(!t){ g.textContent="Pertanyaan belum diisi."; return; }
+  if(o.some(x=>!x)){ g.textContent="Keempat pilihan jawaban harus diisi."; return; }
+  if(!rb){ g.textContent="Tandai dulu jawaban yang benar."; return; }
+  const obj={ t:t, o:o, benar:parseInt(rb.value,10) };
+  if(editIdx>=0) soalMain[editIdx]=obj; else soalMain.push(obj);
+  simpanSoal(soalMain); bukaEditor();
+}
+function kembalikanSoalDefault(){
+  if(!confirm("Ganti semua soal dengan 15 soal bawaan? Soal buatan Anda akan hilang.")) return;
+  localStorage.removeItem("kuis_beppa_soal"); soalMain=muatSoal(); renderDaftarSoal();
+}
+function escAttr(s){ return escHTML(s).replace(/"/g,'&quot;'); }
+
+/* ═══════════════════ HELPER ═══════════════════ */
+function daftarUrut(obj){ return Object.entries(obj||{}).map(([u,v])=>({uid:u,...v})).sort((a,b)=>(b.skor||0)-(a.skor||0)); }
+function barisRank(p,i){ const cls=i===0?'top1':i===1?'top2':i===2?'top3':''; const medal=['🥇','🥈','🥉'][i]||(i+1);
+  return `<div class="rank ${cls}"><span class="no">${medal}</span><span class="av">${p.avatar||'🙂'}</span><span class="nm">${escHTML(p.nama)}</span><span class="sk">${p.skor||0}</span></div>`; }
+function escHTML(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function konfeti(){ const em=['🎉','🎊','🇮🇩','⭐','🏆','❤️','🤍']; for(let i=0;i<50;i++){ const d=document.createElement('div'); d.className='konfeti'; d.textContent=em[i%em.length]; d.style.left=Math.random()*100+'vw'; d.style.animationDuration=(2+Math.random()*2.5)+'s'; d.style.animationDelay=(Math.random()*.6)+'s'; document.body.appendChild(d); setTimeout(()=>d.remove(),5000);} }
+
+/* init avatar picker + nama cepat */
+isiAvatarPilih();
+isiNamaCepat();
+/* PIN hanya angka */
+el('inPin').addEventListener('input', e=>{ e.target.value=e.target.value.replace(/\D/g,''); });
+</script>
