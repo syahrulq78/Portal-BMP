@@ -492,7 +492,7 @@ function hostSelesaikanSoal(){
 function tampilkanHasilHost(){
   db.ref(JALUR+PIN+'/pemain').once('value').then(ps=>{
     const arr=daftarUrut(ps.val());
-    el('hPapan').innerHTML = arr.slice(0,8).map((p,i)=>barisRank(p,i)).join('') || '<p class="mini">Belum ada skor.</p>';
+    el('hPapan').innerHTML = arr.map((p,i)=>barisRank(p,i)).join('') || '<p class="mini">Belum ada skor.</p>';
     el('hLanjut').textContent = (idxLokal+1<soalMain.length) ? "Lanjut ➡️" : "Lihat Juara 🏆";
     tampil('lyHasilHost');
   });
