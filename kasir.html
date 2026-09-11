@@ -170,6 +170,26 @@ tbody tr:hover{background:var(--bg-main)}
 .filter-row{display:flex;gap:.7rem;flex-wrap:wrap;align-items:flex-end}
 .filter-row .field{margin:0;min-width:140px}
 
+/* Photo scan */
+.btn-scan{background:var(--accent);color:var(--primary-dark)}.btn-scan:hover{background:var(--accent-light)}
+.prod .thumb img{width:100%;height:100%;object-fit:cover;border-radius:9px}
+.cam-wrap{position:relative;background:#000;border-radius:12px;overflow:hidden;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}
+.cam-wrap video{width:100%;height:100%;object-fit:cover}
+.cam-hint{position:absolute;bottom:.6rem;left:0;right:0;text-align:center;color:#fff;font-size:.78rem;text-shadow:0 1px 3px #000;pointer-events:none;padding:0 .5rem}
+.cand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.7rem;margin-top:.7rem}
+.cand{border:1px solid var(--border);border-radius:11px;padding:.6rem;cursor:pointer;transition:.15s;text-align:center}
+.cand:hover{border-color:var(--accent);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.cand .ct{height:64px;border-radius:8px;overflow:hidden;background:var(--bg-main);display:grid;place-items:center;font-size:1.8rem;margin-bottom:.4rem}
+.cand .ct img{width:100%;height:100%;object-fit:cover}
+.cand .cn{font-weight:700;font-size:.8rem;line-height:1.2;margin-bottom:.15rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:1.9em}
+.cand .cp{color:var(--primary);font-weight:800;font-size:.82rem}
+.cand .cs{font-size:.7rem;font-weight:700;margin-top:.25rem}
+.photo-box{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px dashed var(--border)}
+.photo-prev{width:84px;height:84px;border-radius:12px;background:var(--bg-main);border:1px solid var(--border);display:grid;place-items:center;font-size:2rem;overflow:hidden;flex-shrink:0}
+.photo-prev img{width:100%;height:100%;object-fit:cover}
+.model-status{font-size:.78rem;color:var(--text-secondary);display:flex;align-items:center;gap:.5rem;margin-top:.6rem}
+.spinner{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:960px){.pos{grid-template-columns:1fr}.cart{position:static;max-height:none}}
 @media(max-width:840px){
   .sidebar{transform:translateX(-100%)}.sidebar.open{transform:none}
@@ -218,8 +238,8 @@ tbody tr:hover{background:var(--bg-main)}
         <div class="pos">
           <div>
             <div class="pos-tools">
-              <div class="search"><span class="si">🔍</span><input id="posSearch" placeholder="Cari produk atau scan barcode/SKU..."></div>
-              <button class="btn btn-ghost" id="btnScanFocus">⌨️ Fokus Scan</button>
+              <div class="search"><span class="si">🔍</span><input id="posSearch" placeholder="Cari produk / ketik SKU + Enter..."></div>
+              <button class="btn btn-scan" id="btnScanPhoto">📷 Scan Foto</button>
             </div>
             <div class="cat-chips" id="catChips"></div>
             <div class="prod-grid" id="prodGrid"></div>
@@ -337,6 +357,8 @@ tbody tr:hover{background:var(--bg-main)}
               <button class="btn btn-ghost btn-block" id="btnExportData" style="margin-bottom:.7rem">⬇️ Backup Data (JSON)</button>
               <button class="btn btn-ghost btn-block" id="btnImportData" style="margin-bottom:.7rem">⬆️ Restore Data</button>
               <input type="file" id="importFile" accept=".json" hidden>
+              <button class="btn btn-ghost btn-block" id="btnImportProducts" style="margin-bottom:.7rem">📥 Impor Produk (CSV/Excel)</button>
+              <input type="file" id="prodImportFile" accept=".csv,.xlsx,.xls" hidden>
               <button class="btn btn-ghost btn-block" id="btnSeed" style="margin-bottom:.7rem">🌱 Isi Contoh Produk</button>
               <button class="btn btn-danger btn-block" id="btnReset">🗑️ Hapus Semua Data</button>
             </div>
@@ -353,6 +375,19 @@ tbody tr:hover{background:var(--bg-main)}
   <div class="modal">
     <div class="modal-h"><h3 id="pmTitle">Tambah Produk</h3><button class="modal-x" data-close>×</button></div>
     <div class="modal-b">
+      <div class="photo-box">
+        <div class="photo-prev" id="pmPhotoPrev">📦</div>
+        <div style="flex:1;min-width:0">
+          <label>Foto Produk <span style="font-weight:500;color:var(--text-muted)">(untuk scan tanpa barcode)</span></label>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+            <button type="button" class="btn btn-ghost btn-sm" id="pmCamBtn">📷 Kamera</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="pmUploadBtn">🖼️ Unggah</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="pmDelPhoto">🗑️ Hapus</button>
+          </div>
+          <div class="model-status" id="pmModelStatus" hidden></div>
+        </div>
+      </div>
+      <input type="file" id="pmPhotoFile" accept="image/*" hidden>
       <div class="field"><label>Nama Produk *</label><input id="pmName"></div>
       <div class="grid2">
         <div class="field"><label>Kategori</label><select id="pmCat"></select></div>
@@ -397,6 +432,29 @@ tbody tr:hover{background:var(--bg-main)}
     <div class="modal-h"><h3>Struk Transaksi</h3><button class="modal-x" data-close>×</button></div>
     <div class="modal-b"><div id="printArea"><div class="receipt" id="receiptBody"></div></div></div>
     <div class="modal-f"><button class="btn btn-ghost" data-close>Tutup</button><button class="btn btn-primary" id="btnPrint">🖨️ Cetak</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalCam">
+  <div class="modal">
+    <div class="modal-h"><h3>📷 Ambil Foto Produk</h3><button class="modal-x" data-close>×</button></div>
+    <div class="modal-b">
+      <div class="cam-wrap"><video id="camVideo" autoplay playsinline muted></video><div class="cam-hint">Posisikan produk memenuhi layar, lalu Ambil Foto</div></div>
+      <div class="model-status" id="camStatus" hidden></div>
+    </div>
+    <div class="modal-f"><button class="btn btn-ghost" data-close>Batal</button><button class="btn btn-primary" id="camShot">📸 Ambil Foto</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalScan">
+  <div class="modal wide">
+    <div class="modal-h"><h3>📷 Scan Produk dengan Foto</h3><button class="modal-x" data-close>×</button></div>
+    <div class="modal-b">
+      <div class="cam-wrap"><video id="scanVideo" autoplay playsinline muted></video><div class="cam-hint">Arahkan kamera ke produk, lalu tekan “Cari Produk”</div></div>
+      <div class="model-status" id="scanStatus" hidden></div>
+      <div id="scanResults"></div>
+    </div>
+    <div class="modal-f"><button class="btn btn-ghost" data-close>Tutup</button><button class="btn btn-primary" id="scanShot">🔍 Cari Produk</button></div>
   </div>
 </div>
 
@@ -473,9 +531,10 @@ function renderPosProducts(){
   if(!list.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="e-ic">📦</div><p>Belum ada produk. Tambahkan lewat menu Produk.</p></div>';return;}
   grid.innerHTML=list.map(p=>{
     const out=p.stock<=0;
+    const th=IMG[p.id]&&IMG[p.id].thumb?'<img src="'+IMG[p.id].thumb+'">':(p.icon||'📦');
     return '<div class="prod'+(out?' out':'')+'" data-id="'+p.id+'">'+
       (out?'<span class="out-tag">Habis</span>':'')+
-      '<div class="thumb">'+(p.icon||'📦')+'</div>'+
+      '<div class="thumb">'+th+'</div>'+
       '<div class="nm">'+esc(p.name)+'</div>'+
       '<div class="pr">'+rp(p.price)+'</div>'+
       '<div class="st">Stok: '+p.stock+'</div></div>';
@@ -535,7 +594,6 @@ $('#posSearch').addEventListener('keydown',e=>{
   if(e.key==='Enter'){const q=posSearchTerm.trim().toLowerCase();const p=DB.products.find(x=>(x.sku||'').toLowerCase()===q);
     if(p){addToCart(p.id);e.target.value='';posSearchTerm='';renderPosProducts();}}
 });
-$('#btnScanFocus').onclick=()=>$('#posSearch').focus();
 
 /* ============ Checkout / Payment ============ */
 $('#btnCheckout').onclick=()=>{
@@ -621,7 +679,8 @@ function renderProducts(){
   if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="e-ic">📦</div><p>Belum ada produk.</p></div></td></tr>';return;}
   tb.innerHTML=list.map(p=>{
     const badge=p.stock<=0?'<span class="badge badge-red">Habis</span>':p.stock<=5?'<span class="badge badge-amber">'+p.stock+'</span>':'<span class="badge badge-green">'+p.stock+'</span>';
-    return '<tr><td><b>'+(p.icon||'📦')+' '+esc(p.name)+'</b></td><td>'+esc(catName(p.categoryId))+'</td><td>'+esc(p.sku||'-')+'</td><td>'+rp(p.cost)+'</td><td>'+rp(p.price)+'</td><td>'+badge+'</td>'+
+    const ic=IMG[p.id]&&IMG[p.id].thumb?'<img src="'+IMG[p.id].thumb+'" style="width:26px;height:26px;border-radius:6px;object-fit:cover;vertical-align:middle;margin-right:.4rem">':(p.icon||'📦')+' ';
+    return '<tr><td><b>'+ic+esc(p.name)+'</b></td><td>'+esc(catName(p.categoryId))+'</td><td>'+esc(p.sku||'-')+'</td><td>'+rp(p.cost)+'</td><td>'+rp(p.price)+'</td><td>'+badge+'</td>'+
       '<td><button class="btn btn-ghost btn-sm" data-edit="'+p.id+'">✏️</button> <button class="btn btn-ghost btn-sm" data-del="'+p.id+'">🗑️</button></td></tr>';
   }).join('');
   tb.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openProductModal(b.dataset.edit));
@@ -631,34 +690,41 @@ $('#prodFilter').oninput=renderProducts;
 $('#btnAddProduct').onclick=()=>openProductModal();
 function fillCatSelect(sel,val){sel.innerHTML=DB.categories.map(c=>'<option value="'+c.id+'"'+(c.id===val?' selected':'')+'>'+esc(c.name)+'</option>').join('');}
 function openProductModal(id){
-  editProdId=id||null;
+  editProdId=id||null;pendingPhoto=null;
   fillCatSelect($('#pmCat'));
+  setStatus($('#pmModelStatus'),'',false);
   if(id){
     const p=DB.products.find(x=>x.id===id);
     $('#pmTitle').textContent='Edit Produk';
     $('#pmName').value=p.name;$('#pmCat').value=p.categoryId;$('#pmSku').value=p.sku||'';
     $('#pmCost').value=p.cost||0;$('#pmPrice').value=p.price;$('#pmStock').value=p.stock;$('#pmIcon').value=p.icon||'';
+    $('#pmPhotoPrev').innerHTML=IMG[id]&&IMG[id].thumb?'<img src="'+IMG[id].thumb+'">':(p.icon||'📦');
   }else{
     $('#pmTitle').textContent='Tambah Produk';
     ['#pmName','#pmSku','#pmIcon'].forEach(s=>$(s).value='');
     $('#pmCost').value=0;$('#pmPrice').value=0;$('#pmStock').value=0;
+    $('#pmPhotoPrev').textContent='📦';
     if(DB.categories[0])$('#pmCat').value=DB.categories[0].id;
   }
   openModal('modalProduct');setTimeout(()=>$('#pmName').focus(),100);
 }
-$('#pmSave').onclick=()=>{
+$('#pmSave').onclick=async()=>{
   const name=$('#pmName').value.trim();const price=parseFloat($('#pmPrice').value)||0;
   if(!name){toast('Nama produk wajib diisi','warn');return;}
   if(price<=0){toast('Harga jual harus lebih dari 0','warn');return;}
   const data={name,categoryId:$('#pmCat').value,sku:$('#pmSku').value.trim(),cost:parseFloat($('#pmCost').value)||0,price,stock:parseInt($('#pmStock').value)||0,icon:$('#pmIcon').value.trim()};
-  if(editProdId){Object.assign(DB.products.find(x=>x.id===editProdId),data);}
-  else{DB.products.push({id:uid('p'),...data});}
+  let prod;
+  if(editProdId){prod=DB.products.find(x=>x.id===editProdId);Object.assign(prod,data);}
+  else{prod={id:uid('p'),...data};DB.products.push(prod);}
+  // handle photo
+  if(pendingPhoto==='DELETE'){try{await idbDel(prod.id);}catch(e){}delete IMG[prod.id];prod.hasPhoto=false;}
+  else if(pendingPhoto&&pendingPhoto.emb){try{await idbSet(prod.id,{emb:pendingPhoto.emb,thumb:pendingPhoto.thumb});IMG[prod.id]={emb:pendingPhoto.emb,thumb:pendingPhoto.thumb};prod.hasPhoto=true;}catch(e){toast('Foto gagal disimpan (penyimpanan penuh)','err');}}
   save();closeModal('modalProduct');renderProducts();renderCatChips();renderPosProducts();
   toast('Produk disimpan','ok');
 };
 function delProduct(id){
   const p=DB.products.find(x=>x.id===id);
-  if(confirm('Hapus produk "'+p.name+'"?')){DB.products=DB.products.filter(x=>x.id!==id);save();renderProducts();renderPosProducts();renderCatChips();toast('Produk dihapus','ok');}
+  if(confirm('Hapus produk "'+p.name+'"?')){DB.products=DB.products.filter(x=>x.id!==id);try{idbDel(id);}catch(e){}delete IMG[id];save();renderProducts();renderPosProducts();renderCatChips();toast('Produk dihapus','ok');}
 }
 
 /* ============ Categories ============ */
@@ -794,12 +860,22 @@ $('#btnSaveSettings').onclick=()=>{
     cashier:$('#setCashier').value.trim()||'Kasir',tax:parseFloat($('#setTax').value)||0,footer:$('#setFooter').value.trim()};
   save();$('#brandName').textContent=DB.settings.name;renderCart();toast('Pengaturan disimpan','ok');
 };
-$('#btnExportData').onclick=()=>{downloadFile('backup-kasir-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(DB,null,2),'application/json');toast('Backup diunduh','ok');};
+$('#btnExportData').onclick=async()=>{
+  const imgs={};
+  try{const all=await idbAll();Object.keys(all).forEach(k=>{imgs[k]={emb:Array.from(all[k].emb||[]),thumb:all[k].thumb};});}catch(e){}
+  const out={...DB,_images:imgs};
+  downloadFile('backup-kasir-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(out),'application/json');
+  toast('Backup diunduh (termasuk foto produk)','ok');
+};
 $('#btnImportData').onclick=()=>$('#importFile').click();
 $('#importFile').onchange=e=>{
   const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.products||!d.settings)throw 0;
-    if(confirm('Restore data akan menimpa data saat ini. Lanjutkan?')){DB=d;save();initApp();toast('Data berhasil dipulihkan','ok');}
+  r.onload=async()=>{try{const d=JSON.parse(r.result);if(!d.products||!d.settings)throw 0;
+    if(confirm('Restore data akan menimpa data saat ini. Lanjutkan?')){
+      const imgs=d._images||{};delete d._images;DB=d;save();
+      try{await idbClear();IMG={};for(const k in imgs){const v={emb:new Float32Array(imgs[k].emb||[]),thumb:imgs[k].thumb};await idbSet(k,v);IMG[k]=v;}}catch(err){}
+      await initApp();toast('Data berhasil dipulihkan','ok');
+    }
   }catch(err){toast('File backup tidak valid','err');}};
   r.readAsText(f);e.target.value='';
 };
@@ -819,7 +895,7 @@ $('#btnSeed').onclick=()=>{
 };
 $('#btnReset').onclick=()=>{
   if(confirm('HAPUS SEMUA DATA (produk, transaksi, pengaturan)? Tindakan ini tidak bisa dibatalkan.')){
-    if(confirm('Yakin? Sebaiknya backup dulu.')){DB=defaultData();save();initApp();toast('Semua data dihapus','ok');}
+    if(confirm('Yakin? Sebaiknya backup dulu.')){DB=defaultData();save();try{idbClear();}catch(e){}IMG={};initApp();toast('Semua data dihapus','ok');}
   }
 };
 
@@ -831,13 +907,169 @@ function downloadFile(name,content,type){
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},100);
 }
 function openModal(id){$('#'+id).classList.add('show');}
-function closeModal(id){$('#'+id).classList.remove('show');}
-$$('.modal-bg').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m||e.target.hasAttribute('data-close'))m.classList.remove('show');});});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')$$('.modal-bg.show').forEach(m=>m.classList.remove('show'));});
+function closeModal(id){$('#'+id).classList.remove('show');if(id==='modalCam'||id==='modalScan')stopCam();}
+$$('.modal-bg').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m||e.target.hasAttribute('data-close')){m.classList.remove('show');if(m.id==='modalCam'||m.id==='modalScan')stopCam();}});});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$$('.modal-bg.show').forEach(m=>{m.classList.remove('show');if(m.id==='modalCam'||m.id==='modalScan')stopCam();});});
+
+/* ============ Vision: Scan Produk dengan Foto ============ */
+let IMG={};                 // {productId:{emb:Float32Array, thumb:dataURL}}
+let camStream=null;         // MediaStream aktif
+let pendingPhoto=null;      // 'DELETE' | {emb,thumb} | null — foto yang menunggu disimpan di form produk
+
+function setStatus(el,msg,busy){if(!el)return;el.hidden=!msg;el.innerHTML=(busy?'<span class="spinner"></span>':'')+(msg?esc(msg):'');}
+
+/* --- IndexedDB (foto & embedding disimpan terpisah agar tidak membebani localStorage) --- */
+let _idb=null;
+function idb(){return _idb?Promise.resolve(_idb):new Promise((res,rej)=>{const r=indexedDB.open('kasir_img',1);r.onupgradeneeded=()=>r.result.createObjectStore('img');r.onsuccess=()=>{_idb=r.result;res(_idb);};r.onerror=()=>rej(r.error);});}
+async function idbSet(k,v){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('img','readwrite');t.objectStore('img').put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error);});}
+async function idbDel(k){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('img','readwrite');t.objectStore('img').delete(k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error);});}
+async function idbClear(){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('img','readwrite');t.objectStore('img').clear();t.oncomplete=()=>res();t.onerror=()=>rej(t.error);});}
+async function idbAll(){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('img','readonly');const out={};const rq=t.objectStore('img').openCursor();rq.onsuccess=e=>{const c=e.target.result;if(c){out[c.key]=c.value;c.continue();}else res(out);};rq.onerror=()=>rej(rq.error);});}
+
+/* --- Model AI (MobileNet lewat TensorFlow.js), dimuat sekali saat pertama dipakai --- */
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>rej(new Error('Gagal memuat pustaka AI. Perlu koneksi internet saat pertama kali.'));document.head.appendChild(s);});}
+let _modelP=null;
+function ensureModel(statusEl){
+  if(_modelP)return _modelP;
+  _modelP=(async()=>{
+    setStatus(statusEl,'Memuat model AI (sekali saja)...',true);
+    if(!window.tf)await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js');
+    if(!window.mobilenet)await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js');
+    const m=await window.mobilenet.load({version:2,alpha:1.0});
+    setStatus(statusEl,'',false);
+    return m;
+  })();
+  _modelP.catch(()=>{_modelP=null;});
+  return _modelP;
+}
+function squareCanvas(el,size){
+  const c=document.createElement('canvas');c.width=size;c.height=size;const ctx=c.getContext('2d');
+  const w=el.videoWidth||el.naturalWidth||el.width,h=el.videoHeight||el.naturalHeight||el.height;
+  const m=Math.min(w,h);ctx.drawImage(el,(w-m)/2,(h-m)/2,m,m,0,0,size,size);return c;
+}
+async function embed(model,el){
+  const logits=model.infer(el,true);
+  const raw=await logits.data();logits.dispose();
+  let s=0;for(let i=0;i<raw.length;i++)s+=raw[i]*raw[i];s=Math.sqrt(s)||1;
+  const out=new Float32Array(raw.length);for(let i=0;i<raw.length;i++)out[i]=raw[i]/s;
+  return out;
+}
+function cosine(a,b){let s=0;const n=Math.min(a.length,b.length);for(let i=0;i<n;i++)s+=a[i]*b[i];return s;}
+
+/* --- Kamera --- */
+async function openCam(target){ // target: 'product' | 'scan'
+  const scan=target==='scan';
+  const vid=scan?$('#scanVideo'):$('#camVideo');
+  const modal=scan?'modalScan':'modalCam';
+  if(scan){$('#scanResults').innerHTML='';setStatus($('#scanStatus'),'',false);}
+  openModal(modal);
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+    vid.srcObject=camStream;
+  }catch(e){toast('Tidak bisa mengakses kamera. Izinkan kamera, atau pakai tombol Unggah.','err');closeModal(modal);}
+}
+function stopCam(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}}
+
+/* --- Set foto pada form produk --- */
+async function setProductPhotoFromEl(el){
+  const st=$('#pmModelStatus');
+  try{
+    const model=await ensureModel(st);
+    setStatus(st,'Memproses foto...',true);
+    const emb=await embed(model,squareCanvas(el,224));
+    const thumb=squareCanvas(el,112).toDataURL('image/jpeg',0.7);
+    pendingPhoto={emb,thumb};
+    $('#pmPhotoPrev').innerHTML='<img src="'+thumb+'">';
+    setStatus(st,'✓ Foto siap. Klik Simpan untuk menyimpan.',false);
+  }catch(e){setStatus(st,e.message||'Gagal memproses foto',false);toast(e.message||'Gagal memproses foto','err');}
+}
+$('#pmCamBtn').onclick=()=>openCam('product');
+$('#pmUploadBtn').onclick=()=>$('#pmPhotoFile').click();
+$('#pmPhotoFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const img=new Image();img.onload=()=>setProductPhotoFromEl(img);img.onerror=()=>toast('Gambar tidak valid','err');img.src=URL.createObjectURL(f);e.target.value='';};
+$('#pmDelPhoto').onclick=()=>{pendingPhoto='DELETE';$('#pmPhotoPrev').textContent='📦';setStatus($('#pmModelStatus'),'Foto akan dihapus saat disimpan.',false);};
+$('#camShot').onclick=async()=>{const vid=$('#camVideo');if(!vid.videoWidth){toast('Kamera belum siap','warn');return;}await setProductPhotoFromEl(vid);stopCam();closeModal('modalCam');};
+
+/* --- Scan di kasir --- */
+$('#btnScanPhoto').onclick=()=>{
+  const withPhoto=DB.products.filter(p=>IMG[p.id]&&IMG[p.id].emb).length;
+  if(!withPhoto){toast('Belum ada produk berfoto. Tambahkan foto produk lebih dulu.','warn');nav('products');return;}
+  openCam('scan');
+};
+$('#scanShot').onclick=async()=>{
+  const vid=$('#scanVideo');if(!vid.videoWidth){toast('Kamera belum siap','warn');return;}
+  const st=$('#scanStatus');
+  try{
+    const model=await ensureModel(st);
+    setStatus(st,'Mengenali produk...',true);
+    const q=await embed(model,squareCanvas(vid,224));
+    setStatus(st,'',false);
+    const scored=DB.products.filter(p=>IMG[p.id]&&IMG[p.id].emb)
+      .map(p=>({p,sim:cosine(q,IMG[p.id].emb)})).sort((a,b)=>b.sim-a.sim).slice(0,6);
+    renderCandidates(scored);
+  }catch(e){setStatus(st,e.message||'Gagal',false);toast(e.message||'Gagal mengenali produk','err');}
+};
+function renderCandidates(list){
+  const box=$('#scanResults');
+  if(!list.length){box.innerHTML='<p style="color:var(--text-muted);margin-top:1rem">Tidak ada produk yang cocok.</p>';return;}
+  box.innerHTML='<div style="font-weight:700;margin-top:.8rem;font-size:.9rem">Produk paling mirip — ketuk untuk tambah ke keranjang:</div><div class="cand-grid">'+
+    list.map(({p,sim})=>{
+      const pct=Math.round(sim*100);const col=pct>=75?'badge-green':pct>=55?'badge-amber':'badge-gray';
+      const th=IMG[p.id]&&IMG[p.id].thumb?'<img src="'+IMG[p.id].thumb+'">':(p.icon||'📦');
+      return '<div class="cand" data-id="'+p.id+'"><div class="ct">'+th+'</div><div class="cn">'+esc(p.name)+'</div><div class="cp">'+rp(p.price)+'</div><span class="cs badge '+col+'">'+pct+'% mirip</span></div>';
+    }).join('')+'</div>';
+  box.querySelectorAll('.cand').forEach(c=>c.onclick=()=>{addToCart(c.dataset.id);const p=DB.products.find(x=>x.id===c.dataset.id);toast((p?p.name:'Produk')+' ditambahkan','ok');});
+}
+
+/* ============ Impor Produk (CSV / Excel) ============ */
+let _xlsxP=null;
+function ensureXLSX(){if(_xlsxP)return _xlsxP;_xlsxP=loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');_xlsxP.catch(()=>{_xlsxP=null;});return _xlsxP;}
+$('#btnImportProducts').onclick=()=>$('#prodImportFile').click();
+$('#prodImportFile').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;e.target.value='';
+  try{
+    let rows;
+    if(/\.(xlsx|xls)$/i.test(f.name)){await ensureXLSX();const buf=await f.arrayBuffer();const wb=XLSX.read(buf,{type:'array'});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});}
+    else{const txt=await f.text();rows=parseCSV(txt);}
+    importProductRows(rows);
+  }catch(err){toast(err.message||'Gagal mengimpor file','err');}
+};
+function parseCSV(txt){
+  txt=txt.replace(/\r\n?/g,'\n').replace(/^﻿/,'');
+  const lines=txt.split('\n').filter(l=>l.trim()!=='');if(!lines.length)return [];
+  const delim=((lines[0].match(/;/g)||[]).length>(lines[0].match(/,/g)||[]).length)?';':',';
+  const parseLine=l=>{const out=[];let cur='',q=false;for(let i=0;i<l.length;i++){const c=l[i];if(q){if(c==='"'){if(l[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}else{if(c==='"')q=true;else if(c===delim){out.push(cur);cur='';}else cur+=c;}}out.push(cur);return out;};
+  const headers=parseLine(lines[0]).map(h=>h.trim());
+  return lines.slice(1).map(l=>{const cells=parseLine(l);const o={};headers.forEach((h,i)=>o[h]=(cells[i]||'').trim());return o;});
+}
+function pickField(row,re){const k=Object.keys(row).find(k=>re.test(k.toLowerCase().trim()));return k!==undefined?row[k]:'';}
+function toNum(v){if(typeof v==='number')return v;const s=String(v).replace(/[^0-9-]/g,'');const n=parseInt(s,10);return isNaN(n)?0:n;}
+function importProductRows(rows){
+  if(!rows||!rows.length){toast('File kosong atau format tidak dikenali','warn');return;}
+  let added=0,updated=0;
+  rows.forEach(row=>{
+    const name=String(pickField(row,/nama.*produk|produk|nama|barang|item|name/)).trim();
+    if(!name)return;
+    const price=toNum(pickField(row,/harga.*jual|jual|price|harga/));
+    const cost=toNum(pickField(row,/modal|beli|cost|hpp|pokok/));
+    const stock=toNum(pickField(row,/stok|stock|qty|kuantitas|jumlah|persediaan/));
+    const sku=String(pickField(row,/sku|barcode|kode|plu/)).trim();
+    const catn=String(pickField(row,/kategori|category|jenis|golongan/)).trim();
+    let catId=DB.categories[0]?DB.categories[0].id:'c1';
+    if(catn){let c=DB.categories.find(x=>x.name.toLowerCase()===catn.toLowerCase());if(!c){c={id:uid('c'),name:catn};DB.categories.push(c);}catId=c.id;}
+    let ex=null;
+    if(sku)ex=DB.products.find(p=>(p.sku||'').toLowerCase()===sku.toLowerCase());
+    if(!ex)ex=DB.products.find(p=>p.name.toLowerCase()===name.toLowerCase());
+    if(ex){if(price)ex.price=price;if(cost)ex.cost=cost;ex.stock=stock;if(sku)ex.sku=sku;ex.categoryId=catId;updated++;}
+    else{DB.products.push({id:uid('p'),name,categoryId:catId,sku,cost,price,stock,icon:''});added++;}
+  });
+  save();renderProducts();renderCatChips();renderPosProducts();
+  toast(added+' produk ditambah, '+updated+' diperbarui','ok');
+}
 
 /* ============ Init ============ */
-function initApp(){
+async function initApp(){
   $('#brandName').textContent=DB.settings.name||'Kasir Toko';
+  try{IMG=await idbAll()||{};}catch(e){IMG={};}
   renderCatChips();renderPosProducts();renderCart();
 }
 initApp();
