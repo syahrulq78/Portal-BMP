@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Voice Over — Portal BMP</title>
+<style>
+  :root {
+    --bg: #0f172a; --card: #1e293b; --card2: #273449; --line: #334155;
+    --text: #e2e8f0; --muted: #94a3b8; --brand: #16a34a; --brand-2: #22c55e;
+    --danger: #ef4444; --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.5;
+  }
+  header {
+    padding: 22px 16px; text-align: center;
+    background: linear-gradient(135deg, #14532d, #166534);
+    border-bottom: 1px solid var(--line);
+  }
+  header h1 { margin: 0; font-size: 1.4rem; }
+  header p { margin: 6px 0 0; color: #d1fae5; font-size: .9rem; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px; margin-bottom: 16px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 1.05rem; }
+  .card .hint { color: var(--muted); font-size: .85rem; margin: 0 0 14px; }
+  label { display: block; font-size: .85rem; color: var(--muted); margin: 12px 0 4px; }
+  input[type=text], textarea, select {
+    width: 100%; background: var(--card2); border: 1px solid var(--line);
+    color: var(--text); border-radius: 10px; padding: 10px 12px; font-size: .95rem;
+    font-family: inherit;
+  }
+  textarea { min-height: 150px; resize: vertical; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > * { flex: 1; min-width: 140px; }
+  button {
+    cursor: pointer; border: none; border-radius: 10px; padding: 11px 16px;
+    font-size: .92rem; font-weight: 600; color: #fff; background: var(--brand);
+    transition: filter .15s;
+  }
+  button:hover:not(:disabled) { filter: brightness(1.1); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.secondary { background: var(--card2); border: 1px solid var(--line); }
+  button.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 6px 10px; font-size: .8rem; }
+  button.rec { background: var(--danger); }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .voice-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+  .voice-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    background: var(--card2); border: 1px solid var(--line); border-radius: 10px;
+  }
+  .voice-item.active { border-color: var(--brand-2); box-shadow: 0 0 0 1px var(--brand-2); }
+  .voice-item .name { flex: 1; font-weight: 600; font-size: .9rem; }
+  .voice-item .pick { font-size: .8rem; }
+  .status { font-size: .85rem; padding: 10px 12px; border-radius: 10px; margin-top: 12px; display: none; }
+  .status.show { display: block; }
+  .status.info { background: #1e3a5f; color: #bfdbfe; }
+  .status.err { background: #4c1d1d; color: #fecaca; }
+  .status.ok { background: #14532d; color: #bbf7d0; }
+  audio { width: 100%; margin-top: 12px; }
+  .settings-toggle { font-size: .8rem; color: var(--muted); cursor: pointer; text-decoration: underline; }
+  .config-box { display: none; }
+  .config-box.show { display: block; }
+  .badge { display: inline-block; font-size: .72rem; background: var(--card2); border: 1px solid var(--line); padding: 2px 8px; border-radius: 999px; color: var(--muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: var(--muted); margin-right: 5px; }
+  .dot.on { background: var(--brand-2); }
+  .dot.off { background: var(--danger); }
+  small.note { color: var(--muted); display: block; margin-top: 8px; font-size: .8rem; }
+  .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff5; border-top-color: #fff; border-radius: 50%; animation: sp .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes sp { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎙️ Voice Over Studio</h1>
+  <p>Cloning suara dengan XTTS-v2 · Portal BMP</p>
+</header>
+
+<div class="wrap">
+
+  <!-- Koneksi server -->
+  <div class="card">
+    <span class="badge"><span id="statusDot" class="dot"></span><span id="statusText">Belum terhubung</span></span>
+    <span class="settings-toggle" id="cfgToggle" style="float:right">⚙️ Server</span>
+    <div class="config-box" id="cfgBox">
+      <label>Alamat server backend (URL)</label>
+      <div class="row">
+        <input type="text" id="apiUrl" placeholder="https://xxxx.trycloudflare.com" />
+        <button class="secondary" id="btnConnect" style="flex:0 0 auto">Hubungkan</button>
+      </div>
+      <small class="note">Isi dengan URL backend XTTS Anda (mis. dari Google Colab / server GPU). Alamat disimpan di browser ini.</small>
+    </div>
+  </div>
+
+  <!-- Langkah 1: Sampel suara -->
+  <div class="card">
+    <h2>1. Sampel Suara</h2>
+    <p class="hint">Rekam atau unggah 15–60 detik suara jernih (satu orang, tanpa musik latar) sebagai referensi cloning. <b>Gunakan hanya suara Anda sendiri atau suara narator yang sudah memberi izin.</b></p>
+
+    <label>Nama suara</label>
+    <input type="text" id="voiceName" placeholder="mis. Narator Rijal" />
+
+    <div class="btns">
+      <button id="btnRec">● Rekam Mic</button>
+      <button class="secondary" id="btnUpload">📁 Unggah File</button>
+      <input type="file" id="fileInput" accept="audio/*" hidden />
+    </div>
+    <audio id="samplePreview" controls hidden></audio>
+    <div class="btns">
+      <button id="btnSaveVoice" disabled>💾 Simpan Suara ke Server</button>
+    </div>
+
+    <label style="margin-top:18px">Suara tersimpan</label>
+    <div class="voice-list" id="voiceList"><small class="note">Belum ada. Hubungkan server lalu simpan sampel.</small></div>
+  </div>
+
+  <!-- Langkah 2: Teks -->
+  <div class="card">
+    <h2>2. Naskah Voice Over</h2>
+    <p class="hint">Tempel teks naskah di sini.</p>
+    <textarea id="script" placeholder="Ketik atau tempel naskah voice over di sini..."></textarea>
+    <div class="row" style="margin-top:12px">
+      <div>
+        <label>Bahasa</label>
+        <select id="language"></select>
+      </div>
+      <div>
+        <label>Kecepatan (<span id="speedVal">1.0</span>x)</label>
+        <input type="range" id="speed" min="0.6" max="1.4" step="0.05" value="1.0" style="width:100%" />
+      </div>
+    </div>
+    <small class="note" id="langNote"></small>
+    <div class="btns">
+      <button id="btnGenerate" disabled>▶️ Buat Voice Over</button>
+    </div>
+    <div class="status" id="status"></div>
+    <audio id="result" controls hidden></audio>
+    <div class="btns" id="dlBox" hidden>
+      <a id="dlLink" download><button class="secondary">⬇️ Unduh WAV</button></a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let apiBase = localStorage.getItem("vo_api") || "";
+let recorder, recChunks = [], recBlob = null, uploadBlob = null;
+let selectedVoice = null;
+
+// ---------- Konfigurasi server ----------
+$("cfgToggle").onclick = () => $("cfgBox").classList.toggle("show");
+if (apiBase) { $("apiUrl").value = apiBase; }
+
+$("btnConnect").onclick = () => {
+  apiBase = $("apiUrl").value.trim().replace(/\/$/, "");
+  localStorage.setItem("vo_api", apiBase);
+  checkHealth();
+};
+
+async function checkHealth() {
+  if (!apiBase) { setDot(false, "Belum terhubung"); return; }
+  try {
+    const r = await fetch(apiBase + "/api/health");
+    const d = await r.json();
+    setDot(true, "Terhubung" + (d.cuda ? " · GPU" : " · CPU (lambat)"));
+    fillLanguages(d.languages);
+    loadVoices();
+  } catch (e) {
+    setDot(false, "Gagal terhubung");
+  }
+}
+function setDot(on, text) {
+  $("statusDot").className = "dot " + (on ? "on" : "off");
+  $("statusText").textContent = text;
+}
+function fillLanguages(langs) {
+  const sel = $("language");
+  sel.innerHTML = "";
+  for (const [code, name] of Object.entries(langs)) {
+    const o = document.createElement("option");
+    o.value = code; o.textContent = name + " (" + code + ")";
+    sel.appendChild(o);
+  }
+  $("langNote").textContent = "Catatan: XTTS-v2 belum mendukung bahasa Indonesia secara resmi. Untuk teks Indonesia, hasil bisa terdengar beraksen (lihat README untuk alternatif).";
+}
+
+// ---------- Rekam mic ----------
+$("btnRec").onclick = async () => {
+  if (recorder && recorder.state === "recording") {
+    recorder.stop();
+    $("btnRec").textContent = "● Rekam Mic";
+    $("btnRec").classList.remove("rec");
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recorder = new MediaRecorder(stream);
+    recChunks = [];
+    recorder.ondataavailable = (e) => recChunks.push(e.data);
+    recorder.onstop = () => {
+      recBlob = new Blob(recChunks, { type: "audio/webm" });
+      uploadBlob = null;
+      const url = URL.createObjectURL(recBlob);
+      $("samplePreview").src = url; $("samplePreview").hidden = false;
+      $("btnSaveVoice").disabled = false;
+      stream.getTracks().forEach((t) => t.stop());
+    };
+    recorder.start();
+    $("btnRec").textContent = "■ Stop Rekam";
+    $("btnRec").classList.add("rec");
+  } catch (e) {
+    alert("Tidak bisa mengakses mikrofon: " + e.message);
+  }
+};
+
+// ---------- Unggah file ----------
+$("btnUpload").onclick = () => $("fileInput").click();
+$("fileInput").onchange = (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  uploadBlob = f; recBlob = null;
+  $("samplePreview").src = URL.createObjectURL(f); $("samplePreview").hidden = false;
+  $("btnSaveVoice").disabled = false;
+};
+
+// ---------- Simpan suara ----------
+$("btnSaveVoice").onclick = async () => {
+  const name = $("voiceName").value.trim();
+  if (!name) { alert("Isi nama suara dulu."); return; }
+  if (!apiBase) { alert("Hubungkan server dulu."); return; }
+  const blob = recBlob || uploadBlob;
+  if (!blob) { alert("Rekam atau unggah sampel dulu."); return; }
+
+  const fd = new FormData();
+  fd.append("name", name);
+  const ext = blob.type.includes("wav") ? "wav" : (blob.name ? blob.name.split(".").pop() : "webm");
+  fd.append("file", blob, "sample." + ext);
+
+  $("btnSaveVoice").disabled = true;
+  $("btnSaveVoice").innerHTML = '<span class="spin"></span>Menyimpan...';
+  try {
+    const r = await fetch(apiBase + "/api/voices", { method: "POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail || r.status);
+    $("voiceName").value = ""; recBlob = uploadBlob = null;
+    $("samplePreview").hidden = true;
+    await loadVoices();
+  } catch (e) {
+    alert("Gagal menyimpan: " + e.message);
+  } finally {
+    $("btnSaveVoice").disabled = false;
+    $("btnSaveVoice").textContent = "💾 Simpan Suara ke Server";
+  }
+};
+
+// ---------- Daftar suara ----------
+async function loadVoices() {
+  const box = $("voiceList");
+  try {
+    const r = await fetch(apiBase + "/api/voices");
+    const d = await r.json();
+    if (!d.voices.length) { box.innerHTML = '<small class="note">Belum ada suara tersimpan.</small>'; updateGenBtn(); return; }
+    box.innerHTML = "";
+    d.voices.forEach((v) => {
+      const el = document.createElement("div");
+      el.className = "voice-item" + (selectedVoice === v.id ? " active" : "");
+      el.innerHTML = `<span class="name">🗣️ ${escapeHtml(v.label)}</span>
+        <button class="secondary pick" data-id="${v.id}">Pilih</button>
+        <button class="danger" data-del="${v.id}">Hapus</button>`;
+      box.appendChild(el);
+    });
+    box.querySelectorAll("[data-id]").forEach((b) => b.onclick = () => { selectedVoice = b.dataset.id; loadVoices(); updateGenBtn(); });
+    box.querySelectorAll("[data-del]").forEach((b) => b.onclick = () => delVoice(b.dataset.del));
+  } catch (e) {
+    box.innerHTML = '<small class="note">Gagal memuat daftar suara.</small>';
+  }
+  updateGenBtn();
+}
+async function delVoice(id) {
+  if (!confirm("Hapus suara ini?")) return;
+  await fetch(apiBase + "/api/voices/" + id, { method: "DELETE" });
+  if (selectedVoice === id) selectedVoice = null;
+  loadVoices();
+}
+
+// ---------- Generate ----------
+function updateGenBtn() {
+  $("btnGenerate").disabled = !(apiBase && selectedVoice);
+}
+$("speed").oninput = () => $("speedVal").textContent = (+$("speed").value).toFixed(2);
+
+$("btnGenerate").onclick = async () => {
+  const text = $("script").value.trim();
+  if (!text) { showStatus("err", "Naskah masih kosong."); return; }
+  if (!selectedVoice) { showStatus("err", "Pilih suara dulu."); return; }
+
+  $("btnGenerate").disabled = true;
+  $("btnGenerate").innerHTML = '<span class="spin"></span>Memproses...';
+  showStatus("info", "Sedang menghasilkan voice over. Proses pertama bisa lebih lama karena model dimuat...");
+  $("result").hidden = true; $("dlBox").hidden = true;
+
+  try {
+    const r = await fetch(apiBase + "/api/synthesize", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text, voice_id: selectedVoice,
+        language: $("language").value, speed: +$("speed").value,
+      }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || r.status);
+    const audioUrl = apiBase + d.audio_url;
+    $("result").src = audioUrl; $("result").hidden = false;
+    $("dlLink").href = audioUrl; $("dlBox").hidden = false;
+    showStatus("ok", "✅ Selesai! Putar atau unduh hasilnya di bawah.");
+  } catch (e) {
+    showStatus("err", "Gagal: " + e.message);
+  } finally {
+    $("btnGenerate").disabled = false;
+    $("btnGenerate").textContent = "▶️ Buat Voice Over";
+  }
+};
+
+function showStatus(type, msg) {
+  const s = $("status");
+  s.className = "status show " + type; s.textContent = msg;
+}
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// Auto-connect bila alamat sudah ada.
+if (apiBase) checkHealth();
+</script>
+</body>
+</html>

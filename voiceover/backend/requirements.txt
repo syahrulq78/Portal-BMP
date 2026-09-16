@@ -1,0 +1,8 @@
+# Backend voice cloning XTTS-v2
+# 'coqui-tts' adalah fork terawat dari 'TTS' yang kompatibel dengan torch baru.
+coqui-tts>=0.24.1
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9
+# torch akan ikut terpasang lewat coqui-tts. Untuk GPU, pasang torch versi CUDA
+# sesuai panduan resmi PyTorch sebelum menjalankan perintah di atas.
