@@ -1,11 +1,10 @@
-# Image untuk backend voice cloning XTTS-v2.
+# Image untuk backend voice cloning F5-TTS (fine-tune Bahasa Indonesia).
 # Untuk GPU: jalankan dengan `docker run --gpus all ...` dan pakai base image
 # CUDA (mis. nvidia/cuda) bila perlu. Base python di bawah cukup untuk CPU
 # (lambat) atau host yang sudah menyediakan driver GPU + torch CUDA.
 FROM python:3.11-slim
 
-ENV COQUI_TOS_AGREED=1 \
-    PYTHONUNBUFFERED=1 \
+ENV PYTHONUNBUFFERED=1 \
     PORT=8000
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

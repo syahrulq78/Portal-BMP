@@ -78,7 +78,7 @@
 <body>
 <header>
   <h1>🎙️ Voice Over Studio</h1>
-  <p>Cloning suara dengan XTTS-v2 · Portal BMP</p>
+  <p>Cloning suara Bahasa Indonesia (F5-TTS) · Portal BMP</p>
 </header>
 
 <div class="wrap">
@@ -105,6 +105,10 @@
     <label>Nama suara</label>
     <input type="text" id="voiceName" placeholder="mis. Narator Rijal" />
 
+    <label>Transkrip sampel (opsional, tapi disarankan)</label>
+    <input type="text" id="refText" placeholder="Tulis persis kalimat yang diucapkan di sampel..." />
+    <small class="note">Kalau dikosongkan, sistem akan mencoba mentranskrip otomatis (lebih lambat & kadang kurang akurat). Mengisi transkrip membuat hasil lebih presisi.</small>
+
     <div class="btns">
       <button id="btnRec">● Rekam Mic</button>
       <button class="secondary" id="btnUpload">📁 Unggah File</button>
@@ -126,15 +130,11 @@
     <textarea id="script" placeholder="Ketik atau tempel naskah voice over di sini..."></textarea>
     <div class="row" style="margin-top:12px">
       <div>
-        <label>Bahasa</label>
-        <select id="language"></select>
-      </div>
-      <div>
         <label>Kecepatan (<span id="speedVal">1.0</span>x)</label>
         <input type="range" id="speed" min="0.6" max="1.4" step="0.05" value="1.0" style="width:100%" />
       </div>
     </div>
-    <small class="note" id="langNote"></small>
+    <small class="note" id="langNote">Model: F5-TTS fine-tune Bahasa Indonesia. Voice over dihasilkan dalam bahasa Indonesia mengikuti suara yang Anda pilih.</small>
     <div class="btns">
       <button id="btnGenerate" disabled>▶️ Buat Voice Over</button>
     </div>
@@ -168,8 +168,8 @@ async function checkHealth() {
   try {
     const r = await fetch(apiBase + "/api/health");
     const d = await r.json();
-    setDot(true, "Terhubung" + (d.cuda ? " · GPU" : " · CPU (lambat)"));
-    fillLanguages(d.languages);
+    const eng = d.engine ? (" · " + d.engine) : "";
+    setDot(true, "Terhubung" + eng + (d.cuda ? " · GPU" : " · CPU (lambat)"));
     loadVoices();
   } catch (e) {
     setDot(false, "Gagal terhubung");
@@ -178,16 +178,6 @@ async function checkHealth() {
 function setDot(on, text) {
   $("statusDot").className = "dot " + (on ? "on" : "off");
   $("statusText").textContent = text;
-}
-function fillLanguages(langs) {
-  const sel = $("language");
-  sel.innerHTML = "";
-  for (const [code, name] of Object.entries(langs)) {
-    const o = document.createElement("option");
-    o.value = code; o.textContent = name + " (" + code + ")";
-    sel.appendChild(o);
-  }
-  $("langNote").textContent = "Catatan: XTTS-v2 belum mendukung bahasa Indonesia secara resmi. Untuk teks Indonesia, hasil bisa terdengar beraksen (lihat README untuk alternatif).";
 }
 
 // ---------- Rekam mic ----------
@@ -239,6 +229,7 @@ $("btnSaveVoice").onclick = async () => {
 
   const fd = new FormData();
   fd.append("name", name);
+  fd.append("ref_text", $("refText").value.trim());
   const ext = blob.type.includes("wav") ? "wav" : (blob.name ? blob.name.split(".").pop() : "webm");
   fd.append("file", blob, "sample." + ext);
 
@@ -247,7 +238,7 @@ $("btnSaveVoice").onclick = async () => {
   try {
     const r = await fetch(apiBase + "/api/voices", { method: "POST", body: fd });
     if (!r.ok) throw new Error((await r.json()).detail || r.status);
-    $("voiceName").value = ""; recBlob = uploadBlob = null;
+    $("voiceName").value = ""; $("refText").value = ""; recBlob = uploadBlob = null;
     $("samplePreview").hidden = true;
     await loadVoices();
   } catch (e) {
@@ -308,8 +299,7 @@ $("btnGenerate").onclick = async () => {
     const r = await fetch(apiBase + "/api/synthesize", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        text, voice_id: selectedVoice,
-        language: $("language").value, speed: +$("speed").value,
+        text, voice_id: selectedVoice, speed: +$("speed").value,
       }),
     });
     const d = await r.json();

@@ -1,26 +1,22 @@
-# 🎙️ Voice Over Studio (XTTS-v2)
+# 🎙️ Voice Over Studio (F5-TTS Bahasa Indonesia)
 
-Aplikasi voice over dengan **voice cloning open-source** memakai model
-[Coqui XTTS-v2](https://github.com/idiap/coqui-ai-TTS). Anda memberi 15–60 detik
-sampel suara, lalu mengetik naskah, dan aplikasi menghasilkan audio voice over
-dengan suara hasil cloning tersebut.
+Aplikasi voice over dengan **voice cloning open-source berbahasa Indonesia**.
+Anda memberi 10–30 detik sampel suara, mengetik naskah, dan aplikasi
+menghasilkan audio voice over **dalam bahasa Indonesia** dengan suara hasil
+cloning tersebut (zero-shot, tanpa training).
+
+Mesin: [F5-TTS](https://github.com/SWivid/F5-TTS) dengan checkpoint fine-tune
+Bahasa Indonesia [`Eempostor/F5-TTS-INDO-FINETUNE-V2`](https://huggingface.co/Eempostor/F5-TTS-INDO-FINETUNE-V2).
 
 Bagian dari Portal BMP.
 
 ---
 
-## ⚠️ Baca dulu: dua hal penting
+## ⚠️ Baca dulu: etika & izin
 
-1. **Bahasa Indonesia belum didukung resmi oleh XTTS-v2.** Bahasa yang
-   didukung: Inggris, Spanyol, Prancis, Jerman, Italia, Portugis, Polandia,
-   Turki, Rusia, Belanda, Ceko, Arab, Mandarin, Jepang, Hungaria, Korea, Hindi.
-   Untuk teks Indonesia, hasil bisa terdengar beraksen. Lihat
-   [Alternatif untuk bahasa Indonesia](#alternatif-untuk-bahasa-indonesia).
-
-2. **Etika & izin.** Cloning suara hanya boleh untuk **suara Anda sendiri**
-   atau **narator yang sudah memberi izin**. Meniru suara orang tanpa izin bisa
-   melanggar hukum dan etika. Model XTTS-v2 juga berlisensi **CPML
-   (non-komersial)** — tidak untuk dijual/dikomersialkan.
+Cloning suara hanya boleh untuk **suara Anda sendiri** atau **narator yang
+sudah memberi izin**. Meniru suara orang tanpa izin bisa melanggar hukum dan
+etika. Pengguna bertanggung jawab penuh atas suara yang di-cloning.
 
 ---
 
@@ -28,19 +24,19 @@ Bagian dari Portal BMP.
 
 ```
 voiceover/
-├── backend/            # Server Python (FastAPI + XTTS)
+├── backend/            # Server Python (FastAPI + F5-TTS)
 │   ├── app.py
 │   ├── requirements.txt
 │   └── Dockerfile
 ├── frontend/
 │   └── index.html      # Antarmuka web (bisa di-hosting statis)
 ├── colab/
-│   └── xtts_voiceover_colab.ipynb   # Jalankan gratis di GPU Colab
+│   └── f5tts_indo_voiceover_colab.ipynb   # Jalankan gratis di GPU Colab
 └── README.md
 ```
 
 Arsitektur: frontend statis (bisa ditaruh di Portal BMP / GitHub Pages)
-memanggil backend XTTS lewat HTTP. Backend butuh Python + sebaiknya **GPU**
+memanggil backend F5-TTS lewat HTTP. Backend butuh Python dan **sebaiknya GPU**
 (di CPU bisa jalan tapi sangat lambat).
 
 ---
@@ -49,12 +45,12 @@ memanggil backend XTTS lewat HTTP. Backend butuh Python + sebaiknya **GPU**
 
 ### Opsi A — Google Colab (paling mudah, gratis, ada GPU)
 
-1. Buka `colab/xtts_voiceover_colab.ipynb` di [Google Colab](https://colab.research.google.com/).
+1. Buka `colab/f5tts_indo_voiceover_colab.ipynb` di [Google Colab](https://colab.research.google.com/).
 2. **Runtime → Change runtime type → T4 GPU**.
 3. Jalankan semua sel. Salin URL `https://xxxx.trycloudflare.com` yang muncul.
-4. Buka `frontend/index.html` (dobel klik atau hosting), klik **⚙️ Server**,
-   tempel URL tadi, klik **Hubungkan**.
-5. Rekam/unggah sampel suara → Simpan → tulis naskah → **Buat Voice Over**.
+4. Buka `frontend/index.html`, klik **⚙️ Server**, tempel URL tadi, **Hubungkan**.
+5. Rekam/unggah sampel suara (isi transkripnya) → Simpan → tulis naskah →
+   **Buat Voice Over**.
 
 > Sesi Colab gratis berhenti setelah beberapa jam / idle. Untuk pemakaian
 > rutin, gunakan server sendiri (Opsi B/C).
@@ -69,9 +65,6 @@ pip install -r requirements.txt
 python app.py           # server jalan di http://localhost:8000
 ```
 
-Buka `http://localhost:8000` (backend juga menyajikan frontend), atau buka
-`frontend/index.html` lalu arahkan ke `http://localhost:8000`.
-
 ### Opsi C — Docker
 
 ```bash
@@ -82,49 +75,52 @@ docker run --gpus all -p 8000:8000 voiceover     # tanpa --gpus untuk CPU
 
 ---
 
+## Tips kualitas
+
+- **Sampel suara**: 10–30 detik, jernih, satu orang, tanpa musik/noise latar.
+- **Isi transkrip sampel** (kalimat persis yang diucapkan). Ini opsional, tapi
+  membuat hasil jauh lebih presisi. Kalau dikosongkan, sistem mentranskrip
+  otomatis (lebih lambat & kadang kurang tepat).
+- Naskah panjang otomatis dipecah oleh F5-TTS; beri tanda baca yang benar.
+- Proses **pertama** lebih lama karena checkpoint diunduh & dimuat ke memori.
+
+---
+
 ## API backend (ringkas)
 
 | Method | Endpoint | Fungsi |
 |---|---|---|
-| GET | `/api/health` | Status server, GPU, daftar bahasa |
+| GET | `/api/health` | Status server, GPU, info model |
 | GET | `/api/voices` | Daftar suara tersimpan |
-| POST | `/api/voices` | Simpan sampel (`name`, `file`) |
+| POST | `/api/voices` | Simpan sampel (`name`, `ref_text`, `file`) |
 | DELETE | `/api/voices/{id}` | Hapus suara |
-| POST | `/api/synthesize` | Buat audio (`text`, `voice_id`, `language`, `speed`) |
+| POST | `/api/synthesize` | Buat audio (`text`, `voice_id`, `speed`) |
 | GET | `/api/audio/{id}` | Ambil/unduh hasil WAV |
 
 ---
 
-## Tips kualitas
+## Mengganti / mengatur model
 
-- Sampel suara: 15–60 detik, jernih, satu orang, tanpa musik/noise latar.
-- Naskah panjang otomatis dipecah per kalimat; beri tanda baca yang benar.
-- Proses **pertama** lebih lama karena model diunduh & dimuat ke memori.
+Semua lewat variabel lingkungan (opsional):
 
----
+| Variabel | Fungsi | Default |
+|---|---|---|
+| `F5_REPO` | Repo Hugging Face model | `Eempostor/F5-TTS-INDO-FINETUNE-V2` |
+| `F5_CKPT_FILE` | Nama file checkpoint di repo | deteksi otomatis |
+| `F5_VOCAB_FILE` | Nama file vocab di repo | deteksi otomatis |
+| `F5_MODEL` | Arsitektur dasar | `F5TTS_Base` |
 
-## Alternatif untuk bahasa Indonesia
+Jika model gagal dimuat dengan pesan terkait arsitektur, coba
+`F5_MODEL=F5TTS_v1_Base`. Anda juga bisa memakai checkpoint F5-TTS Indonesia
+lain (mis. `Eempostor/F5-TTS-INDO-FINETUNE`) lewat `F5_REPO`.
 
-XTTS-v2 tidak resmi mendukung Indonesia. Jika hasil Indonesia kurang natural,
-pertimbangkan mengganti mesin di backend dengan yang lebih cocok:
-
-- **[F5-TTS](https://github.com/SWivid/F5-TTS)** — ada model komunitas
-  bahasa Indonesia, kualitas cloning bagus.
-- **[Fish Speech](https://github.com/fishaudio/fish-speech)** — multibahasa,
-  mendukung banyak bahasa termasuk Indonesia.
-- **[OpenVoice v2](https://github.com/myshell-ai/OpenVoice)** — cloning warna
-  suara di atas mesin TTS lain.
-
-Struktur API di `app.py` sudah dipisah rapi, jadi mengganti bagian
-`get_tts()` + `synthesize()` ke salah satu mesin di atas relatif mudah. Beri
-tahu saya kalau ingin dibuatkan versi yang benar-benar mendukung bahasa
-Indonesia.
+Cek `GET /api/health` untuk melihat model yang benar-benar termuat.
 
 ---
 
 ## Lisensi & tanggung jawab
 
 - Kode aplikasi ini bebas Anda gunakan/ubah.
-- Model **XTTS-v2 berlisensi CPML (non-komersial)** — patuhi ketentuannya.
-- Pengguna bertanggung jawab penuh memastikan ada **izin** atas suara yang
-  di-cloning.
+- Model dan checkpoint pihak ketiga tunduk pada lisensi masing-masing di
+  Hugging Face. Periksa lisensinya sebelum penggunaan komersial.
+- Pengguna wajib memastikan ada **izin** atas suara yang di-cloning.
