@@ -204,8 +204,8 @@ app.add_middleware(
 class SynthRequest(BaseModel):
     text: str
     voice_id: str
-    speed: float = 1.0
-    remove_silence: bool = True
+    speed: float = 0.9
+    remove_silence: bool = False
 
 
 @app.get("/api/health")
