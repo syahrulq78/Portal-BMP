@@ -108,11 +108,12 @@ Semua lewat variabel lingkungan (opsional):
 | `F5_REPO` | Repo Hugging Face model | `Eempostor/F5-TTS-INDO-FINETUNE-V2` |
 | `F5_CKPT_FILE` | Nama file checkpoint di repo | deteksi otomatis |
 | `F5_VOCAB_FILE` | Nama file vocab di repo | deteksi otomatis |
-| `F5_MODEL` | Arsitektur dasar | `F5TTS_Base` |
+| `F5_MODEL` | Arsitektur dasar | `F5TTS_v1_Base` |
 
-Jika model gagal dimuat dengan pesan terkait arsitektur, coba
-`F5_MODEL=F5TTS_v1_Base`. Anda juga bisa memakai checkpoint F5-TTS Indonesia
-lain (mis. `Eempostor/F5-TTS-INDO-FINETUNE`) lewat `F5_REPO`.
+Default `F5TTS_v1_Base` sudah terbukti menghasilkan suara jelas untuk
+checkpoint `f5_tts_indo_v2.pt`. Jika suatu saat hasilnya noise setelah ganti
+checkpoint, coba `F5_MODEL=F5TTS_Base`. Anda juga bisa memakai checkpoint
+F5-TTS Indonesia lain lewat `F5_REPO`.
 
 Cek `GET /api/health` untuk melihat model yang benar-benar termuat.
 

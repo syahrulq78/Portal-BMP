@@ -48,8 +48,10 @@ OUTPUT_DIR = BASE_DIR / "data" / "outputs"     # hasil voice over
 VOICES_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# Model V2 Indonesia dibangun di atas arsitektur F5TTS_v1_Base. Memuatnya
+# sebagai F5TTS_Base (versi lama) menghasilkan noise, jadi default-nya v1.
 F5_REPO = os.environ.get("F5_REPO", "Eempostor/F5-TTS-INDO-FINETUNE-V2")
-F5_MODEL = os.environ.get("F5_MODEL", "F5TTS_Base")
+F5_MODEL = os.environ.get("F5_MODEL", "F5TTS_v1_Base")
 
 # ---------------------------------------------------------------------------
 # Pemuatan model (lazy, sekali saja)
